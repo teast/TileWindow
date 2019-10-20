@@ -1,5 +1,7 @@
 # TileWindow
 
+![AppVeyor](https://ci.appveyor.com/api/projects/status/github/teast/tilewindow)
+
 Make your windows instance more like an "tiling desktop manager".
 
 ## How to compile
@@ -21,6 +23,10 @@ Extensions:
 * C#
 * C# XML Documentation comments
 * GitLens
+
+## Continuous integration
+
+TileWindow is currently using [AppVeyor](https://ci.appveyor.com/project/teast/tilewindow) as CI server.
 
 ## Good urls
 
