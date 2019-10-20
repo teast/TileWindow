@@ -1,0 +1,228 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run tests",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "type": "process",
+            "options": {
+                "cwd": "${workspaceFolder}/TileWindow/Tests"
+            },
+            "command": "dotnet",
+            "problemMatcher": "$msCompile",
+            "args": [
+                "test",
+                "/p:CollectCoverage=true",
+                "/p:CoverletOutputFormat=lcov",
+                "/p:CoverletOutput=${workspaceFolder}/lcov.info",
+                "/p:GenerateFullPaths=true"
+            ]
+        },
+        {
+            "label": "Watch tests",
+            "group": "test",
+            "type": "process",
+            "options": {
+                "cwd": "${workspaceFolder}/TileWindow/Tests"
+            },
+            "command": "dotnet",
+            "problemMatcher": "$msCompile",
+            "args": [
+                "watch",
+                "test",
+                "/p:CollectCoverage=true",
+                "/p:CoverletOutputFormat=lcov",
+                "/p:CoverletOutput=${workspaceFolder}/lcov.info",
+                "/p:GenerateFullPaths=true"
+            ]
+        },
+        {
+            "label": "WinHook32 debug",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/WinHook"
+            },
+            "command": "gcc",
+            "windows": {
+                "command": "c:\\mingw\\bin\\gcc"
+            },
+            "args": [
+                "-shared",
+                "main.c",
+                "-o",
+                "libwinhook32.dll",
+                "-g",
+                "-m32",
+                "-Wall"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "WinHook64 debug",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/WinHook"
+            },
+            "command": "gcc",
+            "args": [
+                "-shared",
+                "main.c",
+                "-o",
+                "libwinhook64.dll",
+                "-g",
+                "-m64",
+                "-Wall"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "TWHandler32 debug",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "group": "build",
+            "dependsOn": "WinHook32 debug",
+            "options": {
+                "cwd": "${workspaceFolder}/TWHandler"
+            },
+            "command": "gcc",
+            "windows": {
+                "command": "c:\\mingw\\bin\\gcc"
+            },
+            "args": [
+                "main.c",
+                "-o",
+                "twhandler32.exe",
+                "-g",
+                "-m32",
+                "-Wall"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "TWHandler64 debug",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "group": "build",
+            "dependsOn": "WinHook64 debug",
+            "options": {
+                "cwd": "${workspaceFolder}/TWHandler"
+            },
+            "command": "gcc",
+            "args": [
+                "main.c",
+                "-o",
+                "twhandler64.exe",
+                "-g",
+                "-m64",
+                "-Wall"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Copy dependencies",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/scripts"
+            },
+            "command": "dependencies.bat",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "dependsOn": [
+                "TileWindow build (full)"
+            ]
+        },
+        {
+            "label": "TileWindow build (full)",
+            "options": {
+                "cwd": "${workspaceFolder}/TileWindow"
+            },
+            "dependsOn": [
+                "WinHook32 debug",
+                "TWHandler32 debug",
+                "WinHook64 debug",
+                "TWHandler64 debug"
+            ],
+            "command": "dotnet build /p:GenerateFullPaths=true",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "TileWindow build (sln only)",
+            "options": {
+                "cwd": "${workspaceFolder}/TileWindow"
+            },
+            "command": "dotnet build /p:GenerateFullPaths=true",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
