@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Serilog;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Nodes;
 
-namespace TileWindow.Handlers.I3wm.Trackers
+namespace TileWindow.Trackers
 {
     public class FocusChangedEventArg
     {

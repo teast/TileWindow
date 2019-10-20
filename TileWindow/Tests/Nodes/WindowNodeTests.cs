@@ -1,15 +1,15 @@
 using Xunit;
 using FluentAssertions;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Nodes;
 using System;
 using Moq;
 using TileWindow.Handlers;
-using TileWindow.Handlers.I3wm;
 using System.Runtime.InteropServices;
 using System.Text;
 using static TileWindow.PInvoker;
+using TileWindow.Trackers;
 
-namespace TileWindow.Tests.Handlers.I3wm.Nodes
+namespace TileWindow.Tests.Nodes
 {
     public class WindowNodeTests
     {

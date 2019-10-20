@@ -1,15 +1,14 @@
 using Moq;
-using TileWindow.Handlers.I3wm.Nodes;
-using TileWindow.Handlers.I3wm.Trackers;
+using TileWindow.Nodes;
+using TileWindow.Trackers;
 using Xunit;
 using TileWindow.Tests.TestHelpers;
 using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using TileWindow.Handlers.I3wm;
 
-namespace TileWindow.Tests.Handlers.I3wm.Trackers
+namespace TileWindow.Tests.Trackers
 {
     public class FocusTrackerTests
     {

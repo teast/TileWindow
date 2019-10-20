@@ -4,9 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using Serilog;
+using TileWindow.Handlers;
+using TileWindow.Trackers;
 using static TileWindow.PInvoker;
 
-namespace TileWindow.Handlers.I3wm.Nodes
+namespace TileWindow.Nodes
 {
     public class WindowNode: Node, IEquatable<WindowNode>
     {

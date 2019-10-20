@@ -8,11 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using TileWindow.Handlers;
-using TileWindow.Handlers.I3wm;
 using System.IO;
-using TileWindow.Handlers.I3wm.Nodes.Creaters;
-using TileWindow.Handlers.I3wm.Nodes;
-using TileWindow.Handlers.I3wm.Trackers;
+using TileWindow.Nodes.Creaters;
+using TileWindow.Nodes;
+using TileWindow.Trackers;
 
 namespace TileWindow
 {

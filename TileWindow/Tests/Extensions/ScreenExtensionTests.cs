@@ -1,7 +1,7 @@
 using TileWindow.Dto;
 using Xunit;
 using FluentAssertions;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Nodes;
 using System;
 
 namespace TileWindow.Tests.Dto

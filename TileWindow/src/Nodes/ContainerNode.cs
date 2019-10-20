@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Serilog;
-using TileWindow.Handlers.I3wm.Nodes.Creaters;
-using TileWindow.Handlers.I3wm.Trackers;
+using TileWindow.Nodes.Creaters;
+using TileWindow.Trackers;
 
-namespace TileWindow.Handlers.I3wm.Nodes
+namespace TileWindow.Nodes
 {
     public class ContainerNode: Node, IEquatable<Node>
     {

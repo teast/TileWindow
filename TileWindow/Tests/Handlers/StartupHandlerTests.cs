@@ -2,15 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Moq;
-using TileWindow.Dto;
+using TileWindow.Extensions;
 using TileWindow.Handlers;
-using TileWindow.Handlers.I3wm;
-using TileWindow.Handlers.I3wm.Nodes;
-using TileWindow.Handlers.I3wm.Nodes.Creaters;
+using TileWindow.Nodes;
+using TileWindow.Nodes.Creaters;
 using TileWindow.Tests.TestHelpers;
+using TileWindow.Trackers;
 using Xunit;
 
-namespace TileWindow.Tests.Handlers.I3wm
+namespace TileWindow.Tests.Handlers
 {
     public class StartupHandlerTests
     {

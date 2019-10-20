@@ -4,9 +4,9 @@ using System.Text;
 using FluentAssertions;
 using Moq;
 using TileWindow.Handlers;
-using TileWindow.Handlers.I3wm;
-using TileWindow.Handlers.I3wm.Nodes;
-using TileWindow.Handlers.I3wm.Nodes.Creaters;
+using TileWindow.Nodes;
+using TileWindow.Nodes.Creaters;
+using TileWindow.Trackers;
 
 namespace TileWindow.Tests.TestHelpers
 {

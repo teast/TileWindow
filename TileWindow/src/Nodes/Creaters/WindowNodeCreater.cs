@@ -1,7 +1,9 @@
 using System;
 using Serilog;
+using TileWindow.Handlers;
+using TileWindow.Trackers;
 
-namespace TileWindow.Handlers.I3wm.Nodes.Creaters
+namespace TileWindow.Nodes.Creaters
 {
     /// <summary>
     /// Handler for creating an WindowNode (to hide dependencies)

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Serilog;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Handlers;
+using TileWindow.Nodes;
 
-namespace TileWindow.Handlers.I3wm
+namespace TileWindow.Trackers
 {
     /// <summary>
     /// This delegate exist only to get rid of circle reference between <see cref="WindowTracker" /> and <see cref="FocusHandler" />

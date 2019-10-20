@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-//using System.Windows.Forms;
-using Serilog;
-using TileWindow.Handlers.I3wm.Nodes;
-using static TileWindow.PInvokeHandler;
+using TileWindow.Nodes;
 
-namespace TileWindow.Dto
+namespace TileWindow.Extensions
 {
     public static class ScreenExtensions
     {

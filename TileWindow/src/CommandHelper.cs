@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using Serilog;
 using TileWindow.Extra.GraphViz;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Nodes;
 
-namespace TileWindow.Handlers.I3wm
+namespace TileWindow.Handlers
 {
     public interface ICommandHelper
     {

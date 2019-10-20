@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TileWindow.Handlers.I3wm
+namespace TileWindow.Nodes
 {
     public interface IVirtualDesktopCollection: IEnumerable<IVirtualDesktop>
     {

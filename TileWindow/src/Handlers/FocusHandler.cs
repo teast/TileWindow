@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Serilog;
 using TileWindow.Dto;
-using TileWindow.Handlers.I3wm;
+using TileWindow.Trackers;
 
 namespace TileWindow.Handlers
 {

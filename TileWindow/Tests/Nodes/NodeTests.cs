@@ -1,10 +1,9 @@
 using System;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Nodes;
 using Xunit;
-using static TileWindow.PInvokeHandler;
 using FluentAssertions;
 
-namespace TileWindow.Tests.Handlers.I3wm.Nodes
+namespace TileWindow.Tests.Nodes
 {
     public class NodeTests
     {

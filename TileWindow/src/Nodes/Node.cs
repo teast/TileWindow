@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
-using static TileWindow.PInvokeHandler;
 
-namespace TileWindow.Handlers.I3wm.Nodes
+namespace TileWindow.Nodes
 {
     public enum Direction
     {

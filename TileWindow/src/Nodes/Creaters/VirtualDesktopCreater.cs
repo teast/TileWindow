@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using TileWindow.Handlers.I3wm.Trackers;
+using TileWindow.Handlers;
+using TileWindow.Trackers;
 
-namespace TileWindow.Handlers.I3wm.Nodes.Creaters
+namespace TileWindow.Nodes.Creaters
 {
     /// <summary>
     /// Handler for creating an VirtualDesktop (to hide dependencies)

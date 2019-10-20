@@ -1,13 +1,12 @@
 using FluentAssertions;
 using Moq;
-using TileWindow.Handlers.I3wm;
-using TileWindow.Handlers.I3wm.Nodes;
-using TileWindow.Handlers.I3wm.Nodes.Creaters;
-using TileWindow.Handlers.I3wm.Trackers;
+using TileWindow.Nodes;
+using TileWindow.Nodes.Creaters;
+using TileWindow.Trackers;
 using TileWindow.Tests.TestHelpers;
 using Xunit;
 
-namespace TileWindow.Tests.Handlers.I3wm.Nodes
+namespace TileWindow.Tests.Nodes
 {
     public class ScreenNodeTests
     {

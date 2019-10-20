@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using Serilog;
 using TileWindow.Dto;
-using TileWindow.Handlers.I3wm.Nodes;
-using TileWindow.Handlers.I3wm.Nodes.Creaters;
+using TileWindow.Extensions;
+using TileWindow.Nodes;
+using TileWindow.Nodes.Creaters;
+using TileWindow.Trackers;
 
-namespace TileWindow.Handlers.I3wm
+namespace TileWindow.Handlers
 {
     public interface IStartupHandler: IHandler
     {

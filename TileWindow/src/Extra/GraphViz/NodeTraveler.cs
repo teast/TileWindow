@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TileWindow.Handlers.I3wm;
-using TileWindow.Handlers.I3wm.Nodes;
+using TileWindow.Nodes;
 
 namespace TileWindow.Extra.GraphViz
 {
