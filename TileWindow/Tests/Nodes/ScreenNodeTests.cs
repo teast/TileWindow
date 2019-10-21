@@ -5,6 +5,8 @@ using TileWindow.Nodes.Creaters;
 using TileWindow.Trackers;
 using TileWindow.Tests.TestHelpers;
 using Xunit;
+using TileWindow.Nodes.Renderers;
+using System.Collections.Generic;
 
 namespace TileWindow.Tests.Nodes
 {
@@ -183,6 +185,7 @@ namespace TileWindow.Tests.Nodes
 
         private ScreenNode CreateSut(out Mock<Node> parent, out Mock<IVirtualDesktop> virtualDesktop, out Mock<FocusTracker> focusTracker, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Direction direction = Direction.Horizontal)
         {
+            var renderer = new Mock<IRenderer>();
             parent = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             virtualDesktop = new Mock<IVirtualDesktop>();
             focusTracker = new Mock<FocusTracker>() { CallBase = true };
@@ -191,11 +194,13 @@ namespace TileWindow.Tests.Nodes
 
             var screen = new ScreenNode(
                 "screen",
+                renderer.Object,
                 containerCreater.Object,
                 windowTracker.Object,
                 rect ?? new RECT(10, 20, 30, 40),
                 direction);
 
+            renderer.Setup(m => m.Update(It.IsAny<List<int>>())).Returns(() => (true, screen.Rect));
             screen.Parent = parent.Object;
             virtualDesktop.SetupGet(m => m.FocusTracker).Returns(focusTracker.Object);
             parent.SetupGet(m => m.Desktop).Returns(virtualDesktop.Object);

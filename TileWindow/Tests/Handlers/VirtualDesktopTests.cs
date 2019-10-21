@@ -5,6 +5,7 @@ using TileWindow.Nodes.Creaters;
 using TileWindow.Trackers;
 using TileWindow.Tests.TestHelpers;
 using Xunit;
+using TileWindow.Nodes.Renderers;
 
 namespace TileWindow.Tests.Handlers
 {
@@ -365,7 +366,7 @@ namespace TileWindow.Tests.Handlers
             var screens = new RECT[] { existing.Object.Rect, new RECT(0, 0, 20, 20) };
             var direction = Direction.Horizontal;
 
-            screenCreater.Setup(m => m.Create(It.IsAny<string>(), screens[1], direction)).Returns(newNode.Object).Verifiable();
+            screenCreater.Setup(m => m.Create(It.IsAny<string>(), screens[1], null, direction)).Returns(newNode.Object).Verifiable();
 
             // Act
             sut.ScreensChanged(screens, direction);
@@ -410,12 +411,14 @@ namespace TileWindow.Tests.Handlers
 
         private Mock<VirtualDesktop> CreateMockSut(out Mock<IScreenNodeCreater> screenCreater, out Mock<FocusTracker> focusTracker, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
         {
+            var renderer = new Mock<IRenderer>();
             focusTracker = new Mock<FocusTracker>() { CallBase = true };
             containerCreater = new Mock<IContainerNodeCreater>();
             windowTracker = new Mock<IWindowTracker>();
             screenCreater = new Mock<IScreenNodeCreater>();
 
             var desktop = new Mock<VirtualDesktop>(1,
+                renderer.Object,
                 screenCreater.Object,
                 focusTracker.Object,
                 containerCreater.Object,

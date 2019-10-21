@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
 using TileWindow.Nodes.Creaters;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
@@ -12,8 +13,8 @@ namespace TileWindow.Nodes
         public override NodeTypes WhatType =>NodeTypes.Container;
         public override bool CanHaveChilds => true;
 
-        public FixedContainerNode(IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal, Node parent = null)
-        : base(containerNodeCreator, windowTracker, rect, direction, parent)
+        public FixedContainerNode(IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal, Node parent = null)
+        : base(renderer, containerNodeCreator, windowTracker, rect, direction, parent)
         {
         }
 
@@ -162,11 +163,6 @@ namespace TileWindow.Nodes
             Log.Warning($"{nameof(FixedContainerNode)}.{nameof(ChangeDirection)} was called, but Fixed container cannot change its childs nodes");
         }
 
-         protected override RECT GetRect(int index)
-        {
-            return Childs[index].Rect;
-        }
-        
         public override bool Equals(object obj)
         {
             var o = obj as FixedContainerNode;

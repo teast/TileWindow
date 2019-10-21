@@ -5,6 +5,7 @@ using System.Linq;
 using Serilog;
 using TileWindow.Extensions;
 using TileWindow.Nodes.Creaters;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
@@ -103,8 +104,8 @@ namespace TileWindow.Nodes
                 return null;
         }
 
-        public VirtualDesktop(int index, IScreenNodeCreater screenNodeCreater, IFocusTracker focusTracker, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal)
-        : base(containerNodeCreator, windowTracker, rect, direction, null)
+        public VirtualDesktop(int index, IRenderer renderer, IScreenNodeCreater screenNodeCreater, IFocusTracker focusTracker, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal)
+        : base(renderer, containerNodeCreator, windowTracker, rect, direction, null)
         {
             this._isVisible = true;
             this.FocusTracker = focusTracker;
@@ -148,7 +149,7 @@ namespace TileWindow.Nodes
             {
                 for(var i = Childs.Count; i < screens.Length; i++)
                 {
-                    InsertChildAt(screenNodeCreater.Create("Screen" + i, screens[i], direction));
+                    InsertChildAt(screenNodeCreater.Create("Screen" + i, screens[i], dir: direction));
                 }
             }
         }
@@ -204,7 +205,7 @@ namespace TileWindow.Nodes
                 return;
             
             var parent = child?.Parent;
-            var newChild = containerNodeCreator.Create(child.Rect, direction, null);
+            var newChild = containerNodeCreator.Create(child.Rect, dir: direction);
             parent?.AddNodes(newChild);
             parent?.DisconnectChild(child);
             newChild.AddNodes(child);

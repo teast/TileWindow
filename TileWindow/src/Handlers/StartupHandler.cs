@@ -47,8 +47,8 @@ namespace TileWindow.Handlers
 
             for(var i = 0; i < desktops.Count; i++)
             {
-                var screensToAdd = _screens.Select((rect, i) => screenNodeCreator.Create("Screen" + i, rect, result.direction)).ToArray();
-                desktops[i] = virtualDesktopCreator.Create(i, _screens.TotalRect(), result.direction, screensToAdd);
+                var screensToAdd = _screens.Select((rect, i) => screenNodeCreator.Create("Screen" + i, rect, dir: result.direction)).ToArray();
+                desktops[i] = virtualDesktopCreator.Create(i, rect: _screens.TotalRect(), dir: result.direction, childs: screensToAdd);
                 desktops[i].Hide();
             }
 

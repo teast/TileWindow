@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using TileWindow.Handlers;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes.Creaters
@@ -10,7 +11,7 @@ namespace TileWindow.Nodes.Creaters
     /// </summary>
     public interface IVirtualDesktopCreater
     {
-        VirtualDesktop Create(int index, RECT rect, Direction dir = Direction.Horizontal, params ScreenNode[] childs);
+        VirtualDesktop Create(int index, RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, params ScreenNode[] childs);
     }
 
     public class VirtualDesktopCreater: IVirtualDesktopCreater
@@ -35,9 +36,9 @@ namespace TileWindow.Nodes.Creaters
             this.screenCreater = service.GetRequiredService<IScreenNodeCreater>();
         }
 
-        public virtual VirtualDesktop Create(int index, RECT rect, Direction dir = Direction.Horizontal, params ScreenNode[] childs)
+        public virtual VirtualDesktop Create(int index, RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, params ScreenNode[] childs)
         {
-            var desktop = new VirtualDesktop(index, screenCreater, service.GetRequiredService<IFocusTracker>(), containerCreater, windowTracker, rect, dir);
+            var desktop = new VirtualDesktop(index, renderer ?? new TileRenderer(), screenCreater, service.GetRequiredService<IFocusTracker>(), containerCreater, windowTracker, rect, dir);
             desktop.PostInit(childs);
             return desktop;
         }

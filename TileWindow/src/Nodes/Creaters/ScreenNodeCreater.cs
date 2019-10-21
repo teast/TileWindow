@@ -1,4 +1,5 @@
 using TileWindow.Handlers;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes.Creaters
@@ -8,7 +9,7 @@ namespace TileWindow.Nodes.Creaters
     /// </summary>
     public interface IScreenNodeCreater
     {
-        ScreenNode Create(string name, RECT rect, Direction dir = Direction.Horizontal, params Node[] childs);
+        ScreenNode Create(string name, RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, params Node[] childs);
     }
 
     public class ScreenNodeCreater: IScreenNodeCreater
@@ -28,9 +29,9 @@ namespace TileWindow.Nodes.Creaters
             this.containerCreater = containerCreater;
         }
 
-        public virtual ScreenNode Create(string name, RECT rect, Direction dir = Direction.Horizontal, params Node[] childs)
+        public virtual ScreenNode Create(string name, RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, params Node[] childs)
         {
-            var node = new ScreenNode(name, containerCreater, windowTracker, rect, dir);
+            var node = new ScreenNode(name, renderer ?? new TileRenderer(), containerCreater, windowTracker, rect, dir);
             node.PostInit(childs);
             return node;
         }

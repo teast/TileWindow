@@ -1,4 +1,5 @@
 using TileWindow.Handlers;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes.Creaters
@@ -8,7 +9,7 @@ namespace TileWindow.Nodes.Creaters
     /// </summary>
     public interface IContainerNodeCreater
     {
-        ContainerNode Create(RECT rect, Direction dir = Direction.Horizontal, Node parent = null, params Node[] childs);
+        ContainerNode Create(RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, Node parent = null, params Node[] childs);
     }
 
     public class ContainerNodeCreater: IContainerNodeCreater
@@ -26,9 +27,10 @@ namespace TileWindow.Nodes.Creaters
             this.pinvokeHandler = pinvokeHandler;
         }
 
-        public virtual ContainerNode Create(RECT rect, Direction dir = Direction.Horizontal, Node parent = null, params Node[] childs)
+        public virtual ContainerNode Create(RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, Node parent = null, params Node[] childs)
         {
             var node = new ContainerNode(
+                renderer ?? new TileRenderer(),
                 this,
                 windowTracker,
                 rect, dir, parent);

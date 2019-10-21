@@ -6,6 +6,7 @@ using Moq;
 using TileWindow.Handlers;
 using TileWindow.Nodes;
 using TileWindow.Nodes.Creaters;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Tests.TestHelpers
@@ -62,10 +63,12 @@ namespace TileWindow.Tests.TestHelpers
 
         public static Mock<ScreenNode> CreateMockScreen(RECT? rect = null, Direction direction = Direction.Horizontal, bool callPostInit = true, params Node[] childs)
         {
+            var renderer = new Mock<IRenderer>();
             var createContainer = new Mock<IContainerNodeCreater>();
             var windowTracker = new Mock<IWindowTracker>();
             var screen = new Mock<ScreenNode>(
                 "Screen",
+                renderer.Object,
                 createContainer.Object,
                 windowTracker.Object,
                 rect ?? new RECT(10, 10, 15, 15),
@@ -78,9 +81,11 @@ namespace TileWindow.Tests.TestHelpers
 
         public static Mock<ContainerNode> CreateMockContainer(RECT? rect = null, Direction direction = Direction.Horizontal, Node parent = null, params Node[] childs)
         {
+            var renderer = new Mock<IRenderer>();
             var createContainer = new Mock<IContainerNodeCreater>();
             var windowTracker = new Mock<IWindowTracker>();
             var mockContainer = new Mock<ContainerNode>(
+                renderer.Object,
                 createContainer.Object,
                 windowTracker.Object,
                 rect == null ? new RECT(10, 10, 15, 15) : rect,
@@ -103,12 +108,14 @@ namespace TileWindow.Tests.TestHelpers
             return new WindowNode(focusHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(), hwnd);
         }
 
-        public static ContainerNode CreateContainerNode(out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
+        public static ContainerNode CreateContainerNode(out Mock<IRenderer> renderer, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
         {
+            renderer = new Mock<IRenderer>();
             containerCreater = new Mock<IContainerNodeCreater>();
             windowTracker = new Mock<IWindowTracker>();
 
             var node = new ContainerNode(
+                renderer.Object,
                 containerCreater.Object,
                 windowTracker.Object,
                 rect ?? new RECT(10, 20, 30, 40),

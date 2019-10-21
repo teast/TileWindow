@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Serilog;
 using TileWindow.Nodes.Creaters;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
@@ -14,8 +15,8 @@ namespace TileWindow.Nodes
 
         public Node FullscreenNode => _fullscreenNode;
         
-        public ScreenNode(string name, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal) : 
-        base(containerNodeCreator, windowTracker, rect, direction, null)
+        public ScreenNode(string name, IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal) : 
+        base(renderer, containerNodeCreator, windowTracker, rect, direction, null)
         {
             Name = name;
             FixedRect = true;

@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
 using TileWindow.Nodes.Creaters;
+using TileWindow.Nodes.Renderers;
 using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
 {
     public class ContainerNode: Node, IEquatable<Node>
     {
-        private int _width;
-        private int _height;
-        private int _allocatableWidth;
-        private int _allocatableHeight;
         private bool _isVisible = false;
         public List<Node> Childs { get; protected set; }
 
+        private readonly IRenderer renderer;
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly IWindowTracker windowTracker;
         private List<int> _ignoreChildsOnUpdateRect;
         public override NodeTypes WhatType =>NodeTypes.Container;
         public override bool CanHaveChilds => true;
 
-        public ContainerNode(/*IFocusTracker focusTracker, */IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
+        public ContainerNode(IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
         {
+            this.renderer = renderer;
             this.containerNodeCreator = containerNodeCreator;
             this.windowTracker = windowTracker;
             Childs = new List<Node>();
@@ -100,7 +99,6 @@ namespace TileWindow.Nodes
                 index = Childs.IndexOf(focusNode) + 1;
             }
 
-            var r = GetRect(Childs.Count, Childs.Count + 1);
             var node = windowTracker.CreateNode(hWnd);
 //Log.Information($"ContainerNode.AddWindow {hWnd} Creating node (null? {(node == null)})");
             if (node == null)
@@ -414,15 +412,6 @@ namespace TileWindow.Nodes
             return true;
         }
 
-        /*
-        public void OnChildWantFocus(object sender, WantFocusEventArg args)
-        {
-            FocusNode = args.Source;
-            //Log.Information($"{nameof(ContainerNode)}.{nameof(ChildWantFocus)}  calling parent: {Parent?.GetType()?.ToString()??"null"}");
-            OnWantFocus(this, args);
-        }
-        */
-
         public override bool UpdateRect(RECT r)
         {
             base.UpdateRect(r);
@@ -459,44 +448,7 @@ namespace TileWindow.Nodes
 
         protected void RecalcDeltaWithHeight()
         {
-            _width = Rect.Right - Rect.Left;
-            _height = Rect.Bottom - Rect.Top;
-            if (Childs.Count == 0)
-            {
-                _allocatableHeight = _height;
-                _allocatableWidth = _width;
-//Log.Information($"RecalcDeltaWidthHeight({Direction.ToString()}): _allocatable: {_allocatableWidth}/{_allocatableHeight}, zero Child count");
-                return;
-            }
-
-            _allocatableHeight = _height / Childs.Count;
-            _allocatableWidth = _width / Childs.Count;
-
-            int w = 0, h = 0, c = 0;
-            for(var i = 0; i  < Childs.Count; i++)
-            {
-                if (Childs[i].FixedRect == false)
-                    continue;
-                
-                c++;
-                w += (Childs[i].Rect.Right - Childs[i].Rect.Left);
-                h += (Childs[i].Rect.Bottom - Childs[i].Rect.Top);
-            }
-
-            // All childs are marked as fixed but they do not cover the whole container
-            if (c == Childs.Count && ((Direction == Direction.Horizontal && w < _width) || (Direction == Direction.Vertical && h < _height)))
-            {
-//Log.Information($"RecalcDeltaWidthHeight({Direction.ToString()}): ALL CHILDS ARE FIXED BUT THEY DO NOT COVER WHOLE PARENT {_width}/{_height} != {w}/{h}");
-                w = h = c = 0;
-                Childs.ForEach(c => c.FixedRect = false);
-            }
-
-//Log.Information($"RecalcDeltaWidthHeight({Direction.ToString()}): width/height: {_width}/{_height}, _allocatable: {_allocatableWidth}/{_allocatableHeight}, child count: {Childs.Count} (w: h and c: {w}, {h}, {c})");
-            if (Direction == Direction.Horizontal && w > 0 && w < _width)
-                _allocatableWidth = (_width - w) / Math.Max((Childs.Count - c), 1);
-
-            if (Direction == Direction.Vertical && h > 0 && h < _height)
-                _allocatableHeight = (_height - h) / Math.Max((Childs.Count - c), 1);
+            renderer.PreUpdate(this, Childs);
         }
 
         /// <summary>
@@ -506,151 +458,9 @@ namespace TileWindow.Nodes
         /// <param name="to">end index in Childs</param>
         protected bool UpdateChildRect(int from, int to, out RECT newRect)
         {
-            var mustRestart = false;
-            var safety = 0;
-            var maxWidth = _width;
-            var maxHeight = _height;
-            Func<int, int, RECT> setRectToDefault = (l, t) => {
-                return new RECT {
-                    Left = l,
-                    Top = t,
-                    Right = l + (Direction == Direction.Horizontal ? _allocatableWidth : _width),
-                    Bottom = t + (Direction == Direction.Vertical ? _allocatableHeight : _height)
-                };
-            };
-
-            do
-            {
-                mustRestart = false;
-                safety++;
-                int left = Rect.Left, top = Rect.Top;
-//Log.Information($"============ Container.{Direction.ToString()} (from: {from} to: {to} total: {Childs.Count}) Try {safety} (Rect: {Rect}) ==============");
-
-                if (from > 0)
-                {
-                    if (Direction == Direction.Horizontal)
-                        left = Childs[from-1].Rect.Right;
-                    else
-                        top = Childs[from-1].Rect.Bottom;
-//Log.Information($"  >>>> Because we start in the middle then fetch Left/Top from previous child... left/top: {left}/{top}");
-                }
-
-                for(var i = from; i < to; i++)
-                {
-                    if (_ignoreChildsOnUpdateRect.Contains(i))
-                        continue;
-
-                    RECT r;
-                    if (Childs[i].FixedRect)
-                    {
-                        r = Childs[i].Rect;
-//Log.Information($"   Child[{i}] has ActualRect \"{Childs[i].Name}\": {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                        if (r.Left != left || r.Top != top)
-                        {
-                            r.Right -= (r.Left - left);
-                            r.Bottom -= (r.Top - top);
-                            r.Left = left;
-                            r.Top = top;
-
-                            // Make sure this child wont span over our boundry...
-                            r.Right = Math.Min(r.Right, Rect.Right);
-                            r.Bottom = Math.Min(r.Bottom, Rect.Bottom);
-//Log.Information($"   >>>>1 Child[{i}] CHANGE ActualRect: {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                        }
-                        else
-                        if (r.Right > Rect.Right || r.Bottom > Rect.Bottom)
-                        {
-                            // Make sure this child wont span over our boundry...
-                            r.Right = Math.Min(r.Right, Rect.Right);
-                            r.Bottom = Math.Min(r.Bottom, Rect.Bottom);
-//Log.Information($"   >>>>2 Child[{i}] CHANGE ActualRect: {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                        }
-
-                        if (Direction == Direction.Horizontal)
-                        {
-                            if ((r.Bottom - r.Top) != _height)
-                            {
-                                r.Bottom = r.Top + _height;
-//Log.Information($"   >>>>3 Child[{i}] CHANGE ActualRect: {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                                Childs[i].FixedRect = false;
-                            }
-
-                            if (Childs.Count > 1 && (r.Right - r.Left) == _width)
-                            {
-                                Childs[i].FixedRect = false;
-//Log.Information($"   >>>>3.5 Child[{i}] Span whole parent but there are more childs, changing to \"normal\" rect!: {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                                r = setRectToDefault(left, top);
-                            }
-                        }
-
-                        if (Direction == Direction.Vertical)
-                        {
-                            if ((r.Right - r.Left) != _width)
-                            {
-                                r.Right = r.Left + _width;
-//Log.Information($"   >>>>4 Child[{i}] CHANGE ActualRect: {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                                Childs[i].FixedRect = false;
-                            }
-
-                            if (Childs.Count > 1 && (r.Bottom - r.Top) == _height)
-                            {
-                                Childs[i].FixedRect = false;
-//Log.Information($"   >>>>5 Child[{i}] Span whole parent but there are more childs, changing to \"normal\" rect!: {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                                r = setRectToDefault(left, top);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        r = setRectToDefault(left, top);
-//Log.Information($"   Child[{i}] has NO actualRect \"{Childs[i].Name}\": setting rect to {r} current left/top: {left}/{top}, alloc: {_allocatableWidth}, {_allocatableHeight}");
-                    }
-
-//Log.Information($".....Now updating rect for child {i}: {r}");
-                    if (Childs[i].UpdateRect(r) == false)
-                    {
-//Log.Information($"Oh-no! Container.{Direction.ToString()} Child ({Childs[i].Name}) node says no on UpdateRect, wanted: {r} but actual: {Childs[i].Rect}");
-                        // Child want to be bigger than what it got...
-                        var r2 = Childs[i].Rect;
-                        if (r2.Right > r.Right || r2.Bottom > r.Bottom)
-                        {
-                            Childs[i].FixedRect = true;
-                            mustRestart = true;
-
-                            RecalcDeltaWithHeight();
-
-                            maxWidth = Math.Max(maxWidth, r2.Right - r2.Left);
-                            maxHeight = Math.Max(maxHeight, r2.Bottom - r2.Top);
-                        }
-                    }
-
-                    if (Direction == Direction.Horizontal)
-                        left += (r.Right - r.Left);
-                    else
-                        top += (r.Bottom - r.Top);
-                }
-
-                if (safety > 2)
-                {
-                    Log.Warning($"{nameof(ContainerNode)}.{nameof(UpdateChildRect)} cannot resolve size. aborting after 2 tries...(rect: {Rect}, new width/height: {maxWidth}/{maxHeight})");
-                    mustRestart = false;
-                }
-            } while (mustRestart);
-
-            if (maxWidth != _width || maxHeight != _height)
-            {
-//Log.Information($"Oh-no2! Container want to change its rect: {Rect} (new width/height: {maxWidth}/{maxHeight})");
-                RECT r = Rect;
-                r.Right = r.Left + maxWidth;
-                r.Bottom = r.Top + maxHeight;
-                newRect = r;
-//Log.Information($"==============Container.{Direction.ToString()} DONE(false) ====================");
-                return false;
-            }
-
-//Log.Information($"==============Container.{Direction.ToString()} DONE(true) ====================");
-            newRect = Rect;
-            return true;
+            var result = renderer.Update(_ignoreChildsOnUpdateRect);
+            newRect = result.newRect;
+            return result.result;
         }
 
         protected void TakeOverNode(Node childToAdd)
@@ -735,41 +545,6 @@ namespace TileWindow.Nodes
                     }
                 }
             }
-        }
-
-        protected virtual RECT GetRect(int index)
-        {
-            return GetRect(index, Childs.Count, _allocatableWidth, _allocatableHeight, _width, _height);
-        }
-
-        protected virtual RECT GetRect(int index, int childCount)
-        {
-            return GetRect(index, childCount, _allocatableWidth, _allocatableHeight, _width, _height);
-        }
-
-        protected virtual RECT GetRect(int index, int childCount, int widthPerChild, int heightPerChild, int maxWidth, int maxHeight)
-        {
-            var start = index;
-            var max = childCount;
-
-            var r = new RECT
-            {
-                Left = Direction == Direction.Vertical ? Rect.Left : Rect.Left + (start * widthPerChild),
-                Top = Direction == Direction.Horizontal ? Rect.Top : Rect.Top + (start * heightPerChild),
-            };
-
-            // Let it cover the whole screen if it is only one child
-            if (max == 1)
-            {
-                r.Right = r.Left + maxWidth;
-                r.Bottom = r.Top + maxHeight;
-                return r;
-            }
-
-            r.Right = r.Left + (Direction == Direction.Horizontal ? widthPerChild : maxWidth);
-            r.Bottom = r.Top + (Direction == Direction.Vertical ? heightPerChild : maxHeight);
-
-            return r;
         }
 
         private void MoveChildLeft(Node child)
