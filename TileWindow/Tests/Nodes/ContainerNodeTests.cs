@@ -1982,7 +1982,68 @@ namespace TileWindow.Tests.Nodes
             otherChild.VerifyAll();
         }
 #endregion
+#region SetRenderer
+        [Fact]
+        public void When_SetRenderer_Then_DisposePreviousRenderer()
+        {
+            // Arrange
+            var sut = CreateSut(out Mock<IRenderer> renderer);
 
+            // Act
+            sut.SetRenderer(new Mock<IRenderer>().Object);
+
+            // Assert
+            renderer.Verify(m => m.Dispose(), Times.Once());
+        }
+
+        [Fact]
+        public void When_SetRenderer_Then_CallPreUpdateUpdate()
+        {
+            // Arrange
+            var sut = CreateSut();
+            var renderer = new Mock<IRenderer>();
+
+            // Act
+            sut.SetRenderer(renderer.Object);
+
+            // Assert
+            renderer.Verify(m => m.PreUpdate(sut, sut.Childs), Times.Once());
+            renderer.Verify(m => m.Update(It.IsAny<List<int>>()), Times.Once());
+        }
+#endregion
+#region Dispose
+        [Fact]
+        public void When_Dispose_Then_CallDisposeOnRenderer()
+        {
+            // Arrange
+            var sut = CreateSut(out Mock<IRenderer> renderer);
+            renderer.Verify(m => m.Dispose(), Times.Never());
+
+            // Act
+            sut.Dispose();
+
+            // Assert
+            renderer.Verify(m => m.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void When_Dispose_Then_CallDisposeOnAllChilds()
+        {
+            // Arrange
+            var child1 = NodeHelper.CreateMockNode();
+            var child2 = NodeHelper.CreateMockNode();
+            var sut = CreateSut(childs: new Node[] { child1.Object, child2.Object });
+            child1.Verify(m => m.Dispose(), Times.Never());
+            child2.Verify(m => m.Dispose(), Times.Never());
+
+            // Act
+            sut.Dispose();
+
+            // Assert
+            child1.Verify(m => m.Dispose(), Times.Once());
+            child2.Verify(m => m.Dispose(), Times.Once());
+        }
+#endregion
 #region helpers
         private ContainerNode CreateSut(RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal, Node[] childs = null, bool callPostInit = true)
         {

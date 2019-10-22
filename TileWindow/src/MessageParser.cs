@@ -122,7 +122,7 @@ namespace TileWindow
 			private bool reloadConfig;
 			private bool stopHandlingMessages;
 			private AutoResetEvent msgSignal = new AutoResetEvent(false);
-
+			private ConcurrentQueue<PipeMessage> queue;
 			public event EventHandler RestartThreads;
 			public bool Done {get; set; }
 
@@ -157,6 +157,17 @@ namespace TileWindow
 				}
 			}
 			
+			public MHSignal(ref ConcurrentQueue<PipeMessage> queue)
+			{
+				this.queue = queue;
+			}
+			
+			public void QueuePipeMessage(PipeMessage message)
+			{
+				queue.Enqueue(message);
+				SignalNewMessage();
+			}
+
 			/// <summary>
 			/// Flag that there are new messages to parse
 			/// </summary>

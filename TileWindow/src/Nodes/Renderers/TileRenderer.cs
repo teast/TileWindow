@@ -15,13 +15,11 @@ namespace TileWindow.Nodes.Renderers
         public int AllocatableWidth { get; private set; }
         public int AllocatableHeight { get; private set; }
 
-        public Node Owner { get; private set; }
-        public List<Node> Childs { get; private set; }
+        public ContainerNode Owner { get; private set; }
 
-        public void PreUpdate(Node owner, List<Node> childs)
+        public void PreUpdate(ContainerNode owner, List<Node> childs)
         {
             Owner = owner;
-            Childs = childs;
 
             Width = owner.Rect.Right - owner.Rect.Left;
             Height = owner.Rect.Bottom - owner.Rect.Top;
@@ -70,6 +68,7 @@ namespace TileWindow.Nodes.Renderers
             var maxWidth = Width;
             var maxHeight = Height;
             var from = 0;
+            var Childs = Owner.Childs;
             var to = Childs.Count;
             RECT newRect;
 
@@ -215,5 +214,9 @@ namespace TileWindow.Nodes.Renderers
             newRect = Owner.Rect;
             return (true, newRect);
         }
-    } 
+
+        public void Dispose()
+        {
+        }
+   } 
 }

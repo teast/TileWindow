@@ -20,6 +20,7 @@ public interface ISignalHandler
     uint WMC_SCRESTORE { get; }
     uint WMC_ACTIVATEAPP { get; }
     uint WMC_DISPLAYCHANGE { get; }
+    uint WMC_SHOWNODE { get; }
 
     string SignalToString(uint signal);
 }
@@ -44,6 +45,7 @@ public class SignalHandler: ISignalHandler
     public uint WMC_SCRESTORE { get; }
     public uint WMC_ACTIVATEAPP { get; }
     public uint WMC_DISPLAYCHANGE { get; }
+    public uint WMC_SHOWNODE { get; }
     public SignalHandler(IPInvokeHandler pinvokeHandler)
     {
         WMC_SHOW = pinvokeHandler.RegisterWindowMessage("WMC_SHOW");
@@ -64,6 +66,7 @@ public class SignalHandler: ISignalHandler
         WMC_SCRESTORE = pinvokeHandler.RegisterWindowMessage("WMC_SCRESTORE");
         WMC_ACTIVATEAPP = pinvokeHandler.RegisterWindowMessage("WMC_ACTIVATEAPP");
         WMC_DISPLAYCHANGE = pinvokeHandler.RegisterWindowMessage("WMC_DISPLAYCHANGE");
+        WMC_SHOWNODE = pinvokeHandler.RegisterWindowMessage("WMC_SHOWNODE");
     }
 
     public string SignalToString(uint signal)
@@ -86,6 +89,7 @@ public class SignalHandler: ISignalHandler
         if (signal == WMC_SCRESTORE) return "WMC_SCRESTORE";
         if (signal == WMC_ACTIVATEAPP) return "WMC_ACTIVATEAPP";
         if (signal == WMC_DISPLAYCHANGE) return "WMC_DISPLAYCHANGE";
+        if (signal == WMC_SHOWNODE) return "WMC_SHOWNODE";
 
         return "UNKNOWN";
     }

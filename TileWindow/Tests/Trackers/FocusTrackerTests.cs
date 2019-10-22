@@ -223,25 +223,6 @@ namespace TileWindow.Tests.Trackers
             result.Should().BeEquivalentTo(secondFocusNode.Object);
         }
 
-        /*
-        [Fact]
-        public void When_NodeGetsModifiedAfterTrack_Then_KeepTrackOfSameNode()
-        {
-            // Arrange
-            var sut = CreateSut();
-            var first = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true }.Object;
-
-            sut.Track(first);
-
-            // Act
-            first.ChangeDirection(Direction.Vertical);
-            first.UpdateRect(new RECT(10, 20, 30, 40));
-            first.SetFocus();
-
-            // Assert
-        }
-        */
-
         #region Helpers
         private RECT GetRect()
         {

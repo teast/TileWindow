@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
+using TileWindow.Nodes.Renderers;
 
 namespace TileWindow.Nodes
 {
@@ -106,6 +107,15 @@ namespace TileWindow.Nodes
         public string ShortName => Name?.Substring(0, Math.Min(Name?.Length ?? 0, 10)) ?? "";
 
         public Node Parent { get; set; }
+        public virtual IRenderer Renderer
+        {
+            get => Parent?.Renderer;
+            protected set
+            {
+                if (Parent != null)
+                    Parent.Renderer = value;
+            }
+        }
 
         public virtual IVirtualDesktop Desktop => Parent?.Desktop;
         public Node MyFocusNode => Desktop?.FocusTracker?.MyLastFocusNode(this);
@@ -120,6 +130,13 @@ namespace TileWindow.Nodes
         /// True if this nodes Rect should be fixed
         /// </summary>
         public bool FixedRect { get; set; }
+
+        public event EventHandler MyFocusNodeChanged;
+
+        public void RaiseMyFocusNodeChanged()
+        {
+            MyFocusNodeChanged?.Invoke(this, new EventArgs());
+        }
 
         /// <summary>
         /// Gets called when the nodes Style property changes
@@ -221,6 +238,12 @@ namespace TileWindow.Nodes
         /// </summary>
         public abstract void PostInit();
 
+        /// <summary>
+        /// Update renderer for given node
+        /// </summary>
+        /// <param name="newRenderer">the new renderer to use</param>
+        public virtual void SetRenderer(IRenderer newRenderer) => Parent?.SetRenderer(newRenderer);
+
         public virtual void Resize(int val, TransferDirection direction)
         {
 //Log.Information($"{nameof(Node)}.{nameof(Resize)}({this.ToString()}) val: {val}, direction: {direction.ToString()}");
@@ -274,6 +297,8 @@ namespace TileWindow.Nodes
         public abstract Node AddWindow(IntPtr hWnd);
 
         public abstract bool AddNodes(params Node[] nodes);
+
+        public abstract Node FindNodeWithId(long id);
 
         /// <summary>
         /// The node should do whatever it needs to make itself invisible for the user

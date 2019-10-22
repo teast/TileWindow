@@ -69,6 +69,11 @@ namespace TileWindow.Trackers
         /// <param name="node">node to set focus node on</param>
         /// <param name="newFocus">New focus node for <see cref="node" /></param>
         void ExplicitSetMyFocusNode(Node node, Node newFocus);
+
+        /// <summary>
+        /// Traverse from FocusNode and up to root and updates each nodes "MyFocusNode"
+        /// </summary>
+        void UpdateFocusTree();
     }
 
     public class FocusTracker: IFocusTracker
@@ -157,10 +162,13 @@ namespace TileWindow.Trackers
                 return;
 
             if (ContainsKey(node))
+            {
                 _tracker[node] = newFocus;
+                node.RaiseMyFocusNodeChanged();
+            }
         }
 
-        protected virtual void UpdateFocusTree()
+        public void UpdateFocusTree()
         {
             Node prev = null;
             var p = _focusNode;
@@ -168,7 +176,10 @@ namespace TileWindow.Trackers
             {
                 if (ContainsKey(p))
                 {
+                    var diff = _tracker[p] != prev;
                     _tracker[p] = prev;
+                    if (diff)
+                        p.RaiseMyFocusNodeChanged();
                 }
                 else
                 {

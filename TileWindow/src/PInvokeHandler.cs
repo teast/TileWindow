@@ -598,6 +598,7 @@ namespace TileWindow
         public const int WS_MAXIMIZEBOX = 0x00010000;
         public const int WS_SYSMENU = 0x00080000;
         public const uint WS_POPUP = 0x80000000;
+        public const uint WS_TILED = 0x80000000;
         public const int WS_EX_APPWINDOW = 0x00040000;
         public const int WS_EX_TOOLWINDOW = 0x00000080;
         public const int WS_EX_NOACTIVATE = 0x08000000;

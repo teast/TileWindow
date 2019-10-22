@@ -101,6 +101,7 @@ namespace TileWindow.Handlers
             if(string.IsNullOrEmpty(config.ShowWinMenu) == false) shortcuts.Add(config.ShowWinMenu, CommandHelper.cmd_showwinmenu);
             if(string.IsNullOrEmpty(config.RestartTW) == false) shortcuts.Add(config.RestartTW, CommandHelper.cmd_restartTW);
             if(string.IsNullOrEmpty(config.ToggleTaskbar) == false) shortcuts.Add(config.ToggleTaskbar, CommandHelper.cmd_toggleTaskbar);
+            if(string.IsNullOrEmpty(config.ToggleStackLayout) == false) shortcuts.Add(config.ToggleStackLayout, CommandHelper.cmd_toggleStackLayout);
 
             ValidateAndAddKeyShortcuts(shortcuts);
 
@@ -336,6 +337,11 @@ namespace TileWindow.Handlers
                     
                     Startup.ParserSignal.SignalRestartThreads();
                 }
+            }
+            else if (msg.msg == signal.WMC_SHOWNODE)
+            {
+                var node = desktops.ActiveDesktop.FindNodeWithId((long)msg.wParam);
+                node?.SetFocus();
             }
 		}
 

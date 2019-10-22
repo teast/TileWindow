@@ -13,7 +13,13 @@ namespace TileWindow.Nodes
         private bool _isVisible = false;
         public List<Node> Childs { get; protected set; }
 
-        private readonly IRenderer renderer;
+        private IRenderer _renderer;
+        public override IRenderer Renderer
+        {
+            get => _renderer;
+            protected set => _renderer = value;
+        }
+
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly IWindowTracker windowTracker;
         private List<int> _ignoreChildsOnUpdateRect;
@@ -22,7 +28,7 @@ namespace TileWindow.Nodes
 
         public ContainerNode(IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
         {
-            this.renderer = renderer;
+            this.Renderer = renderer;
             this.containerNodeCreator = containerNodeCreator;
             this.windowTracker = windowTracker;
             Childs = new List<Node>();
@@ -53,6 +59,21 @@ namespace TileWindow.Nodes
                     OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
                 }
             }
+        }
+
+        public override Node FindNodeWithId(long id)
+        {
+            if (this.Id == id)
+                return this;
+            
+            foreach(var child in Childs)
+            {
+                var node = child.FindNodeWithId(id);
+                if (node != null)
+                    return node;
+            }
+            
+            return null;
         }
 
         protected virtual void ChildNodeStyleChange(object sender, StyleChangedEventArg args)
@@ -322,6 +343,14 @@ namespace TileWindow.Nodes
                         OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
                     }
 
+                    if (_isVisible)
+                        nodeToTransfer.Show();
+                    else
+                        nodeToTransfer.Hide();
+
+                    if (nodeGotFocus)
+                        Desktop.FocusTracker.UpdateFocusTree();
+
                     return true;
                 }
                 case TransferDirection.Up:
@@ -336,6 +365,14 @@ namespace TileWindow.Nodes
                         RecalcDeltaWithHeight();
                         OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
                     }
+
+                    if (_isVisible)
+                        nodeToTransfer.Show();
+                    else
+                        nodeToTransfer.Hide();
+
+                    if (nodeGotFocus)
+                        Desktop.FocusTracker.UpdateFocusTree();
 
                     return true;
                 }
@@ -352,6 +389,14 @@ namespace TileWindow.Nodes
                         OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
                     }
 
+                    if (_isVisible)
+                        nodeToTransfer.Show();
+                    else
+                        nodeToTransfer.Hide();
+
+                    if (nodeGotFocus)
+                        Desktop.FocusTracker.UpdateFocusTree();
+
                     return true;
                 }
                 case TransferDirection.Down:
@@ -366,6 +411,14 @@ namespace TileWindow.Nodes
                         RecalcDeltaWithHeight();
                         OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
                     }
+
+                    if (_isVisible)
+                        nodeToTransfer.Show();
+                    else
+                        nodeToTransfer.Hide();
+
+                    if (nodeGotFocus)
+                        Desktop.FocusTracker.UpdateFocusTree();
 
                     return true;
                 }
@@ -419,11 +472,20 @@ namespace TileWindow.Nodes
             return UpdateChildRect(0, Childs.Count, out _);
         }
 
+        public override void SetRenderer(IRenderer newRenderer)
+        {
+            Renderer.Dispose();
+            Renderer = newRenderer;
+            Renderer.PreUpdate(this, this.Childs);
+            Renderer.Update(_ignoreChildsOnUpdateRect);
+        }
+
         public override void Dispose()
         {
             if (IsDisposed)
                 return;
 
+            Renderer.Dispose();
             Childs?.ForEach(c => c.Dispose());
             base.Dispose();
         }
@@ -448,7 +510,7 @@ namespace TileWindow.Nodes
 
         protected void RecalcDeltaWithHeight()
         {
-            renderer.PreUpdate(this, Childs);
+            Renderer.PreUpdate(this, Childs);
         }
 
         /// <summary>
@@ -458,7 +520,7 @@ namespace TileWindow.Nodes
         /// <param name="to">end index in Childs</param>
         protected bool UpdateChildRect(int from, int to, out RECT newRect)
         {
-            var result = renderer.Update(_ignoreChildsOnUpdateRect);
+            var result = Renderer.Update(_ignoreChildsOnUpdateRect);
             newRect = result.newRect;
             return result.result;
         }

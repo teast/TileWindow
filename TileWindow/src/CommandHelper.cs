@@ -59,6 +59,7 @@ namespace TileWindow.Handlers
         public static readonly string cmd_showwinmenu = "[ShowWinMenu]";
         public static readonly string cmd_restartTW = "[RestartTW]";
         public static readonly string cmd_toggleTaskbar = "[ToggleTaskbar]";
+        public static readonly string cmd_toggleStackLayout = "[ToggleStackLayout]";
 
         public CommandHelper(IVirtualDesktopCollection desktops, IPInvokeHandler pinvokeHandler)
         {
@@ -152,7 +153,8 @@ namespace TileWindow.Handlers
                 return () => CmdRestartTW();
             if (cmd_toggleTaskbar.Equals(command))
                 return () => CmdToggleTaskbar();
-
+            if(cmd_toggleStackLayout.Equals(command))
+                return () => CmdToggleStackLayout();
             return () => ExternalCommand(command);
         }
 
@@ -161,7 +163,7 @@ namespace TileWindow.Handlers
             Log.Warning($"ExternalCommand: \"{command}\" not implemented");
             return false;
         }
-
+        
         private bool CmdToggleTaskbar()
         {
             var trayHwnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null);
@@ -232,6 +234,12 @@ namespace TileWindow.Handlers
                 return false;
 
             Process.Start(dotExe, $"-Tpng -o\"{pngFile}\" \"{dotFile}\"");
+            return false;
+        }
+
+        private bool CmdToggleStackLayout()
+        {
+            desktops.ActiveDesktop.HandleToggleStackLayout();
             return false;
         }
 

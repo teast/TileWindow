@@ -183,7 +183,11 @@ namespace TileWindow.Nodes
             if (Hwnd != IntPtr.Zero)
             {
                 var h = new HWnd(Hwnd);
-                _exStyleBeforeHide = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE).ToInt64();
+
+                // Make sure we do not override a previous exStyleBeforeHide (if Hide() gets called multiple times before Show)
+                if (_exStyleBeforeHide == 0)
+                    _exStyleBeforeHide = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE).ToInt64();
+
                 var exStyle = _exStyleBeforeHide;
                 exStyle |= WS_EX_TOOLWINDOW;
                 exStyle &= ~(WS_EX_APPWINDOW);
@@ -199,7 +203,11 @@ namespace TileWindow.Nodes
             if (Hwnd != IntPtr.Zero)
             {
                 var h = new HWnd(Hwnd);
-                pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), GWL_EXSTYLE, new IntPtr(_exStyleBeforeHide));
+
+                // Make sure to reset exstyle only if we have a value on it
+                if (_exStyleBeforeHide > 0)
+                    pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), GWL_EXSTYLE, new IntPtr(_exStyleBeforeHide));
+                _exStyleBeforeHide = 0;
                 pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, SetWindowPosFlags.SWP_SHOWWINDOW);
             }
 
@@ -238,6 +246,13 @@ namespace TileWindow.Nodes
             }
 
             return true;
+        }
+
+        public override Node FindNodeWithId(long id)
+        {
+            if (this.Id == id)
+                return this;
+            return null;
         }
 
         public override void SetFocus(TransferDirection? dir = null)

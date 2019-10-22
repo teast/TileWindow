@@ -37,6 +37,10 @@ namespace TileWindow.Tests.Nodes
             {
                 throw new NotImplementedException();
             }
+            public override Node FindNodeWithId(long id)
+            {
+                throw new NotImplementedException();
+            }
 
             public override bool Show()
             {

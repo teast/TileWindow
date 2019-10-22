@@ -76,7 +76,6 @@ namespace TileWindow.Trackers
             this.windowHandler = windowHandler;
             this.classNamesToIgnore = new List<Regex>
             {
-                new Regex(@"^WindowsForms10\.Window\.8\.app\..+_ad1$", RegexOptions.Compiled), // Desktop (I think): WindowsForms10.Window.8.app.*_ad1
                 new Regex(@"^Shell_TrayWnd$", RegexOptions.Compiled),
                 new Regex(@"^Progman$", RegexOptions.Compiled), // Program Manager === Desktop in win
                 new Regex(@"^VirtualConsoleClassApp$", RegexOptions.Compiled), // ConEmu

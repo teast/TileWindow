@@ -411,6 +411,8 @@ namespace TileWindow.Tests.Handlers
 
         private Mock<VirtualDesktop> CreateMockSut(out Mock<IScreenNodeCreater> screenCreater, out Mock<FocusTracker> focusTracker, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
         {
+            var pinvokeHandler = new Mock<IPInvokeHandler>();
+            var signal = new Mock<ISignalHandler>();
             var renderer = new Mock<IRenderer>();
             focusTracker = new Mock<FocusTracker>() { CallBase = true };
             containerCreater = new Mock<IContainerNodeCreater>();
@@ -418,6 +420,8 @@ namespace TileWindow.Tests.Handlers
             screenCreater = new Mock<IScreenNodeCreater>();
 
             var desktop = new Mock<VirtualDesktop>(1,
+                pinvokeHandler.Object,
+                signal.Object,
                 renderer.Object,
                 screenCreater.Object,
                 focusTracker.Object,

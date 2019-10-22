@@ -12,12 +12,14 @@ using System.IO;
 using TileWindow.Nodes.Creaters;
 using TileWindow.Nodes;
 using TileWindow.Trackers;
+using System.Security.Permissions;
 
 namespace TileWindow
 {
     public static class Startup
     {
-		public static MessageParser.MHSignal ParserSignal = new MessageParser.MHSignal();
+		private static ConcurrentQueue<PipeMessage> queue = new ConcurrentQueue<PipeMessage>();
+		public static MessageParser.MHSignal ParserSignal = new MessageParser.MHSignal(ref queue);
 		
 		private static readonly Object lock32 = new Object();
 		private static readonly Object lock64 = new Object();
@@ -73,7 +75,7 @@ namespace TileWindow
 			services.AddSingleton<VirtualDesktopCollection, VirtualDesktopCollection>();
 			services.AddSingleton<IPInvokeHandler, PInvokeHandler>();
 			services.AddSingleton<ISignalHandler, SignalHandler>();
-			services.AddSingleton<ConcurrentQueue<PipeMessage>>(_ => new ConcurrentQueue<PipeMessage>());
+			services.AddSingleton<ConcurrentQueue<PipeMessage>>(_ => queue);
 			services.AddSingleton<ICommandHelper, CommandHelper>();
 			services.AddSingleton<IFocusHandler, FocusHandler>();
 			services.AddSingleton<IWindowTracker, WindowTracker>();
@@ -224,5 +226,5 @@ namespace TileWindow
 				}
 			}
         }
-    }
+	}
 }

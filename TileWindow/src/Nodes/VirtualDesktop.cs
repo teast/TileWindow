@@ -12,6 +12,7 @@ namespace TileWindow.Nodes
 {
     public interface IVirtualDesktop
     {
+        bool IsVisible { get; }
         List<Node> FloatingNodes { get; }
         int ActiveScreenIndex { get; }
         int Index { get; }
@@ -28,6 +29,8 @@ namespace TileWindow.Nodes
         ScreenNode Screen(int index);
 
         void NodeAdded(Node node);
+
+        Node FindNodeWithId(long id);
 
         // TODO: See TODO for Screen
         bool GetScreenRect(int screenIndex, out RECT rect);
@@ -55,15 +58,18 @@ namespace TileWindow.Nodes
         bool Show();
         bool Hide();
         bool Restore();
+        void HandleToggleStackLayout();
     }
     
     // Describes an desktop that can contains multiple real screens
     public class VirtualDesktop: FixedContainerNode, IVirtualDesktop, IEquatable<VirtualDesktop>
     {
+        private readonly IPInvokeHandler pinvokeHandler;
+        private readonly ISignalHandler signalHandler;
         private readonly IScreenNodeCreater screenNodeCreater;
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly IWindowTracker windowTracker;
-        private bool _isVisible;
+        public bool IsVisible { get; private set; }
 
         public override IVirtualDesktop Desktop => this;
 
@@ -104,12 +110,14 @@ namespace TileWindow.Nodes
                 return null;
         }
 
-        public VirtualDesktop(int index, IRenderer renderer, IScreenNodeCreater screenNodeCreater, IFocusTracker focusTracker, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal)
+        public VirtualDesktop(int index, IPInvokeHandler pinvokeHandler, ISignalHandler signalHandler, IRenderer renderer, IScreenNodeCreater screenNodeCreater, IFocusTracker focusTracker, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal)
         : base(renderer, containerNodeCreator, windowTracker, rect, direction, null)
         {
-            this._isVisible = true;
+            this.IsVisible = true;
             this.FocusTracker = focusTracker;
             this.Index = index;
+            this.pinvokeHandler = pinvokeHandler;
+            this.signalHandler = signalHandler;
             this.screenNodeCreater = screenNodeCreater;
             this.FloatingNodes = new List<Node>();
             this.windowTracker = windowTracker;
@@ -240,12 +248,23 @@ namespace TileWindow.Nodes
             node.Style = NodeStyle.Floating;
             FloatingNodes.Add(node);
 
-            if(_isVisible)
+            if(IsVisible)
                 node.Show();
             else
                 node.Hide();
 
             return true;
+        }
+
+        public void HandleToggleStackLayout()
+        {
+            if (FocusNode == null)
+                return;
+
+            if (typeof(TileRenderer).IsInstanceOfType(FocusNode.Renderer))
+                FocusNode.SetRenderer(new StackRenderer(pinvokeHandler, signalHandler));
+            else
+                FocusNode.SetRenderer(new TileRenderer());
         }
 
         public void HandleSwitchFloating()
@@ -405,7 +424,7 @@ namespace TileWindow.Nodes
 
         public override bool Show()
         {
-            _isVisible = true;
+            IsVisible = true;
             var result = base.Show();
             FloatingNodes.ForEach(c => result = c.Show() && result);
 
@@ -419,12 +438,11 @@ namespace TileWindow.Nodes
 
         public override bool Hide()
         {
-            _isVisible = false;
+            IsVisible = false;
             var result = base.Hide();            
             FloatingNodes.ForEach(c => result = c.Hide() && result);
             return result;
         }
-
 
         public override bool RemoveChild(Node child)
         {

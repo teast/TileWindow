@@ -15,7 +15,7 @@ namespace TileWindow.Tests.Nodes.Renderers
             var rect = new RECT(0, 0, 10 ,15);
             var expectedWidth = 10;
             var expectedHeight = 15;
-            var owner = NodeHelper.CreateMockNode(rect: rect);
+            var owner = NodeHelper.CreateMockContainer(rect: rect);
             var sut = CreateSut();
 
             // Act

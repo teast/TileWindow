@@ -244,5 +244,10 @@ namespace TileWindow.Dto
         /// Key combination for showing/hiding windows taskbar
         /// </summary>
         public string ToggleTaskbar { get; set; }
+
+        /// <summary>
+        /// Key combination for switching between stack layout and tile layout
+        /// </summary>
+        public string ToggleStackLayout { get; set; }
     }
 }

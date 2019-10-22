@@ -24,6 +24,7 @@ namespace TileWindow.Nodes.Creaters
         private readonly IPInvokeHandler pinvokeHandler;
         private readonly IContainerNodeCreater containerCreater;
         private readonly IScreenNodeCreater screenCreater;
+        private readonly ISignalHandler signalHandler;
 
         public VirtualDesktopCreater(IServiceProvider service)// IFocusTracker focusTracker, IFocusHandler focusHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler, IContainerNodeCreater containerCreater)
         {
@@ -34,11 +35,12 @@ namespace TileWindow.Nodes.Creaters
             this.pinvokeHandler = service.GetRequiredService<IPInvokeHandler>();
             this.containerCreater = service.GetRequiredService<IContainerNodeCreater>();
             this.screenCreater = service.GetRequiredService<IScreenNodeCreater>();
+            this.signalHandler = service.GetRequiredService<ISignalHandler>();
         }
 
         public virtual VirtualDesktop Create(int index, RECT rect, IRenderer renderer = null, Direction dir = Direction.Horizontal, params ScreenNode[] childs)
         {
-            var desktop = new VirtualDesktop(index, renderer ?? new TileRenderer(), screenCreater, service.GetRequiredService<IFocusTracker>(), containerCreater, windowTracker, rect, dir);
+            var desktop = new VirtualDesktop(index, pinvokeHandler, signalHandler, renderer ?? new TileRenderer(), screenCreater, service.GetRequiredService<IFocusTracker>(), containerCreater, windowTracker, rect, dir);
             desktop.PostInit(childs);
             return desktop;
         }
