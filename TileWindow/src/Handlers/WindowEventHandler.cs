@@ -152,6 +152,10 @@ namespace TileWindow.Handlers
             return cb.ToString();
         }
 
+        public void DumpDebug()
+        {
+            
+        }
 
         public void Dispose()
         {

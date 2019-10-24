@@ -104,6 +104,11 @@ namespace TileWindow.Handlers
                         listener.Item2(gotFocus);
         }
 
+        public void DumpDebug()
+        {
+            
+        }
+
         public void Dispose()
         {
         }

@@ -374,6 +374,11 @@ namespace TileWindow.Handlers
 			return new[]{ key };
 		}
 
+        public void DumpDebug()
+        {
+            
+        }
+
         public void Dispose()
         {
          }

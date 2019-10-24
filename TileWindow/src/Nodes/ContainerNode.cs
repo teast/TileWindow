@@ -76,12 +76,6 @@ namespace TileWindow.Nodes
             return null;
         }
 
-        protected virtual void ChildNodeStyleChange(object sender, StyleChangedEventArg args)
-        {
-//Log.Information($"Container.ChildNodeStylechange ({this.ToString()}) called. going to trigger OnSTyleChanged with this, source");
-            OnStyleChanged(this, args);
-        }
-
         public override bool Hide()
         {
             var result = true;
@@ -488,6 +482,13 @@ namespace TileWindow.Nodes
             Renderer.Dispose();
             Childs?.ForEach(c => c.Dispose());
             base.Dispose();
+        }
+
+        public override string ToString() => $"[{nameof(ContainerNode)} (id: {Id})]";
+
+        protected virtual void ChildNodeStyleChange(object sender, StyleChangedEventArg args)
+        {
+            OnStyleChanged(this, args);
         }
 
         protected virtual void OnChildRequestRectChange(object sender, RequestRectChangeEventArg args)

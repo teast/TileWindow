@@ -58,27 +58,6 @@ namespace TileWindow.Nodes
                 base.SetFocus(dir);
         }
 
-        protected override void ChildNodeStyleChange(object sender, StyleChangedEventArg args)
-        {
-            if (args.Source.Style == NodeStyle.FullscreenOne)
-            {
-                if (_fullscreenNode != null && _fullscreenNode != args.Source && _fullscreenNode.Style == NodeStyle.FullscreenOne)
-                {
-                    _fullscreenNode.Style = NodeStyle.Tile;
-                }
-
-                args.Source.SetFullscreenRect(Rect);
-                _fullscreenNode = args.Source;
-            }
-            else if (args.Source.Style == NodeStyle.Tile && args.Prev == NodeStyle.FullscreenOne)
-            {
-                _fullscreenNode = null;
-                args.Source.UpdateRect(args.Source.Rect);
-            }
-
-            OnStyleChanged(this, args);
-        }
-
         public override bool TransferNode(Node child, Node nodeToTransfer, TransferDirection direction, bool nodeGotFocus)
         {
             var result = base.TransferNode(child, nodeToTransfer, direction, nodeGotFocus);
@@ -123,5 +102,27 @@ namespace TileWindow.Nodes
             }
         }
 
+        public override string ToString() => $"[{nameof(ScreenNode)}]";
+
+        protected override void ChildNodeStyleChange(object sender, StyleChangedEventArg args)
+        {
+            if (args.Source.Style == NodeStyle.FullscreenOne)
+            {
+                if (_fullscreenNode != null && _fullscreenNode != args.Source && _fullscreenNode.Style == NodeStyle.FullscreenOne)
+                {
+                    _fullscreenNode.Style = NodeStyle.Tile;
+                }
+
+                args.Source.SetFullscreenRect(Rect);
+                _fullscreenNode = args.Source;
+            }
+            else if (args.Source.Style == NodeStyle.Tile && args.Prev == NodeStyle.FullscreenOne)
+            {
+                _fullscreenNode = null;
+                args.Source.UpdateRect(args.Source.Rect);
+            }
+
+            OnStyleChanged(this, args);
+        }
     }
 }

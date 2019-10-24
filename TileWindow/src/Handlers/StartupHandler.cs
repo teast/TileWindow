@@ -416,5 +416,12 @@ namespace TileWindow.Handlers
                 }
             }
         }
+
+        public void DumpDebug()
+        {
+            Log.Information($"{nameof(StartupHandler)} active desktop #{desktops.ActiveDesktop?.Index + 1} (id: {desktops.ActiveDesktop?.Index})");
+            var cmd = commandHelper.GetCommand(CommandHelper.cmd_debug);
+            cmd?.Invoke();
+        }
     }
 }

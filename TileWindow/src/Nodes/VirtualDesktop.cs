@@ -74,15 +74,13 @@ namespace TileWindow.Nodes
         public override IVirtualDesktop Desktop => this;
 
         public virtual List<Node> FloatingNodes { get; private set; }
-        
-        protected Node ActiveNode => FocusTracker?.MyLastFocusNode(this);
 
         public int ActiveScreenIndex
         {
             get
             {
-                var node = ActiveNode;
-                if (ActiveNode == null)
+                var node = MyFocusNode;
+                if (MyFocusNode == null)
                 {
                     FocusTracker.ExplicitSetMyFocusNode(this, Childs.First());
                     return 0;
@@ -122,6 +120,7 @@ namespace TileWindow.Nodes
             this.FloatingNodes = new List<Node>();
             this.windowTracker = windowTracker;
             this.containerNodeCreator = containerNodeCreator;
+            this.FocusTracker.DesktopIndex = index;
             FocusTracker.Track(this);
         }
 
@@ -183,13 +182,13 @@ namespace TileWindow.Nodes
         {
             var hwnd = new IntPtr((long)msg.wParam);
             var n = windowTracker.GetNodes(hwnd);
-            //Log.Information($"VirtualDesktop.HandleMessageDestroy for {hwnd} ({n})");
+            //Log.Information($"{this}.{nameof(HandleMessageDestroy)} for {hwnd} ({n})");
             n?.QuitNode();
         }
 
         public Node HandleNewWindow(IntPtr hwnd)
         {
-            //Log.Information($"HandleNewWindow {hwnd}");
+            //Log.Information($"{this}, HandleNewWindow {hwnd}");
             return AddWindow(hwnd);
         }
 
@@ -365,7 +364,6 @@ namespace TileWindow.Nodes
             }
 
             var old = FocusNode;
-//Log.Information($"VirtualDesktop.TransferfocusNodeToDesktop, FocusNode: {old?.GetType()?.ToString()} parent: {old?.Parent?.GetType()?.ToString()}");
             // TODO: Will focus node get updated by an event?
             if (old.Parent?.TransferNodeToAnotherDesktop(old, destination) ?? false)
             {
@@ -407,12 +405,16 @@ namespace TileWindow.Nodes
                 return false;
             }
 
+            var gotFocus = child == MyFocusNode;
             child.StyleChanged -= ChildNodeStyleChange;
             child.RequestRectChange -= OnChildRequestRectChange;
             if (child.Parent == this)
                 child.Parent = null;
 
             FloatingNodes.RemoveAt(i);
+
+            if (gotFocus)
+                FocusTracker.ExplicitSetMyFocusNode(this, Childs.First());
 
             return true;
         }
@@ -530,7 +532,7 @@ namespace TileWindow.Nodes
         public override bool AddNodes(params Node[] nodes)
         {
             var result = true;
-//Log.Information($"VirtualDesktop will handle AddNodes for {nodes?.Count()} nodes");
+//Log.Information($"{this} will handle AddNodes for {nodes?.Count()} nodes");
             foreach(var child in nodes)
             {
                 if (child.Style == NodeStyle.Floating)
@@ -545,6 +547,7 @@ namespace TileWindow.Nodes
                 }
             }
 
+Log.Information($"{this} my focus node is: {MyFocusNode}");
             return result;
         }
 

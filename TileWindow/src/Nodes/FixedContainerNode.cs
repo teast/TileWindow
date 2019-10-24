@@ -50,7 +50,7 @@ namespace TileWindow.Nodes
                 return MyFocusNode.AddWindow(hWnd);
             }
 
-            throw new Exception($"{nameof(FixedContainerNode)}.{nameof(AddWindow)} was called with no FocusNode... what to do???");
+            throw new Exception($"{nameof(FixedContainerNode)}.{nameof(AddWindow)} was called with no MyFocusNode... what to do???");
         }
 
         public override bool AddNodes(params Node[] nodes)

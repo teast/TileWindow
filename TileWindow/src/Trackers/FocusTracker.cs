@@ -30,6 +30,11 @@ namespace TileWindow.Trackers
         event EventHandler<FocusChangedEventArg> FocusChanged;
 
         /// <summary>
+        /// Just a debug parameter to see what desktop this specific focus tracker belongs to
+        /// </summary>
+        int DesktopIndex { get; set; }
+
+        /// <summary>
         /// Start tracking <see cref="node" />
         /// </summary>
         /// <param name="node">The node to start tracking</param>
@@ -83,6 +88,8 @@ namespace TileWindow.Trackers
         private Dictionary<Node, Node> _tracker;
         private Node _focusNode;
 
+        public int DesktopIndex { get; set; }
+
         public FocusTracker()
         {
             _tracker = new Dictionary<Node, Node>();
@@ -113,7 +120,9 @@ namespace TileWindow.Trackers
             
             foreach(var key in _tracker.Keys.ToList())
                 if(_tracker[key] == node)
+                {
                     _tracker[key] = null;
+                }
 
             if (ContainsKey(node) == false)
                 return true;
@@ -152,7 +161,10 @@ namespace TileWindow.Trackers
                 return null;
                 
             if (_tracker.TryGetValue(node, out Node child))
+            {
                 return child;
+            }
+
             return null;
         }
 
@@ -184,13 +196,15 @@ namespace TileWindow.Trackers
                 else
                 {
                     var tmp = _tracker.FirstOrDefault(pp => pp.Key.Id == p.Id);
-                    Log.Warning($"{nameof(FocusTracker)}.{nameof(UpdateFocusTree)} a node in Focus tree is not tracked. focus node: {_focusNode}, not tracked: {p} (Same id: {tmp}) ({tmp.GetHashCode()} != {p.GetHashCode()}, {ReferenceEquals(tmp, p)})");
+                    Log.Warning($"{this}.{nameof(UpdateFocusTree)} a node in Focus tree is not tracked. focus node: {_focusNode}, not tracked: {p} (Same id: {tmp}) ({tmp.GetHashCode()} != {p.GetHashCode()}, {ReferenceEquals(tmp, p)})");
                 }
 
                 prev = p;
                 p = p.Parent;
             }
         }
+
+        public override string ToString() => $"[{nameof(FocusTracker)}({DesktopIndex}]";
 
         protected virtual void TriggerFocusChanged(Node newFocus)
         {

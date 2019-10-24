@@ -7,7 +7,7 @@ using TileWindow.Tests.TestHelpers;
 using Xunit;
 using TileWindow.Nodes.Renderers;
 
-namespace TileWindow.Tests.Handlers
+namespace TileWindow.Tests.Nodes
 {
     public class VirtualDesktopTests
     {
@@ -242,6 +242,25 @@ namespace TileWindow.Tests.Handlers
 
             // Assert
             floatingNode.Object.Parent.Should().BeNull();
+        }
+
+        [Fact]
+        public void When_DisconnectChild_And_NodeIsFloating_And_NodeIsMyFocusNode_Then_UpdateMyFocusNodeToFirstScreen()
+        {
+            // Arrange
+            var floatingNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
+            var screenSut = NodeHelper.CreateMockScreen();
+            var sut = CreateSut(childs: new ScreenNode[]{ screenSut.Object});
+            sut.AddFloatingNode(floatingNode.Object);
+            floatingNode.Object.SetFocus();
+
+            sut.MyFocusNode.Should().Be(floatingNode.Object);
+
+            // Act
+            sut.DisconnectChild(floatingNode.Object);
+
+            // Assert
+            sut.MyFocusNode.Should().Be(screenSut.Object);
         }
 #endregion
 #region RemoveChild

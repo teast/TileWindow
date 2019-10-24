@@ -29,5 +29,10 @@ namespace TileWindow.Handlers
         /// Will be called when the handler should quit
         /// </summary>
         void Quit();
+
+        /// <summary>
+        /// Output whatever debug information that might be interesting. Usual gets called when an unhandled exception occurred
+        /// </summary>
+        void DumpDebug();
     }
 }

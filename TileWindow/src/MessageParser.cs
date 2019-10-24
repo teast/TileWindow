@@ -93,6 +93,16 @@ namespace TileWindow
 						catch(Exception ex)
 						{
 							Log.Fatal(ex, "Unhandled exception occured in MessageParser!");
+							
+							try
+							{
+								parser.DumpDebug();
+							}
+							catch(Exception ex2)
+							{
+								Log.Fatal(ex2, "Exception occured while dumping debug information!");
+							}
+
 							Startup.ParserSignal.Done = true;
 						}
 					}
@@ -110,6 +120,12 @@ namespace TileWindow
 			}
 		}
 		
+		public void DumpDebug()
+		{
+			foreach(var handler in handlers)
+				handler.DumpDebug();
+		}
+
 		public void Dispose()
 		{
 			foreach(var handler in handlers)
