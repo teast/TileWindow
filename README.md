@@ -32,9 +32,9 @@ TileWindow support stacking nodes.
 
 ### Default shortcuts
 
-If you decide to try TileWindow and you use the compiled version at [AppVeyor](https://ci.appveyor.com/project/teast/tilewindow/build/artifacts). Then you will need an [appsettings.json](https://github.com/teast/TileWindow/blob/master/TileWindow/src/appsettings.json) file.
+If you decide to try TileWindow and you use the compiled version at [AppVeyor](https://ci.appveyor.com/project/teast/tilewindow/build/artifacts) you will get an default configuration file named [tilewindow.config](https://github.com/teast/TileWindow/blob/master/TileWindow/src/tilewindow.config) file.
 
-If you check the appsettings.json file from the link above you will find some default key bindings.
+If you check the tilewindow.config file from the link above you will find some default key bindings.
 
     WIN+[arrow key] - Move focus to window located [arrow key] from current active window
 
@@ -55,8 +55,6 @@ If you check the appsettings.json file from the link above you will find some de
     WIN+S - switch between tiling and stacking layout (stacking is currently in pre pre pre pre alpha something version...)
 
     WIN+ALT+[arrow key] - resize active window in [arrow key] plane.
-
-
 
 ## How TileWindow handles the actual tiling
 
@@ -106,7 +104,7 @@ Make sure mingw32 is installed to c:\mingw\ folder (or change tasks.json so they
 
 Press F5.
 
-When you first run TileWindow you will probably have to create an appsettings.json file in same folder as your exe file.
+When you first run TileWindow you will probably have to create an tilewindow.config file in same folder as your exe file (there is an example file in tilewindow\src folder).
 
 ## Development environment
 
