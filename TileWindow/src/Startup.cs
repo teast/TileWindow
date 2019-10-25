@@ -12,7 +12,10 @@ using System.IO;
 using TileWindow.Nodes.Creaters;
 using TileWindow.Nodes;
 using TileWindow.Trackers;
-using System.Security.Permissions;
+using TileWindow.Configuration;
+using TileWindow.Configuration.Parser.Commands;
+using ICommandExecutor = TileWindow.Configuration.Parser.Commands.ICommandExecutor;
+using TileWindow.Configuration.Parser;
 
 namespace TileWindow
 {
@@ -65,7 +68,7 @@ namespace TileWindow
 		
 		private static void ConfigureServices(IServiceCollection services, IConfiguration config)
 		{
-			var appConfig = config.Get<AppConfig>();
+			var appConfig = config.Get<AppConfig>() ?? new AppConfig();
 			services.AddLogging(log => log.AddSerilog());
 			services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
 			services.AddTransient<IFocusTracker, FocusTracker>();
@@ -76,6 +79,9 @@ namespace TileWindow
 			services.AddSingleton<IPInvokeHandler, PInvokeHandler>();
 			services.AddSingleton<ISignalHandler, SignalHandler>();
 			services.AddSingleton<ConcurrentQueue<PipeMessage>>(_ => queue);
+			services.AddSingleton<IVariableFinder, VariableFinder>();
+			services.AddSingleton<IParseCommandBuilder, ParseCommandBuilder>();
+			services.AddSingleton<ICommandExecutor, CommandExecutor>();
 			services.AddSingleton<ICommandHelper, CommandHelper>();
 			services.AddSingleton<IFocusHandler, FocusHandler>();
 			services.AddSingleton<IWindowTracker, WindowTracker>();
@@ -134,7 +140,7 @@ namespace TileWindow
 				var serviceCollection = new ServiceCollection();
 
 				IConfiguration config = new ConfigurationBuilder()
-						.AddJsonFile("appsettings.json", true, true)
+						.AddTWConfigFile("tilewindow.config", true, true)
 						.Build();
 
 				ConfigureServices(serviceCollection, config);

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Serilog;
+using TileWindow.Configuration.Parser.Commands;
 using TileWindow.Extra.GraphViz;
 using TileWindow.Nodes;
 
@@ -10,161 +11,40 @@ namespace TileWindow.Handlers
 {
     public interface ICommandHelper
     {
-        Func<bool> GetCommand(string command);
+        bool GetCommand(string command);
     }
 
-    public class CommandHelper: ICommandHelper
+    public class CommandHelper: ICommandHelper, ICommandHandler
     {
-        private readonly IVirtualDesktopCollection desktops;
-        private readonly IPInvokeHandler pinvokeHandler;
-        public static readonly string cmd_move_left = "[MoveLeft]";
-        public static readonly string cmd_move_up = "[MoveUp]";
-        public static readonly string cmd_move_right = "[MoveRight]";
-        public static readonly string cmd_move_down = "[MoveDown]";
-        public static readonly string cmd_focus_left = "[FocusLeft]";
-        public static readonly string cmd_focus_up = "[FocusUp]";
-        public static readonly string cmd_focus_right = "[FocusRight]";
-        public static readonly string cmd_focus_down = "[FocusDown]";
-        public static readonly string cmd_run = "[WinRun]";
-        public static readonly string cmd_horizontal = "[Horizontal]";
-        public static readonly string cmd_vertical = "[Vertical]";
-        public static readonly string cmd_debug = "[Debug]";
-        public static readonly string cmd_quit = "[Quit]";
-        public static readonly string cmd_fullscreen = "[Fullscreen]";
-        public static readonly string cmd_resize_left = "[ResizeLeft]";
-        public static readonly string cmd_resize_up = "[ResizeUp]";
-        public static readonly string cmd_resize_right = "[ResizeRight]";
-        public static readonly string cmd_resize_down = "[ResizeDown]";
-        public static readonly string cmd_show_desktop1 = "[ShowDesktop1]";
-        public static readonly string cmd_show_desktop2 = "[ShowDesktop2]";
-        public static readonly string cmd_show_desktop3 = "[ShowDesktop3]";
-        public static readonly string cmd_show_desktop4 = "[ShowDesktop4]";
-        public static readonly string cmd_show_desktop5 = "[ShowDesktop5]";
-        public static readonly string cmd_show_desktop6 = "[ShowDesktop6]";
-        public static readonly string cmd_show_desktop7 = "[ShowDesktop7]";
-        public static readonly string cmd_show_desktop8 = "[ShowDesktop8]";
-        public static readonly string cmd_show_desktop9 = "[ShowDesktop9]";
-        public static readonly string cmd_show_desktop10 = "[ShowDesktop10]";
-        public static readonly string cmd_move_to_desktop1 = "[MoveToDesktop1]";
-        public static readonly string cmd_move_to_desktop2 = "[MoveToDesktop2]";
-        public static readonly string cmd_move_to_desktop3 = "[MoveToDesktop3]";
-        public static readonly string cmd_move_to_desktop4 = "[MoveToDesktop4]";
-        public static readonly string cmd_move_to_desktop5 = "[MoveToDesktop5]";
-        public static readonly string cmd_move_to_desktop6 = "[MoveToDesktop6]";
-        public static readonly string cmd_move_to_desktop7 = "[MoveToDesktop7]";
-        public static readonly string cmd_move_to_desktop8 = "[MoveToDesktop8]";
-        public static readonly string cmd_move_to_desktop9 = "[MoveToDesktop9]";
-        public static readonly string cmd_move_to_desktop10 = "[MoveToDesktop10]";
-        public static readonly string cmd_switch_floating = "[SwitchFloating]";
-        public static readonly string cmd_showwinmenu = "[ShowWinMenu]";
-        public static readonly string cmd_restartTW = "[RestartTW]";
-        public static readonly string cmd_toggleTaskbar = "[ToggleTaskbar]";
-        public static readonly string cmd_toggleStackLayout = "[ToggleStackLayout]";
+        public readonly IVirtualDesktopCollection desktops;
+        public readonly IPInvokeHandler pinvokeHandler;
+        public readonly ICommandExecutor commandExecutor;
 
-        public CommandHelper(IVirtualDesktopCollection desktops, IPInvokeHandler pinvokeHandler)
+        public CommandHelper(IVirtualDesktopCollection desktops, IPInvokeHandler pinvokeHandler, ICommandExecutor commandExecutor)
         {
             this.desktops = desktops;
             this.pinvokeHandler = pinvokeHandler;
+            this.commandExecutor = commandExecutor;
         }
         
-        public Func<bool> GetCommand(string command)
+        public bool GetCommand(string command)
         {
-            if (cmd_move_left.Equals(command))
-                return () => MoveLeft();
-            if (cmd_move_up.Equals(command))
-                return () => MoveUp();
-            if (cmd_move_right.Equals(command))
-                return () => MoveRight();
-            if (cmd_move_down.Equals(command))
-                return () => MoveDown();
-            if (cmd_focus_left.Equals(command))
-                return () => FocusLeft();
-            if (cmd_focus_up.Equals(command))
-                return () => FocusUp();
-            if (cmd_focus_right.Equals(command))
-                return () => FocusRight();
-            if (cmd_focus_down.Equals(command))
-                return () => FocusDown();
-            if (cmd_run.Equals(command))
-                return () => CmdRun();
-            if (cmd_debug.Equals(command))
-                return () => CmdDebug();
-            if (cmd_quit.Equals(command))
-                return () => CmdQuit();
-            if (cmd_vertical.Equals(command))
-                return () => CmdVertical();
-            if (cmd_horizontal.Equals(command))
-                return () => CmdHorizontal();
-            if (cmd_fullscreen.Equals(command))
-                return () => CmdFullscreen();
-            if (cmd_resize_left.Equals(command))
-                return () => CmdResizeLeft();
-            if (cmd_resize_up.Equals(command))
-                return () => CmdResizeUp();
-            if (cmd_resize_right.Equals(command))
-                return () => CmdResizeRight();
-            if (cmd_resize_down.Equals(command))
-                return () => CmdResizeDown();
-            if (cmd_show_desktop1.Equals(command))
-                return () => CmdShowDesktop(0);
-            if (cmd_show_desktop2.Equals(command))
-                return () => CmdShowDesktop(1);
-            if (cmd_show_desktop3.Equals(command))
-                return () => CmdShowDesktop(2);
-            if (cmd_show_desktop4.Equals(command))
-                return () => CmdShowDesktop(3);
-            if (cmd_show_desktop5.Equals(command))
-                return () => CmdShowDesktop(4);
-            if (cmd_show_desktop6.Equals(command))
-                return () => CmdShowDesktop(5);
-            if (cmd_show_desktop7.Equals(command))
-                return () => CmdShowDesktop(6);
-            if (cmd_show_desktop8.Equals(command))
-                return () => CmdShowDesktop(7);
-            if (cmd_show_desktop9.Equals(command))
-                return () => CmdShowDesktop(8);
-            if (cmd_show_desktop10.Equals(command))
-                return () => CmdShowDesktop(9);
-            if (cmd_move_to_desktop1.Equals(command))
-                return () => CmdMoveToDesktop(0);
-            if (cmd_move_to_desktop2.Equals(command))
-                return () => CmdMoveToDesktop(1);
-            if (cmd_move_to_desktop3.Equals(command))
-                return () => CmdMoveToDesktop(2);
-            if (cmd_move_to_desktop4.Equals(command))
-                return () => CmdMoveToDesktop(3);
-            if (cmd_move_to_desktop5.Equals(command))
-                return () => CmdMoveToDesktop(4);
-            if (cmd_move_to_desktop6.Equals(command))
-                return () => CmdMoveToDesktop(5);
-            if (cmd_move_to_desktop7.Equals(command))
-                return () => CmdMoveToDesktop(6);
-            if (cmd_move_to_desktop8.Equals(command))
-                return () => CmdMoveToDesktop(7);
-            if (cmd_move_to_desktop9.Equals(command))
-                return () => CmdMoveToDesktop(8);
-            if (cmd_move_to_desktop10.Equals(command))
-                return () => CmdMoveToDesktop(9);
-            if (cmd_switch_floating.Equals(command))
-                return () => CmdSwitchFloating();
-            if (cmd_showwinmenu.Equals(command))
-                return () => CmdWinMenu();
-            if (cmd_restartTW.Equals(command))
-                return () => CmdRestartTW();
-            if (cmd_toggleTaskbar.Equals(command))
-                return () => CmdToggleTaskbar();
-            if(cmd_toggleStackLayout.Equals(command))
-                return () => CmdToggleStackLayout();
-            return () => ExternalCommand(command);
+            var result = commandExecutor.Execute(command, this);
+            if (result == null)
+            {
+                Log.Error($"Could not handle command \"{command}\"");
+            }
+
+            return result ?? false;
         }
 
-        private bool ExternalCommand(string command)
+        public bool CmdExecute(string command)
         {
             Log.Warning($"ExternalCommand: \"{command}\" not implemented");
             return false;
         }
         
-        private bool CmdToggleTaskbar()
+        public bool CmdToggleTaskbar(string cmd)
         {
             var trayHwnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null);
             if (trayHwnd == IntPtr.Zero)
@@ -178,7 +58,7 @@ namespace TileWindow.Handlers
             return false;
         }
 
-        private bool CmdWinMenu()
+        public bool CmdWinMenu(string cmd)
         {
             Log.Information("################# GOING TO SHOW WIN MENU ###################");
             //var startMenu = pinvokeHandler.FindWindow("DV2ControlHost", "Start menu");
@@ -192,13 +72,13 @@ namespace TileWindow.Handlers
             return false;
         }
 
-        private bool CmdRestartTW()
+        public bool CmdRestart(string cmd)
         {
             Startup.ParserSignal.SignalRestartThreads();
             return false;
         }
 
-        private bool CmdRun()
+        public bool CmdRun(string cmd)
         {
             Process.Start(new ProcessStartInfo
             {
@@ -209,7 +89,8 @@ namespace TileWindow.Handlers
             });
             return false;
         }
-        private bool CmdDebug()
+        
+        public bool CmdDebugGraph(string cmd)
         {
             var desktop = desktops.ActiveDesktop;
             desktop.HandleMoveFocus(TransferDirection.Down);
@@ -237,20 +118,21 @@ namespace TileWindow.Handlers
             return false;
         }
 
-        private bool CmdToggleStackLayout()
+        public bool CmdLayoutStacking(string cmd)
         {
             desktops.ActiveDesktop.HandleToggleStackLayout();
             return false;
         }
 
-        private bool CmdSwitchFloating()
+        public bool CmdFloatingToggle(string cmd)
         {
             desktops.ActiveDesktop.HandleSwitchFloating();
             return false;
         }
 
-        private bool CmdMoveToDesktop(int index)
+        public bool CmdMoveToWorkspace(string cmd)
         {
+            var index = Convert.ToInt32(cmd);
             var src = desktops.ActiveDesktop;
             var dst = desktops[index];
             if (dst == null)
@@ -259,98 +141,104 @@ namespace TileWindow.Handlers
             return false;
         }
 
-        private bool CmdShowDesktop(int index)
+        public bool CmdShowWorkspace(string cmd)
         {
-            desktops.Index = index;
+            desktops.Index = Convert.ToInt32(cmd);
             return false;
         }
 
-        private bool CmdQuit()
+        public bool CmdKill(string cmd)
         {
             desktops.ActiveDesktop.QuitFocusNode();
             return false;
         }
 
-        private bool CmdVertical()
+        public bool CmdSplitVertical(string cmd)
         {
             desktops.ActiveDesktop.HandleVerticalDirection();
             return false;
         }
-        private bool CmdHorizontal()
+        public bool CmdSplitHorizontal(string cmd)
         {
             desktops.ActiveDesktop.HandleHorizontalDirection();
             return false;
         }
 
-        private bool CmdFullscreen()
+        public bool CmdSplitToggle(string cmd)
+        {
+            desktops.ActiveDesktop.HandleHorizontalDirection();
+            return false;
+        }
+
+        public bool CmdFullscreen(string cmd)
         {
             desktops.ActiveDesktop.HandleFullscreen();
             return false;
         }
 
-        private bool CmdResizeLeft()
+        public bool CmdResizeLeft(string cmd)
         {
-            desktops.ActiveDesktop.HandleResize(-20, TransferDirection.Right);
+            desktops.ActiveDesktop.HandleResize(Convert.ToInt32(cmd), TransferDirection.Right);
             return true;
         }
 
-        private bool CmdResizeUp()
+        public bool CmdResizeUp(string cmd)
         {
-            desktops.ActiveDesktop.HandleResize(-20, TransferDirection.Down);
+            desktops.ActiveDesktop.HandleResize(Convert.ToInt32(cmd), TransferDirection.Down);
             return true;
         }
 
-        private bool CmdResizeRight()
+        public bool CmdResizeRight(string cmd)
         {
-            desktops.ActiveDesktop.HandleResize(20, TransferDirection.Right);
+            desktops.ActiveDesktop.HandleResize(Convert.ToInt32(cmd), TransferDirection.Right);
             return true;
         }
 
-        private bool CmdResizeDown()
+        public bool CmdResizeDown(string cmd)
         {
-            desktops.ActiveDesktop.HandleResize(20, TransferDirection.Down);
+            desktops.ActiveDesktop.HandleResize(Convert.ToInt32(cmd), TransferDirection.Down);
             return true;
         }
 
-        private bool MoveLeft()
+        public bool CmdMoveLeft(string cmd)
         {
             return desktops.ActiveDesktop.HandleMoveNodeLeft();
         }
 
-        private bool MoveUp()
+        public bool CmdMoveUp(string cmd)
         {
             return desktops.ActiveDesktop.HandleMoveNodeUp();
         }
 
-        private bool MoveRight()
+        public bool CmdMoveRight(string cmd)
         {
             return desktops.ActiveDesktop.HandleMoveNodeRight();
         }
 
-        private bool MoveDown()
+        public bool CmdMoveDown(string cmd)
         {
             return desktops.ActiveDesktop.HandleMoveNodeDown();
         }
 
-        private bool FocusLeft()
+        public bool CmdFocusLeft(string cmd)
         {
             desktops.ActiveDesktop.HandleMoveFocus(TransferDirection.Left);
             return false;
         }
 
-        private bool FocusUp()
+        public bool CmdFocusUp(string cmd)
         {
             desktops.ActiveDesktop.HandleMoveFocus(TransferDirection.Up);
             return false;
         }
 
-        private bool FocusRight()
+        public bool CmdFocusRight(string cmd)
         {
             desktops.ActiveDesktop.HandleMoveFocus(TransferDirection.Right);
             return false;
         }
 
-        private bool FocusDown()
+        public bool CmdFocusDown(string cmd)
         {
             desktops.ActiveDesktop.HandleMoveFocus(TransferDirection.Down);
             return false;

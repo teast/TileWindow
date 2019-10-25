@@ -58,51 +58,7 @@ namespace TileWindow.Handlers
 
         public void ReadConfig(AppConfig config)
         {
-            var shortcuts = new Dictionary<string, string>(config.Custom ?? new Dictionary<string, string>());
-            if(string.IsNullOrEmpty(config.FocusLeft) == false) shortcuts.Add(config.FocusLeft, CommandHelper.cmd_focus_left);
-            if(string.IsNullOrEmpty(config.FocusUp) == false) shortcuts.Add(config.FocusUp, CommandHelper.cmd_focus_up);
-            if(string.IsNullOrEmpty(config.FocusRight) == false) shortcuts.Add(config.FocusRight, CommandHelper.cmd_focus_right);
-            if(string.IsNullOrEmpty(config.FocusDown) == false) shortcuts.Add(config.FocusDown, CommandHelper.cmd_focus_down);
-            if(string.IsNullOrEmpty(config.MoveLeft) == false) shortcuts.Add(config.MoveLeft, CommandHelper.cmd_move_left);
-            if(string.IsNullOrEmpty(config.MoveUp) == false) shortcuts.Add(config.MoveUp, CommandHelper.cmd_move_up);
-            if(string.IsNullOrEmpty(config.MoveRight) == false) shortcuts.Add(config.MoveRight, CommandHelper.cmd_move_right);
-            if(string.IsNullOrEmpty(config.MoveDown) == false) shortcuts.Add(config.MoveDown, CommandHelper.cmd_move_down);
-            if(string.IsNullOrEmpty(config.WinRun) == false) shortcuts.Add(config.WinRun, CommandHelper.cmd_run);
-            if(string.IsNullOrEmpty(config.Debug) == false) shortcuts.Add(config.Debug, CommandHelper.cmd_debug);
-            if(string.IsNullOrEmpty(config.Quit) == false) shortcuts.Add(config.Quit, CommandHelper.cmd_quit);
-            if(string.IsNullOrEmpty(config.Horizontal) == false) shortcuts.Add(config.Horizontal, CommandHelper.cmd_horizontal);
-            if(string.IsNullOrEmpty(config.Vertical) == false) shortcuts.Add(config.Vertical, CommandHelper.cmd_vertical);
-            if(string.IsNullOrEmpty(config.Fullscreen) == false) shortcuts.Add(config.Fullscreen, CommandHelper.cmd_fullscreen);
-            if(string.IsNullOrEmpty(config.ResizeLeft) == false) shortcuts.Add(config.ResizeLeft, CommandHelper.cmd_resize_left);
-            if(string.IsNullOrEmpty(config.ResizeUp) == false) shortcuts.Add(config.ResizeUp, CommandHelper.cmd_resize_up);
-            if(string.IsNullOrEmpty(config.ResizeRight) == false) shortcuts.Add(config.ResizeRight, CommandHelper.cmd_resize_right);
-            if(string.IsNullOrEmpty(config.ResizeDown) == false) shortcuts.Add(config.ResizeDown, CommandHelper.cmd_resize_down);
-            if(string.IsNullOrEmpty(config.ShowDesktop1) == false) shortcuts.Add(config.ShowDesktop1, CommandHelper.cmd_show_desktop1);
-            if(string.IsNullOrEmpty(config.ShowDesktop2) == false) shortcuts.Add(config.ShowDesktop2, CommandHelper.cmd_show_desktop2);
-            if(string.IsNullOrEmpty(config.ShowDesktop3) == false) shortcuts.Add(config.ShowDesktop3, CommandHelper.cmd_show_desktop3);
-            if(string.IsNullOrEmpty(config.ShowDesktop4) == false) shortcuts.Add(config.ShowDesktop4, CommandHelper.cmd_show_desktop4);
-            if(string.IsNullOrEmpty(config.ShowDesktop5) == false) shortcuts.Add(config.ShowDesktop5, CommandHelper.cmd_show_desktop5);
-            if(string.IsNullOrEmpty(config.ShowDesktop6) == false) shortcuts.Add(config.ShowDesktop6, CommandHelper.cmd_show_desktop6);
-            if(string.IsNullOrEmpty(config.ShowDesktop7) == false) shortcuts.Add(config.ShowDesktop7, CommandHelper.cmd_show_desktop7);
-            if(string.IsNullOrEmpty(config.ShowDesktop8) == false) shortcuts.Add(config.ShowDesktop8, CommandHelper.cmd_show_desktop8);
-            if(string.IsNullOrEmpty(config.ShowDesktop9) == false) shortcuts.Add(config.ShowDesktop9, CommandHelper.cmd_show_desktop9);
-            if(string.IsNullOrEmpty(config.ShowDesktop10) == false) shortcuts.Add(config.ShowDesktop10, CommandHelper.cmd_show_desktop10);
-            if(string.IsNullOrEmpty(config.MoveToDesktop1) == false) shortcuts.Add(config.MoveToDesktop1, CommandHelper.cmd_move_to_desktop1);
-            if(string.IsNullOrEmpty(config.MoveToDesktop2) == false) shortcuts.Add(config.MoveToDesktop2, CommandHelper.cmd_move_to_desktop2);
-            if(string.IsNullOrEmpty(config.MoveToDesktop3) == false) shortcuts.Add(config.MoveToDesktop3, CommandHelper.cmd_move_to_desktop3);
-            if(string.IsNullOrEmpty(config.MoveToDesktop4) == false) shortcuts.Add(config.MoveToDesktop4, CommandHelper.cmd_move_to_desktop4);
-            if(string.IsNullOrEmpty(config.MoveToDesktop5) == false) shortcuts.Add(config.MoveToDesktop5, CommandHelper.cmd_move_to_desktop5);
-            if(string.IsNullOrEmpty(config.MoveToDesktop6) == false) shortcuts.Add(config.MoveToDesktop6, CommandHelper.cmd_move_to_desktop6);
-            if(string.IsNullOrEmpty(config.MoveToDesktop7) == false) shortcuts.Add(config.MoveToDesktop7, CommandHelper.cmd_move_to_desktop7);
-            if(string.IsNullOrEmpty(config.MoveToDesktop8) == false) shortcuts.Add(config.MoveToDesktop8, CommandHelper.cmd_move_to_desktop8);
-            if(string.IsNullOrEmpty(config.MoveToDesktop9) == false) shortcuts.Add(config.MoveToDesktop9, CommandHelper.cmd_move_to_desktop9);
-            if(string.IsNullOrEmpty(config.MoveToDesktop10) == false) shortcuts.Add(config.MoveToDesktop10, CommandHelper.cmd_move_to_desktop10);
-            if(string.IsNullOrEmpty(config.SwitchFloating) == false) shortcuts.Add(config.SwitchFloating, CommandHelper.cmd_switch_floating);
-            if(string.IsNullOrEmpty(config.ShowWinMenu) == false) shortcuts.Add(config.ShowWinMenu, CommandHelper.cmd_showwinmenu);
-            if(string.IsNullOrEmpty(config.RestartTW) == false) shortcuts.Add(config.RestartTW, CommandHelper.cmd_restartTW);
-            if(string.IsNullOrEmpty(config.ToggleTaskbar) == false) shortcuts.Add(config.ToggleTaskbar, CommandHelper.cmd_toggleTaskbar);
-            if(string.IsNullOrEmpty(config.ToggleStackLayout) == false) shortcuts.Add(config.ToggleStackLayout, CommandHelper.cmd_toggleStackLayout);
-
+            var shortcuts = config.KeyBinds ?? new Dictionary<string, string>();
             ValidateAndAddKeyShortcuts(shortcuts);
 
             IntPtr trayHwnd;
@@ -125,8 +81,7 @@ namespace TileWindow.Handlers
                     continue;
                 }
 
-                var cmd = commandHelper.GetCommand(shortcut.Value);
-                keyHandler.AddListener(keys, keyCombo => cmd());
+                keyHandler.AddListener(keys, keyCombo => commandHelper.GetCommand(shortcut.Value));
             }
         }
 
@@ -420,8 +375,7 @@ namespace TileWindow.Handlers
         public void DumpDebug()
         {
             Log.Information($"{nameof(StartupHandler)} active desktop #{desktops.ActiveDesktop?.Index + 1} (id: {desktops.ActiveDesktop?.Index})");
-            var cmd = commandHelper.GetCommand(CommandHelper.cmd_debug);
-            cmd?.Invoke();
+            commandHelper.GetCommand("debug graph");
         }
     }
 }
