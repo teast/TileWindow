@@ -239,7 +239,7 @@ namespace TileWindow.Nodes
         /// Retrieves the closest renderer to this node
         /// </summary>
         /// <returns>closest renderer or null if no renderer were found</returns>
-        public IRenderer GetRenderer()
+        public virtual IRenderer GetRenderer()
         {
             if (Renderer != null)
                 return Renderer;

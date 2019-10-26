@@ -27,6 +27,7 @@ namespace TileWindow.Configuration.Parser.Commands
         public bool CmdSplitVertical(string cmd) => true;
         public bool CmdFloatingToggle(string cmd) => true;
         public bool CmdLayoutStacking(string cmd) => true;
+        public bool CmdLayoutToggleSplit(string cmd) => true;
         public bool CmdDebugGraph(string cmd) => true;
         public bool CmdRestart(string cmd) => true;
     }

@@ -395,10 +395,106 @@ namespace TileWindow.Tests.Nodes
             sut.Childs.Should().Contain(newNode.Object);
         }
 #endregion
+#region HandleLayoutToggleSplit
+        [Fact]
+        public void When_HandleLayoutToggleSplit_And_RendererIsNotOfTypeTileRenderer_Then_SetRendererToTileRenderer()
+        {
+            // Arrange
+            var focusNode = NodeHelper.CreateMockNode();
+            var screen = NodeHelper.CreateMockScreen(callPostInit: false, childs: new Node[] { focusNode.Object });
+            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screen.Object });
+            focusTracker.Setup(m => m.FocusNode()).Returns(focusNode.Object);
+            focusNode.Setup(m => m.GetRenderer()).Returns(new Mock<IRenderer>().Object);
+
+            // Act
+            sut.HandleLayoutToggleSplit();
+
+            // Assert
+            focusNode.Verify(m => m.SetRenderer(It.IsAny<TileRenderer>()));
+        }
+
+        [Fact]
+        public void When_HandleLayoutToggleSplit_And_RendererIsOfTypeTileRenderer_And_DirectionIsHorizontal_Then_ChangeDirectionToVertical()
+        {
+            // Arrange
+            var focusNode = NodeHelper.CreateMockNode(direction: Direction.Horizontal);
+            var screen = NodeHelper.CreateMockScreen(callPostInit: false, childs: new Node[] { focusNode.Object });
+            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screen.Object });
+            focusTracker.Setup(m => m.FocusNode()).Returns(focusNode.Object);
+            focusNode.Setup(m => m.GetRenderer()).Returns(new TileRenderer());
+            focusNode.SetupGet(m => m.CanHaveChilds).Returns(true);
+
+            // Act
+            sut.HandleLayoutToggleSplit();
+
+            // Assert
+            focusNode.Verify(m => m.ChangeDirection(Direction.Vertical));
+        }
+
+        [Fact]
+        public void When_HandleLayoutToggleSplit_And_RendererIsOfTypeTileRenderer_And_DirectionIsVertical_Then_ChangeDirectionToHorizontal()
+        {
+            // Arrange
+            var focusNode = NodeHelper.CreateMockNode(direction: Direction.Vertical);
+            var screen = NodeHelper.CreateMockScreen(callPostInit: false, childs: new Node[] { focusNode.Object });
+            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screen.Object });
+            focusTracker.Setup(m => m.FocusNode()).Returns(focusNode.Object);
+            focusNode.Setup(m => m.GetRenderer()).Returns(new TileRenderer());
+            focusNode.SetupGet(m => m.CanHaveChilds).Returns(true);
+
+            // Act
+            sut.HandleLayoutToggleSplit();
+
+            // Assert
+            focusNode.Verify(m => m.ChangeDirection(Direction.Horizontal));
+        }
+#endregion
+#region HandleSplitToggle
+        [Fact]
+        public void When_HandleSplitToggle_And_FocusNodeCanHaveChilds_Then_ChangeFocusNodesDirection()
+        {
+            // Arrange
+            var focusNode = NodeHelper.CreateMockNode(direction: Direction.Vertical);
+            var screen = NodeHelper.CreateMockScreen(callPostInit: false, childs: new Node[] { focusNode.Object });
+            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screen.Object });
+            focusTracker.Setup(m => m.FocusNode()).Returns(focusNode.Object);
+            focusNode.SetupGet(m => m.CanHaveChilds).Returns(true);
+
+            // Act
+            sut.HandleSplitToggle();
+
+            // Assert
+            focusNode.Verify(m => m.ChangeDirection(Direction.Horizontal));
+        }
+        [Fact]
+        public void When_HandleSplitToggle_And_FocusNodeCanNotHaveChilds_Then_CreateNewParent()
+        {
+            // Arrange
+            var newParentNode = NodeHelper.CreateMockContainer(direction: Direction.Horizontal);
+            var focusNode = NodeHelper.CreateMockNode(direction: Direction.Vertical);
+            var parentNode = NodeHelper.CreateMockContainer(callPostInit: false, direction: Direction.Horizontal, childs: new Node[] { focusNode.Object });
+            var screen = NodeHelper.CreateMockScreen(callPostInit: false, childs: new Node[] { parentNode.Object });
+            var sut = CreateSut(containerCreater: out Mock<IContainerNodeCreater> containerCreater, focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screen.Object });
+            containerCreater.Setup(m => m.Create(It.IsAny<RECT>(), It.IsAny<IRenderer>(), It.IsAny<Direction>(), It.IsAny<Node>(), It.IsAny<Node[]>())).Returns(newParentNode.Object);
+            newParentNode.Setup(m => m.AddNodes(focusNode.Object)).Returns(true);
+            focusTracker.Setup(m => m.FocusNode()).Returns(focusNode.Object);
+            focusNode.SetupGet(m => m.CanHaveChilds).Returns(false);
+
+            // Act
+            sut.HandleSplitToggle();
+
+            // Assert
+            focusNode.VerifySet(m => m.Parent = newParentNode.Object);
+        }
+#endregion
 #region helpers
         private VirtualDesktop CreateSut(out Mock<IScreenNodeCreater> screenCreater, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
         {
             return CreateMockSut(out screenCreater, out _, out _, out _, rect, direction, childs, callPostInit).Object;
+        }
+        private VirtualDesktop CreateSut(out Mock<IContainerNodeCreater> containerCreater, out Mock<FocusTracker> focusTracker, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
+        {
+            return CreateMockSut(out _, out focusTracker, out containerCreater, out _, rect, direction, childs, callPostInit).Object;
         }
         private VirtualDesktop CreateSut(out Mock<FocusTracker> focusTracker, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
         {

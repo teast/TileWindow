@@ -120,7 +120,13 @@ namespace TileWindow.Handlers
 
         public bool CmdLayoutStacking(string cmd)
         {
-            desktops.ActiveDesktop.HandleToggleStackLayout();
+            desktops.ActiveDesktop.HandleLayoutStacking();
+            return false;
+        }
+
+        public bool CmdLayoutToggleSplit(string cmd)
+        {
+            desktops.ActiveDesktop.HandleLayoutToggleSplit();
             return false;
         }
 
@@ -166,7 +172,7 @@ namespace TileWindow.Handlers
 
         public bool CmdSplitToggle(string cmd)
         {
-            desktops.ActiveDesktop.HandleHorizontalDirection();
+            desktops.ActiveDesktop.HandleSplitToggle();
             return false;
         }
 

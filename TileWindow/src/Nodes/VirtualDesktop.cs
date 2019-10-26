@@ -58,7 +58,9 @@ namespace TileWindow.Nodes
         bool Show();
         bool Hide();
         bool Restore();
-        void HandleToggleStackLayout();
+        void HandleLayoutStacking();
+        void HandleLayoutToggleSplit();
+        void HandleSplitToggle();
     }
     
     // Describes an desktop that can contains multiple real screens
@@ -255,15 +257,50 @@ namespace TileWindow.Nodes
             return true;
         }
 
-        public void HandleToggleStackLayout()
+        public void HandleLayoutStacking()
         {
             if (FocusNode == null)
                 return;
 
-            if (typeof(TileRenderer).IsInstanceOfType(FocusNode.GetRenderer()))
+            if (typeof(StackRenderer).IsInstanceOfType(FocusNode.GetRenderer()) == false)
                 FocusNode.SetRenderer(new StackRenderer(pinvokeHandler, signalHandler));
-            else
+        }
+
+        public void HandleLayoutToggleSplit()
+        {
+            if (FocusNode == null)
+                return;
+
+            if (typeof(TileRenderer).IsInstanceOfType(FocusNode.GetRenderer()) == false)
                 FocusNode.SetRenderer(new TileRenderer());
+            else
+            {
+                var p = FocusNode;
+                while(p != null)
+                {
+                    if (p.CanHaveChilds)
+                    {
+                        if (p.Direction == Direction.Horizontal)
+                            p.ChangeDirection(Direction.Vertical);
+                        else
+                            p.ChangeDirection(Direction.Horizontal);
+                        break;
+                    }
+
+                    p = p.Parent;
+                }
+            }
+        }
+
+        public void HandleSplitToggle()
+        {
+            if (FocusNode == null)
+                return;
+            
+            if (FocusNode.Direction == Direction.Horizontal)
+                ChangeDirectionOnChild(FocusNode, Direction.Vertical);
+            else
+                ChangeDirectionOnChild(FocusNode, Direction.Horizontal);
         }
 
         public void HandleSwitchFloating()

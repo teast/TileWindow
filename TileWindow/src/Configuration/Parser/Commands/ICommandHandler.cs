@@ -27,5 +27,6 @@ namespace TileWindow.Configuration.Parser.Commands
         bool CmdResizeDown(string cmd);
         bool CmdFloatingToggle(string cmd);
         bool CmdLayoutStacking(string cmd);
+        bool CmdLayoutToggleSplit(string cmd);
     }
 }

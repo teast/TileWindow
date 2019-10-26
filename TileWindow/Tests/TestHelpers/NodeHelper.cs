@@ -79,7 +79,7 @@ namespace TileWindow.Tests.TestHelpers
             return screen;
         }
 
-        public static Mock<ContainerNode> CreateMockContainer(RECT? rect = null, Direction direction = Direction.Horizontal, Node parent = null, params Node[] childs)
+        public static Mock<ContainerNode> CreateMockContainer(RECT? rect = null, Direction direction = Direction.Horizontal, Node parent = null, bool callPostInit = true, params Node[] childs)
         {
             var renderer = new Mock<IRenderer>();
             var createContainer = new Mock<IContainerNodeCreater>();
@@ -92,7 +92,8 @@ namespace TileWindow.Tests.TestHelpers
                 direction,
                 parent
             ) { CallBase = true };
-            mockContainer.Object.PostInit(childs);
+            if (callPostInit)
+                mockContainer.Object.PostInit(childs);
             return mockContainer;
         }
 
