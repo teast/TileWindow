@@ -18,6 +18,7 @@ namespace TileWindow.Forms
         private readonly uint signalRefresh;
         private readonly uint signalNewPosition;
         private readonly uint signalNewSize;
+        private readonly uint signalShowHide;
         private int lastSelected = -1;
         private Color selected;
         private Color selectedText;
@@ -43,7 +44,7 @@ namespace TileWindow.Forms
             }
         }
 
-        public FormStackCaption(RECT position, int captionHeight, ref ContainerNode owner, uint wmc_show, uint signalRefresh, uint signalNewPosition, uint signalNewSize)
+        public FormStackCaption(RECT position, int captionHeight, ref ContainerNode owner, uint wmc_show, uint signalRefresh, uint signalNewPosition, uint signalNewSize, uint signalShowHide)
         {
             this.position = position;
             this.captionHeight = captionHeight;
@@ -52,6 +53,7 @@ namespace TileWindow.Forms
             this.signalRefresh = signalRefresh;
             this.signalNewPosition = signalNewPosition;
             this.signalNewSize = signalNewSize;
+            this.signalShowHide = signalShowHide;
             this.selected = SystemColors.InactiveCaption;
             this.selectedText = SystemColors.InactiveCaptionText;
             var childs = owner.Childs.ToList();
@@ -149,6 +151,13 @@ namespace TileWindow.Forms
 
                         BuildCaptions(owner.Childs.ToList());
                     }
+                }
+                else if (m.Msg == signalShowHide)
+                {
+                    if (m.WParam.ToInt64() == 1)
+                        this.Visible = true;
+                    else
+                        this.Visible = false;
                 }
             }
             catch(Exception ex)

@@ -1870,9 +1870,10 @@ namespace TileWindow.Tests.Nodes
             var child1 = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var child2 = new Mock<Node>(new RECT(), Direction.Vertical, null);
             var childs = new Node[] { child1.Object, child2.Object };
-            var sut = CreateSut(childs: childs);
+            var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
             child1.Setup(m => m.Show()).Returns(true).Verifiable();
             child2.Setup(m => m.Show()).Returns(true).Verifiable();
+            renderer.Setup(m => m.Show()).Returns(true);
 
             // Act
             var result = sut.Show();
@@ -1889,9 +1890,10 @@ namespace TileWindow.Tests.Nodes
             var focusChild = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var otherChild = new Mock<Node>(new RECT(), Direction.Vertical, null);
             var childs = new Node[] { focusChild.Object, otherChild.Object };
-            var sut = CreateSut(childs: childs);
+            var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
             focusChild.Setup(m => m.Show()).Returns(false).Verifiable();
             otherChild.Setup(m => m.Show()).Returns(true).Verifiable();
+            renderer.Setup(m => m.Show()).Returns(true);
 
             // Act
             var result = sut.Show();
@@ -1900,6 +1902,21 @@ namespace TileWindow.Tests.Nodes
             result.Should().BeFalse();
             focusChild.VerifyAll();
             otherChild.VerifyAll();
+        }
+        [Fact]
+        public void When_Show_Then_CallShowOnRenderer()
+        {
+            // Arrange
+            var focusChild = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
+            var otherChild = new Mock<Node>(new RECT(), Direction.Vertical, null);
+            var childs = new Node[] { focusChild.Object, otherChild.Object };
+            var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
+            
+            // Act
+            sut.Show();
+
+            // Assert
+            renderer.Verify(m => m.Show());
         }
 #endregion
 #region Hide
@@ -1910,9 +1927,10 @@ namespace TileWindow.Tests.Nodes
             var focusChild = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var otherChild = new Mock<Node>(new RECT(), Direction.Vertical, null);
             var childs = new Node[] { focusChild.Object, otherChild.Object };
-            var sut = CreateSut(childs: childs);
+            var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
             focusChild.Setup(m => m.Hide()).Returns(true).Verifiable();
             otherChild.Setup(m => m.Hide()).Returns(true).Verifiable();
+            renderer.Setup(m => m.Hide()).Returns(true);
 
             // Act
             var result = sut.Hide();
@@ -1929,9 +1947,10 @@ namespace TileWindow.Tests.Nodes
             var focusChild = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var otherChild = new Mock<Node>(new RECT(), Direction.Vertical, null);
             var childs = new Node[] { focusChild.Object, otherChild.Object };
-            var sut = CreateSut(childs: childs);
+            var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
             focusChild.Setup(m => m.Hide()).Returns(false).Verifiable();
             otherChild.Setup(m => m.Hide()).Returns(true).Verifiable();
+            renderer.Setup(m => m.Hide()).Returns(true);
 
             // Act
             var result = sut.Hide();
@@ -1940,6 +1959,22 @@ namespace TileWindow.Tests.Nodes
             result.Should().BeFalse();
             focusChild.VerifyAll();
             otherChild.VerifyAll();
+        }
+        [Fact]
+        public void When_Hide_Then_CallHideOnRenderer()
+        {
+            // Arrange
+            var focusChild = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
+            var otherChild = new Mock<Node>(new RECT(), Direction.Vertical, null);
+            var childs = new Node[] { focusChild.Object, otherChild.Object };
+            var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
+            renderer.Setup(m => m.Hide()).Returns(true);
+            
+            // Act
+            sut.Hide();
+
+            // Assert
+            renderer.Verify(m => m.Hide());
         }
 #endregion
 #region Restore

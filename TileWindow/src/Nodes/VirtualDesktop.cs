@@ -260,7 +260,7 @@ namespace TileWindow.Nodes
             if (FocusNode == null)
                 return;
 
-            if (typeof(TileRenderer).IsInstanceOfType(FocusNode.Renderer))
+            if (typeof(TileRenderer).IsInstanceOfType(FocusNode.GetRenderer()))
                 FocusNode.SetRenderer(new StackRenderer(pinvokeHandler, signalHandler));
             else
                 FocusNode.SetRenderer(new TileRenderer());

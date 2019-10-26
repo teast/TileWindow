@@ -215,6 +215,10 @@ namespace TileWindow.Nodes.Renderers
             return (true, newRect);
         }
 
+        public bool Show() => true;
+        
+        public bool Hide() => true;
+
         public void Dispose()
         {
         }

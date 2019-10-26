@@ -10,19 +10,12 @@ namespace TileWindow.Nodes
 {
     public class ContainerNode: Node, IEquatable<Node>
     {
-        private bool _isVisible = false;
-        public List<Node> Childs { get; protected set; }
-
-        private IRenderer _renderer;
-        public override IRenderer Renderer
-        {
-            get => _renderer;
-            protected set => _renderer = value;
-        }
-
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly IWindowTracker windowTracker;
+        private bool _isVisible = false;
         private List<int> _ignoreChildsOnUpdateRect;
+
+        public List<Node> Childs { get; protected set; }
         public override NodeTypes WhatType =>NodeTypes.Container;
         public override bool CanHaveChilds => true;
 
@@ -81,7 +74,7 @@ namespace TileWindow.Nodes
             var result = true;
             Childs.ForEach(c => result = c.Hide() && result);
             _isVisible = false;
-            return result;
+            return base.Hide() && result;
         }
 
         public override bool Show()
@@ -89,7 +82,7 @@ namespace TileWindow.Nodes
             var result = true;
             Childs.ForEach(c => result = c.Show() && result);
             _isVisible = true;
-            return result;
+            return base.Show() && result;
         }
 
         public override bool Restore()

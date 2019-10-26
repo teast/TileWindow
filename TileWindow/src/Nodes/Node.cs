@@ -107,16 +107,7 @@ namespace TileWindow.Nodes
         public string ShortName => Name?.Substring(0, Math.Min(Name?.Length ?? 0, 10)) ?? "";
 
         public Node Parent { get; set; }
-        public virtual IRenderer Renderer
-        {
-            get => Parent?.Renderer;
-            protected set
-            {
-                if (Parent != null)
-                    Parent.Renderer = value;
-            }
-        }
-
+        public IRenderer Renderer { get; set; }
         public virtual IVirtualDesktop Desktop => Parent?.Desktop;
         public Node MyFocusNode => Desktop?.FocusTracker?.MyLastFocusNode(this);
         public Node FocusNode => Desktop?.FocusTracker?.FocusNode();
@@ -244,6 +235,17 @@ namespace TileWindow.Nodes
         /// <param name="newRenderer">the new renderer to use</param>
         public virtual void SetRenderer(IRenderer newRenderer) => Parent?.SetRenderer(newRenderer);
 
+        /// <summary>
+        /// Retrieves the closest renderer to this node
+        /// </summary>
+        /// <returns>closest renderer or null if no renderer were found</returns>
+        public IRenderer GetRenderer()
+        {
+            if (Renderer != null)
+                return Renderer;
+            return Parent?.GetRenderer();
+        }
+
         public virtual void Resize(int val, TransferDirection direction)
         {
 //Log.Information($"{nameof(Node)}.{nameof(Resize)}({this.ToString()}) val: {val}, direction: {direction.ToString()}");
@@ -304,13 +306,19 @@ namespace TileWindow.Nodes
         /// The node should do whatever it needs to make itself invisible for the user
         /// </summary>
         /// <returns>true if no problems</returns>
-        public abstract bool Hide();
+        public virtual bool Hide()
+        {
+            return Renderer?.Hide() ?? true;
+        }
 
         /// <summary>
         /// The node should do whatever it needs to make itself visible for the user
         /// </summary>
         /// <returns>true if no problems</returns>
-        public abstract bool Show();
+        public virtual bool Show()
+        {
+            return Renderer?.Show() ?? true;
+        }
 
         /// <summary>
         /// Should restore everything to its original state (before TileWindow took over)
@@ -535,5 +543,7 @@ namespace TileWindow.Nodes
                 return hash;
             }
         }
+
+        public override string ToString() => $"[{nameof(Node)}{this.GetType().ToString()}) (id: {Id})]";
     }
 }

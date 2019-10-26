@@ -16,6 +16,7 @@ namespace TileWindow.Nodes.Renderers
         private readonly uint signalRefresh;
         private readonly uint signalNewPosition;
         private readonly uint signalNewSize;
+        private readonly uint signalShowHide;
         private bool _disposedCalled = false;
         private bool _changedDirection = false;
 
@@ -42,9 +43,10 @@ namespace TileWindow.Nodes.Renderers
         {
             this.pinvokeHandler = pinvokeHandler;
             this.signalHandler = signalHandler;
-            this.signalRefresh = signalHandler.WMC_SHOW;
+            this.signalRefresh = signalHandler.WMC_DISPLAYCHANGE;
             this.signalNewPosition = signalHandler.WMC_MOVE;
             this.signalNewSize = signalHandler.WMC_STYLECHANGED;
+            this.signalShowHide = signalHandler.WMC_SHOW;
         }
         
         public void PreUpdate(ContainerNode owner, List<Node> childs)
@@ -85,7 +87,7 @@ namespace TileWindow.Nodes.Renderers
                     _formThread = new Thread(() => {
                         try
                         {
-                            var _form = new FormStackCaption(captionArea, _captionHeight, ref _owner, signalHandler.WMC_SHOWNODE, signalRefresh, signalNewPosition, signalNewSize);
+                            var _form = new FormStackCaption(captionArea, _captionHeight, ref _owner, signalHandler.WMC_SHOWNODE, signalRefresh, signalNewPosition, signalNewSize, signalShowHide);
                             _formHandle = _form.Handle;
 
                             _formShow.WaitOne();
@@ -170,6 +172,28 @@ namespace TileWindow.Nodes.Renderers
             }
 
             return (true, Owner.Rect);
+        }
+
+        public bool Show()
+        {
+            if (_disposedCalled)
+                return true;
+
+            if (_formHandle != IntPtr.Zero)
+                pinvokeHandler.SendMessage(_formHandle, signalShowHide, new IntPtr(1), IntPtr.Zero);
+            
+            return true;
+        }
+
+        public bool Hide()
+        {
+            if (_disposedCalled)
+                return true;
+
+            if (_formHandle != IntPtr.Zero)
+                pinvokeHandler.SendMessage(_formHandle, signalShowHide, new IntPtr(0), IntPtr.Zero);
+
+            return true;
         }
 
         public void Dispose()

@@ -22,5 +22,17 @@ namespace TileWindow.Nodes.Renderers
         /// <param name="ignoreChildsWithIndex">list of index to not handle</param>
         /// <returns>if result is false then newRect will contain new wanted size for owner</returns>
         (bool result, RECT newRect) Update(List<int> ignoreChildsWithIndex);
+
+        /// <summary>
+        /// Should be called when the renderer should be visible
+        /// </summary>
+        /// <returns>return true if no problem</returns>
+        bool Show();
+
+        /// <summary>
+        /// Should be called when the renderer should be hidden
+        /// </summary>
+        /// <returns>return true if no problem</returns>
+        bool Hide();
     } 
 }

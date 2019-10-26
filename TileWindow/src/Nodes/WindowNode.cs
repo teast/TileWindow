@@ -195,7 +195,7 @@ namespace TileWindow.Nodes
                 pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, SetWindowPosFlags.SWP_HIDEWINDOW);
             }
 
-            return true;
+            return base.Hide();
         }
 
         public override bool Show()
@@ -211,7 +211,7 @@ namespace TileWindow.Nodes
                 pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, SetWindowPosFlags.SWP_SHOWWINDOW);
             }
 
-            return true;
+            return base.Show();
         }
         
         public override bool Restore()
