@@ -17,7 +17,6 @@ namespace TileWindow.Configuration.Parser.Commands
         bool CmdMoveToWorkspace(string cmd);
         bool CmdSplitVertical(string cmd);
         bool CmdSplitHorizontal(string cmd);
-        bool CmdSplitToggle(string cmd);
         bool CmdKill(string cmd);
         bool CmdRun(string cmd);
         bool CmdFullscreen(string cmd);

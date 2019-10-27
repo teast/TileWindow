@@ -33,6 +33,11 @@ namespace TileWindow.Tests.Nodes
                 throw new NotImplementedException();
             }
             
+            public override bool ReplaceNode(Node node, Node newNode)
+            {
+                throw new NotImplementedException();
+            }
+
             public override bool Hide()
             {
                 throw new NotImplementedException();

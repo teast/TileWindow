@@ -282,6 +282,11 @@ namespace TileWindow.Nodes
             return Parent?.AddNodes(nodes) ?? false;
         }
 
+        public override bool ReplaceNode(Node node, Node newNode)
+        {
+            return false;
+        }
+
         public override bool RemoveChild(Node child)
         {
             return false;

@@ -60,7 +60,6 @@ namespace TileWindow.Nodes
         bool Restore();
         void HandleLayoutStacking();
         void HandleLayoutToggleSplit();
-        void HandleSplitToggle();
     }
     
     // Describes an desktop that can contains multiple real screens
@@ -210,14 +209,16 @@ namespace TileWindow.Nodes
                 return;
             }
 
-            if (child?.Parent?.Direction == direction)
-                return;
-            
-            var parent = child?.Parent;
             var newChild = containerNodeCreator.Create(child.Rect, dir: direction);
-            parent?.AddNodes(newChild);
-            parent?.DisconnectChild(child);
-            newChild.AddNodes(child);
+            if (child.Parent?.ReplaceNode(child, newChild) ?? false)
+            {
+                newChild.AddNodes(child);
+            }
+            else
+            {
+                Log.Error($"{this} Could not ReplaceNode {child} on parent: {child.Parent}");
+                newChild.Dispose();
+            }
         }
 
         public void HandleVerticalDirection()
@@ -290,17 +291,6 @@ namespace TileWindow.Nodes
                     p = p.Parent;
                 }
             }
-        }
-
-        public void HandleSplitToggle()
-        {
-            if (FocusNode == null)
-                return;
-            
-            if (FocusNode.Direction == Direction.Horizontal)
-                ChangeDirectionOnChild(FocusNode, Direction.Vertical);
-            else
-                ChangeDirectionOnChild(FocusNode, Direction.Horizontal);
         }
 
         public void HandleSwitchFloating()

@@ -191,6 +191,17 @@ namespace TileWindow.Nodes
             return true;
         }
         
+        public override bool ReplaceNode(Node node, Node newNode)
+        {
+            var i = Childs.IndexOf(node);
+            if (i == -1)
+                return false;
+            
+            InsertChildAt(newNode, i);
+            RemoveChildAt(i+1, callChildsDispose: false);
+            return true;
+        }
+
         public override void ChangeDirection(Direction dir)
         {
             var old = Direction;

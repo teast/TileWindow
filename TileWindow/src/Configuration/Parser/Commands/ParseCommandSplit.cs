@@ -12,8 +12,6 @@ namespace TileWindow.Configuration.Parser.Commands
                 return handler.CmdSplitVertical(data);
             if (data == "split horizontal")
                 return handler.CmdSplitHorizontal(data);
-            if (data == "split toggle")
-                return handler.CmdSplitToggle(data);
 
             throw new System.InvalidOperationException($"Unknown split command \"{data}\"");
         }
@@ -21,8 +19,7 @@ namespace TileWindow.Configuration.Parser.Commands
         protected override bool DoValidate(string line)
         {
             return (line == "split vertical" ||
-                line == "split horizontal" ||
-                line == "split toggle");
+                line == "split horizontal");
         }
     }
 }

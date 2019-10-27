@@ -279,6 +279,56 @@ namespace TileWindow.Tests.Nodes
             renderer.Verify(m => m.Update(It.IsAny<List<int>>()));
         }
 #endregion
+#region ReplaceNode
+        [Fact]
+        public void When_ReplaceNode_And_NodeNotFound_Then_ReturnFalse()
+        {
+            // Arrange
+            var node = NodeHelper.CreateMockNode();
+            var sut = CreateSut();
+
+            // Act
+            var result = sut.ReplaceNode(node.Object, node.Object);
+
+            // Assert
+            result.Should().BeFalse();
+        }
+        [Fact]
+        public void When_ReplaceNode_Then_InsertNewNode_And_RemoveOldNode()
+        {
+            // Arrange
+            var node = NodeHelper.CreateMockNode();
+            var newNode = NodeHelper.CreateMockNode();
+            var sut = CreateSut(childs: new Node[] { NodeHelper.CreateMockNode().Object, node.Object, NodeHelper.CreateMockNode().Object });
+            sut.Childs[1].Should().BeEquivalentTo(node.Object);
+            sut.Childs.Should().HaveCount(3);
+
+            // Act
+            var result = sut.ReplaceNode(node.Object, newNode.Object);
+
+            // Assert
+            result.Should().BeTrue();
+            sut.Childs.Should().NotContain(node.Object);
+            sut.Childs[1].Should().BeEquivalentTo(newNode.Object);
+            sut.Childs.Should().HaveCount(3);
+        }
+        [Fact]
+        public void When_ReplaceNode_Then_MakeSureTheOldNodeIsNotDisposed()
+        {
+            // Arrange
+            var node = NodeHelper.CreateMockNode();
+            var newNode = NodeHelper.CreateMockNode();
+            var sut = CreateSut(childs: new Node[] { NodeHelper.CreateMockNode().Object, node.Object, NodeHelper.CreateMockNode().Object });
+            sut.Childs[1].Should().BeEquivalentTo(node.Object);
+            sut.Childs.Should().HaveCount(3);
+
+            // Act
+            sut.ReplaceNode(node.Object, newNode.Object);
+
+            // Assert
+            node.Verify(m => m.Dispose(), Times.Never);
+        }
+#endregion
 #region ChangeDirection
         [Fact]
         public void When_ChangeDirection_Then_ChangeDirection_And_UpdateRenderer()

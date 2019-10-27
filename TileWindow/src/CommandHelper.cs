@@ -170,12 +170,6 @@ namespace TileWindow.Handlers
             return false;
         }
 
-        public bool CmdSplitToggle(string cmd)
-        {
-            desktops.ActiveDesktop.HandleSplitToggle();
-            return false;
-        }
-
         public bool CmdFullscreen(string cmd)
         {
             desktops.ActiveDesktop.HandleFullscreen();

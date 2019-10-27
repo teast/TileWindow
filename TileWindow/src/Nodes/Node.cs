@@ -300,6 +300,8 @@ namespace TileWindow.Nodes
 
         public abstract bool AddNodes(params Node[] nodes);
 
+        public abstract bool ReplaceNode(Node node, Node newNode);
+
         public abstract Node FindNodeWithId(long id);
 
         /// <summary>
