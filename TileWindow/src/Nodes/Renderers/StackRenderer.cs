@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Windows.Forms;
 using Serilog;
@@ -49,7 +50,7 @@ namespace TileWindow.Nodes.Renderers
             this.signalShowHide = signalHandler.WMC_SHOW;
         }
         
-        public void PreUpdate(ContainerNode owner, List<Node> childs)
+        public void PreUpdate(ContainerNode owner, Collection<Node> childs)
         {
             if (_disposedCalled)
                 return;

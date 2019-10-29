@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using FluentAssertions;
 using TileWindow.Nodes.Renderers;
 using TileWindow.Tests.TestHelpers;
@@ -19,7 +19,7 @@ namespace TileWindow.Tests.Nodes.Renderers
             var sut = CreateSut();
 
             // Act
-            sut.PreUpdate(owner.Object, new List<TileWindow.Nodes.Node>());
+            sut.PreUpdate(owner.Object, new Collection<TileWindow.Nodes.Node>());
 
             // Assert
             sut.AllocatableHeight.Should().Be(expectedHeight);

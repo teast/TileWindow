@@ -61,6 +61,7 @@ namespace TileWindow.Trackers
         private Dictionary<IntPtr, Node> _windows = new Dictionary<IntPtr, Node>();
         private List<IgnoreHwndInfo> _ignoreHwnds;
         private readonly IList<Regex> classNamesToIgnore;
+        private readonly IList<Regex> captionsToIgnore;
         private readonly IPInvokeHandler pinvokeHandler;
         private readonly CreateWindowNode windowNodeCreater;
         private readonly IWindowEventHandler windowHandler;
@@ -83,6 +84,11 @@ namespace TileWindow.Trackers
                 new Regex(@"^MultitaskingViewFrame$", RegexOptions.Compiled), // Windows 10 multitasking screen
                 new Regex(@"^MSO_BORDEREFFECT_WINDOW_CLASS$", RegexOptions.Compiled),
                 new Regex(@"GlowWindow", RegexOptions.Compiled), // Full: VisualStudioGlowWindow
+            };
+
+            this.captionsToIgnore = new List<Regex>
+            {
+                new Regex(@"^TileWindow - AppBar$", RegexOptions.Compiled)
             };
         }
 
@@ -195,6 +201,12 @@ namespace TileWindow.Trackers
                     //Log.Warning($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} \"{GetWindowText(hWnd)}\" because it is not visible according to cloaked (result: {result:X}, cloaked: {pvAttribute}), visible: {visible}");
                     return false;
                 }
+            }
+
+            var text = GetWindowText(hWnd);
+            if (captionsToIgnore.Any(regex => regex.IsMatch(text)))
+            {
+                return false;
             }
 
             return true;

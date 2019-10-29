@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Serilog;
@@ -10,8 +12,21 @@ using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
 {
+    public class ChildSetChangeArg
+    {
+        public bool Visible { get; }
+        public bool Removed { get; }
+
+        public ChildSetChangeArg(bool visible, bool removed)
+        {
+            Visible = visible;
+            Removed = removed;
+        }
+    }
+
     public interface IVirtualDesktop
     {
+        event EventHandler<ChildSetChangeArg> ChildSetChange;
         bool IsVisible { get; }
         List<Node> FloatingNodes { get; }
         int ActiveScreenIndex { get; }
@@ -19,7 +34,7 @@ namespace TileWindow.Nodes
         Node MyFocusNode { get; }
         Node FocusNode { get; }
 
-        List<Node> Childs { get; }
+        Collection<Node> Childs { get; }
         Direction Direction { get; }
 
         IFocusTracker FocusTracker { get; }
@@ -60,11 +75,14 @@ namespace TileWindow.Nodes
         bool Restore();
         void HandleLayoutStacking();
         void HandleLayoutToggleSplit();
+        void ReRaiseChildCountChange();
     }
     
     // Describes an desktop that can contains multiple real screens
     public class VirtualDesktop: FixedContainerNode, IVirtualDesktop, IEquatable<VirtualDesktop>
     {
+        public event EventHandler<ChildSetChangeArg> ChildSetChange;
+
         private readonly IPInvokeHandler pinvokeHandler;
         private readonly ISignalHandler signalHandler;
         private readonly IScreenNodeCreater screenNodeCreater;
@@ -73,6 +91,30 @@ namespace TileWindow.Nodes
         public bool IsVisible { get; private set; }
 
         public override IVirtualDesktop Desktop => this;
+
+        private ObservableCollection<Node> _childs;
+        public override Collection<Node> Childs
+        {
+            get => _childs;
+            protected set 
+            {
+                if (typeof(ObservableCollection<Node>).IsInstanceOfType(value))
+                {
+                    _childs = value as ObservableCollection<Node>;
+                }
+                else
+                {
+                    _childs = new ObservableCollection<Node>(value);
+                }
+
+                _childs.CollectionChanged += (sender, args) => {
+                    if (args.Action == NotifyCollectionChangedAction.Add)
+                        RaiseChildCountChange(false);
+                    else if (args.Action == NotifyCollectionChangedAction.Remove)
+                        RaiseChildCountChange(true);
+                };
+            }
+        }
 
         public virtual List<Node> FloatingNodes { get; private set; }
 
@@ -196,29 +238,6 @@ namespace TileWindow.Nodes
         public void HandleResize(int val, TransferDirection dir)
         {
             FocusNode?.Resize(val, dir);
-        }
-
-        private void ChangeDirectionOnChild(Node child, Direction direction)
-        {
-            if (child == null)
-                return;
-            
-            if (child.CanHaveChilds)
-            {
-                child.ChangeDirection(direction);
-                return;
-            }
-
-            var newChild = containerNodeCreator.Create(child.Rect, dir: direction);
-            if (child.Parent?.ReplaceNode(child, newChild) ?? false)
-            {
-                newChild.AddNodes(child);
-            }
-            else
-            {
-                Log.Error($"{this} Could not ReplaceNode {child} on parent: {child.Parent}");
-                newChild.Dispose();
-            }
         }
 
         public void HandleVerticalDirection()
@@ -402,24 +421,6 @@ namespace TileWindow.Nodes
             }
         }
 
-        protected virtual void MoveFloatingNodeToDesktop(Node node, IVirtualDesktop destination)
-        {
-            var old = node;
-            if (!DisconnectChild(node))
-            {
-                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(MoveFloatingNodeToDesktop)} could not disconnect floating node from desktop: {node}");
-                return;
-            }
-
-            if (!destination.AddNodes(node))
-            {
-                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(MoveFloatingNodeToDesktop)} could not transfer node to desktop: {destination}, NODE: {node}");
-                return;
-            }
-
-            FocusTracker.Untrack(old);
-        }
-
         public override bool DisconnectChild(Node child)
         {
             if (child == null || child.Style != NodeStyle.Floating)
@@ -574,7 +575,9 @@ namespace TileWindow.Nodes
                 }
             }
 
-Log.Information($"{this} my focus node is: {MyFocusNode}");
+            if (result)
+                RaiseChildCountChange(false);
+                
             return result;
         }
 
@@ -612,24 +615,6 @@ Log.Information($"{this} my focus node is: {MyFocusNode}");
             child.UpdateRect(r);
         }
 
-        protected override void OnChildRequestRectChange(object sender, RequestRectChangeEventArg args)
-        {
-            if (args.Requester.Style != NodeStyle.Floating)
-            {
-                base.OnChildRequestRectChange(sender, args);
-                return;
-            }
-
-            var i = FloatingNodes.IndexOf(args.Requester);
-            if (i == -1)
-            {
-                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(OnChildRequestRectChange)}, Could not find floating node in list");
-                return;
-            }
-
-            args.Requester.UpdateRect(args.Requester.Rect);
-        }
-        
         public override bool Equals(object obj)
         {
             var o = obj as VirtualDesktop;
@@ -665,5 +650,74 @@ Log.Information($"{this} my focus node is: {MyFocusNode}");
         }
 
         public override string ToString() => $"<{nameof(VirtualDesktop)} #{Index}>";
+
+        public void ReRaiseChildCountChange()
+        {
+            RaiseChildCountChange(false);
+        }
+
+        protected virtual void MoveFloatingNodeToDesktop(Node node, IVirtualDesktop destination)
+        {
+            var old = node;
+            if (!DisconnectChild(node))
+            {
+                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(MoveFloatingNodeToDesktop)} could not disconnect floating node from desktop: {node}");
+                return;
+            }
+
+            if (!destination.AddNodes(node))
+            {
+                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(MoveFloatingNodeToDesktop)} could not transfer node to desktop: {destination}, NODE: {node}");
+                return;
+            }
+
+            FocusTracker.Untrack(old);
+        }
+
+        protected override void OnChildRequestRectChange(object sender, RequestRectChangeEventArg args)
+        {
+            if (args.Requester.Style != NodeStyle.Floating)
+            {
+                base.OnChildRequestRectChange(sender, args);
+                return;
+            }
+
+            var i = FloatingNodes.IndexOf(args.Requester);
+            if (i == -1)
+            {
+                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(OnChildRequestRectChange)}, Could not find floating node in list");
+                return;
+            }
+
+            args.Requester.UpdateRect(args.Requester.Rect);
+        }
+
+        protected void RaiseChildCountChange(bool removed)
+        {
+            ChildSetChange?.Invoke(this, new ChildSetChangeArg(_childs.Any(c => ((ScreenNode)c).Childs.Count > 0), removed));
+        }
+
+        private void ChangeDirectionOnChild(Node child, Direction direction)
+        {
+            if (child == null)
+                return;
+            
+            if (child.CanHaveChilds)
+            {
+                child.ChangeDirection(direction);
+                return;
+            }
+
+            var newChild = containerNodeCreator.Create(child.Rect, dir: direction);
+            if (child.Parent?.ReplaceNode(child, newChild) ?? false)
+            {
+                newChild.AddNodes(child);
+            }
+            else
+            {
+                Log.Error($"{this} Could not ReplaceNode {child} on parent: {child.Parent}");
+                newChild.Dispose();
+            }
+        }
     }
 }

@@ -165,6 +165,58 @@ namespace TileWindow
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct APPBARDATA
+    {
+        public int cbSize;
+        public IntPtr hWnd;
+        public uint uCallbackMessage;
+        public int uEdge;
+        public RECT rc;
+        public IntPtr lParam;
+
+        public APPBARDATA(IntPtr hwnd)
+        {
+            cbSize = Marshal.SizeOf(typeof(APPBARDATA));
+            hWnd = hwnd;
+            uCallbackMessage = 0;
+            uEdge = 0;
+            rc = new RECT();
+            lParam = IntPtr.Zero;
+        }
+    }
+
+    public enum ABMsg : int
+    {
+        ABM_NEW=0,
+        ABM_REMOVE=1,
+        ABM_QUERYPOS=2,
+        ABM_SETPOS=3,
+        ABM_GETSTATE=4,
+        ABM_GETTASKBARPOS=5,
+        ABM_ACTIVATE=6,
+        ABM_GETAUTOHIDEBAR=7,
+        ABM_SETAUTOHIDEBAR=8,
+        ABM_WINDOWPOSCHANGED=9,
+        ABM_SETSTATE=10
+    }
+
+    public enum ABNotify : int
+    {
+        ABN_STATECHANGE=0,
+        ABN_POSCHANGED,
+        ABN_FULLSCREENAPP,
+        ABN_WINDOWARRANGE
+    }
+
+    public enum ABEdge : int
+    {
+        ABE_LEFT=0,
+        ABE_TOP,
+        ABE_RIGHT,
+        ABE_BOTTOM
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct STYLESTRUCT
     {
         public int styleOld;
@@ -359,6 +411,8 @@ namespace TileWindow
         Int32 SwitchDesktop(Int32 hDesktop);
         IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, uint dwDesiredAccess);
         bool GetUserObjectInformation(IntPtr hObj, int nIndex, [Out] byte[] pvInfo, uint nLength, out uint lpnLengthNeeded);
+        uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData);
+        bool MoveWindow(IntPtr hWnd, int x, int y, int cx, int cy, bool repaint);
     }
 
     /// <summary>
@@ -420,6 +474,8 @@ namespace TileWindow
         public Int32 SwitchDesktop(Int32 hDesktop) => PInvoker.SwitchDesktop(hDesktop);
         public IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, uint dwDesiredAccess) => PInvoker.OpenInputDesktop(dwFlags, fInherit, dwDesiredAccess);
         public bool GetUserObjectInformation(IntPtr hObj, int nIndex, [Out] byte[] pvInfo, uint nLength, out uint lpnLengthNeeded) => PInvoker.GetUserObjectInformation(hObj, nIndex, pvInfo, nLength, out lpnLengthNeeded);
+        public uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData) => PInvoker.SHAppBarMessage(dwMessage, ref pData);
+        public bool MoveWindow(IntPtr hWnd, int x, int y, int cx, int cy, bool repaint) => PInvoker.MoveWindow(hWnd, x, y, cx, cy, repaint);
 
         // This helper static method is required because the 32-bit version of user32.dll does not contain this API
         // (on any versions of Windows), so linking the method will fail at run-time. The bridge dispatches the request
@@ -576,6 +632,10 @@ namespace TileWindow
             public static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, uint dwDesiredAccess);
             [DllImport("user32.dll", EntryPoint = "GetUserObjectInformationA", SetLastError=true)]
             public static extern bool GetUserObjectInformation(IntPtr hObj, int nIndex, [Out] byte[] pvInfo, uint nLength, out uint lpnLengthNeeded);
+            [DllImport("SHELL32", CallingConvention=CallingConvention.StdCall)]
+            public static extern uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData);
+            [DllImport("User32.dll", ExactSpelling=true, CharSet=System.Runtime.InteropServices.CharSet.Auto)]
+            public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int cx, int cy, bool repaint);
         }
     }
 
@@ -587,6 +647,7 @@ namespace TileWindow
         public const int GWL_HWNDPARENT = (-8);
         public const int GWL_STYLE = (-16);
         public const int GWL_EXSTYLE = (-20);
+        public const int WS_BORDER = 0x00800000;
         public const int WS_CAPTION = 0x00c00000;
         public const int WS_VISIBLE = 0x10000000;
         public const int WS_MAXIMIZE = 0x01000000;
@@ -602,7 +663,9 @@ namespace TileWindow
         public const int WS_EX_APPWINDOW = 0x00040000;
         public const int WS_EX_TOOLWINDOW = 0x00000080;
         public const int WS_EX_NOACTIVATE = 0x08000000;
+        public const int WS_EX_TOPMOST = 0x00000008;
         public const uint WM_CLOSE = 16;
+        public const uint WM_DESTROY = 0x0002;
         public static readonly IntPtr HWND_TOP = new IntPtr(0);
         public static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
         public static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);

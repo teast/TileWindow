@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Serilog;
 
 namespace TileWindow.Nodes.Renderers
@@ -17,7 +18,7 @@ namespace TileWindow.Nodes.Renderers
 
         public ContainerNode Owner { get; private set; }
 
-        public void PreUpdate(ContainerNode owner, List<Node> childs)
+        public void PreUpdate(ContainerNode owner, Collection<Node> childs)
         {
             Owner = owner;
 
@@ -50,7 +51,8 @@ namespace TileWindow.Nodes.Renderers
             {
 //Log.Information($"RecalcDeltaWidthHeight({parent.Direction.ToString()}): ALL CHILDS ARE FIXED BUT THEY DO NOT COVER WHOLE PARENT {_width}/{_height} != {w}/{h}");
                 w = h = c = 0;
-                childs.ForEach(c => c.FixedRect = false);
+                foreach(var child in childs)
+                    child.FixedRect = false;
             }
 
 //Log.Information($"RecalcDeltaWidthHeight({parent.Direction.ToString()}): width/height: {_width}/{_height}, _allocatable: {_allocatableWidth}/{_allocatableHeight}, child count: {childs.Count} (w: h and c: {w}, {h}, {c})");

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace TileWindow.Nodes.Renderers
 {
@@ -14,7 +15,7 @@ namespace TileWindow.Nodes.Renderers
         /// <param name="owner">Owner node</param>
         /// <param name="childs">Childs to the owner</param>
         /// <remarks>This will be called when the collection of childs changes and/or owner changes</remarks>
-        void PreUpdate(ContainerNode owner, List<Node> childs);
+        void PreUpdate(ContainerNode owner, Collection<Node> childs);
 
         /// <summary>
         /// Do the actual layout structure on childs from <see cref="PreUpdate" /> call

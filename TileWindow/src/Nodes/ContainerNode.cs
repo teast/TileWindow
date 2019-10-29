@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
 using TileWindow.Nodes.Creaters;
@@ -15,7 +16,7 @@ namespace TileWindow.Nodes
         private bool _isVisible = false;
         private List<int> _ignoreChildsOnUpdateRect;
 
-        public List<Node> Childs { get; protected set; }
+        public virtual Collection<Node> Childs { get; protected set; }
         public override NodeTypes WhatType =>NodeTypes.Container;
         public override bool CanHaveChilds => true;
 
@@ -24,7 +25,7 @@ namespace TileWindow.Nodes
             this.Renderer = renderer;
             this.containerNodeCreator = containerNodeCreator;
             this.windowTracker = windowTracker;
-            Childs = new List<Node>();
+            Childs = new Collection<Node>();
             _ignoreChildsOnUpdateRect = new List<int>();
         }
 
@@ -72,7 +73,8 @@ namespace TileWindow.Nodes
         public override bool Hide()
         {
             var result = true;
-            Childs.ForEach(c => result = c.Hide() && result);
+            foreach(var child in Childs)
+                result = child.Hide() && result;
             _isVisible = false;
             return base.Hide() && result;
         }
@@ -80,7 +82,8 @@ namespace TileWindow.Nodes
         public override bool Show()
         {
             var result = true;
-            Childs.ForEach(c => result = c.Show() && result);
+            foreach(var child in Childs)
+                result = child.Show() && result;
             _isVisible = true;
             return base.Show() && result;
         }
@@ -88,7 +91,8 @@ namespace TileWindow.Nodes
         public override bool Restore()
         {
             var result = true;
-            Childs.ForEach(c => result = c.Restore() && result);
+            foreach(var child in Childs)
+                result = child.Restore() && result;
             return result;
         }
 
@@ -484,7 +488,10 @@ namespace TileWindow.Nodes
                 return;
 
             Renderer.Dispose();
-            Childs?.ForEach(c => c.Dispose());
+            if (Childs != null)
+                foreach(var child in Childs)
+                    child.Dispose();
+
             base.Dispose();
         }
 
@@ -536,7 +543,6 @@ namespace TileWindow.Nodes
             childToAdd.Depth = this.Depth + 1;
             childToAdd.StyleChanged += ChildNodeStyleChange;
             childToAdd.RequestRectChange += OnChildRequestRectChange;
-            //childToAdd.WantFocus += OnChildWantFocus;
             Desktop.NodeAdded(childToAdd);
         }
 
@@ -582,7 +588,6 @@ namespace TileWindow.Nodes
             Childs.RemoveAt(index);
             n.StyleChanged -= ChildNodeStyleChange;
             n.RequestRectChange -= OnChildRequestRectChange;
-            //n.WantFocus -= OnChildWantFocus;
 
             if (callChildsDispose)
             {

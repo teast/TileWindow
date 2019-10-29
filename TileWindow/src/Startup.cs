@@ -16,6 +16,8 @@ using TileWindow.Configuration;
 using TileWindow.Configuration.Parser.Commands;
 using ICommandExecutor = TileWindow.Configuration.Parser.Commands.ICommandExecutor;
 using TileWindow.Configuration.Parser;
+using TileWindow.Forms;
+using System.Runtime.InteropServices;
 
 namespace TileWindow
 {
@@ -147,7 +149,8 @@ namespace TileWindow
 				var serviceProvider = serviceCollection.BuildServiceProvider();
 				var pinvokeHandler = serviceProvider.GetRequiredService<IPInvokeHandler>();
 				var signalHandler = serviceProvider.GetRequiredService<ISignalHandler>();
-
+				var desktops = serviceProvider.GetRequiredService<IVirtualDesktopCollection>();
+				
 				try
 				{
 					if (File.Exists(tw32Path) == false)
@@ -198,6 +201,32 @@ namespace TileWindow
 							};
 
 							var parser = new Thread(() => MessageParser.StartThread(ref thParserDone, serviceProvider));
+
+							IntPtr appbarHandle = IntPtr.Zero;
+							var appbar = new Thread(() => {
+								try
+								{
+									var _form = new FormAppBar(TransferDirection.Down, appConfig, pinvokeHandler, signalHandler.WMC_SHOWNODE);
+									appbarHandle = _form.Handle;
+		                            Application.Run(_form);
+								}
+								catch(Exception ex)
+								{
+									Log.Fatal(ex, $"Unhandled exception with appbar");
+								}
+							});
+
+							appbar.Start();
+							desktops.DesktopChange += (sender, arg) => {
+								if (appbarHandle == IntPtr.Zero)
+									return;
+
+								var HWnd = new HWnd(appbarHandle);
+								var lParam = arg.Visible || arg.Focus ? 1 : 0; // focus == visible
+								if (arg.Focus) lParam += 2;
+								pinvokeHandler.PostMessage(new HandleRef(HWnd, HWnd.Hwnd), signalHandler.WMC_SHOWNODE, new IntPtr(arg.Index), new IntPtr(lParam));
+							};
+
 							thread32.Start();
 							thread64.Start();
 							parser.Start();
@@ -205,7 +234,6 @@ namespace TileWindow
 							using(var noti = new NotificationIcon(appConfig, new AppResource()))
 							{
 								noti.InitNotification();
-								//frmStartup.Hide();
 								Application.Run();
 							}
 

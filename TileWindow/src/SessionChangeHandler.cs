@@ -4,6 +4,9 @@ using Serilog;
 
 namespace TileWindow
 {
+    /// <summary>
+    /// Handles lock/unlock signals from the system
+    /// </summary>
     class SessionChangeHandler : Control
     {
         private IPInvokeHandler pinvokeHandler;
