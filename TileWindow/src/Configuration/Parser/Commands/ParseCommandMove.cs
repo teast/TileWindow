@@ -18,7 +18,7 @@ namespace TileWindow.Configuration.Parser.Commands
                 return handler.CmdMoveLeft(data);
             if (data == "move right")
                 return handler.CmdMoveRight(data);
-            if (data.StartsWith(workspaceNumber) && int.TryParse(data.Substring(workspaceNumber.Length), out int result) && result >= 0 && result < 9)
+            if (data.StartsWith(workspaceNumber) && int.TryParse(data.Substring(workspaceNumber.Length), out int result) && result >= 0 && result < 10)
                 return ExecuteMoveWorkspace(handler, result, data);
 
             throw new System.InvalidOperationException($"Unknown move command \"{data}\"");
@@ -31,7 +31,7 @@ namespace TileWindow.Configuration.Parser.Commands
                 line == "move down" ||
                 line == "move left" ||
                 line == "move right" ||
-                line.StartsWith(workspaceNumber) && int.TryParse(line.Substring(workspaceNumber.Length), out int result) && result >= 0 && result < 9
+                line.StartsWith(workspaceNumber) && int.TryParse(line.Substring(workspaceNumber.Length), out int result) && result >= 0 && result < 10
                 );
         }
 

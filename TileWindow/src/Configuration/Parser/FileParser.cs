@@ -7,9 +7,23 @@ namespace TileWindow.Configuration.Parser
 {
     public delegate void AddErrorDelegate(string error, bool withLineNumbers = true);
 
-    public class FileParser: IDisposable
+    public enum FileParserStateResult
     {
-        private readonly Dictionary<string, IParseInstruction> _parseInstruction;
+        None,
+        OpenBracket,
+        CloseBracket
+    }
+
+    public interface IFileParser: IDisposable
+    {
+        ConfigCollection Data { get; }
+        List<Tuple<int, string>> Errors { get; }
+        void Parse(Stream stream);
+    }
+
+    public class FileParser: IFileParser
+    {
+        private readonly List<IParseInstruction> _parseInstruction;
         private readonly IParseInstructionBuilder instructionBuilder;
         private StreamReader _sr;
         private int _blocks;
@@ -27,7 +41,7 @@ namespace TileWindow.Configuration.Parser
             //_dblQuotes = 0;
             //_quotes = 0;
             _lineNumber = 0;
-            Data = new ConfigCollection();
+            Data = new ConfigCollection("Default");
             _data = Data;
             Errors = new List<Tuple<int, string>>();
             
@@ -38,10 +52,36 @@ namespace TileWindow.Configuration.Parser
         {
             _sr = new StreamReader(stream);
 
-            string line;
-            while ((line = NextLine()) != null)
+            string line = "";
+            var prevName = "";
+            while ((line = NextLine(line)) != null)
             {
-                ParseLine(line, ParseLineInnerDefault);
+                var result = ParseLine(line);
+                if (result?.Status == FileParserStateResult.OpenBracket)
+                {
+                    _blocks++;
+                    var modeName = result?.Instruction?.Instruction ?? prevName;
+                    var old = _data;
+                    _data = new ConfigCollection(modeName, old);
+                    old.Modes.Add(modeName, _data);
+                }
+                else if (result?.Status == FileParserStateResult.CloseBracket)
+                {
+                    _blocks--;
+                    _data = _data.Parent;
+                }
+
+                prevName = result?.Instruction?.Instruction ?? "";
+                line = result?.Remaining ?? "";
+            }
+
+            if (_blocks != 0)
+            {
+                AddError("Missing closing Brackets", false);
+            }
+            else if (_data.Name != "Default")
+            {
+                AddError($"Unknown error. ended up in mode \"{_data.Name}\" but it should be \"Default\".", false);
             }
         }
 
@@ -51,27 +91,29 @@ namespace TileWindow.Configuration.Parser
                 _sr.Dispose();
         }
 
-        protected virtual void ParseLine(string line, Func<string, string> innerParse)
+        protected virtual ParseInstructionResult ParseLine(string line)
         {
             // Trim
-            line = line.TrimStart(new [] { ' ', '\t' });
+            line = line.Trim(new [] { ' ', '\t' });
 
-            // Comment line, ignore
-            if (line.StartsWith('#'))
-                return;
-
-            var commands = line.Split(';', StringSplitOptions.RemoveEmptyEntries);
-            foreach(var cmd in commands)
+            // Comment or empty line, ignore
+            if (line.StartsWith('#') || string.IsNullOrEmpty(line))
+                return new ParseInstructionResult(FileParserStateResult.None, "", null);
+            
+            if (line.StartsWith('{'))
             {
-                var left = cmd;
-                while (left.Length > 0)
-                {
-                    left = innerParse(left);
-                }
+                return new ParseInstructionResult(FileParserStateResult.OpenBracket, line.Substring(1), null);
             }
+
+            if (line.StartsWith('}'))
+            {
+                return new ParseInstructionResult(FileParserStateResult.CloseBracket, line.Substring(1), null);
+            }
+
+            return ParseLineParticles(line);
         }
 
-        protected virtual string ParseLineInnerDefault(string line)
+        protected virtual ParseInstructionResult ParseLineParticles(string line)
         {
             var particles = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
@@ -79,37 +121,24 @@ namespace TileWindow.Configuration.Parser
             if (particles.Length < 2)
             {
                 AddError("Invalid instruction");
-                return "";
+                return null;
             }
 
-            if (_parseInstruction.TryGetValue(particles[0].ToLowerInvariant(), out IParseInstruction parser))
-                return parser.Parse(particles, ref _data);
+            foreach(var parser in _parseInstruction)
+            {
+                if (parser.Parse(particles, ref _data))
+                    return parser.FetchResult;
+            }
             
             AddError($"Unknown instruction \"{particles[0]}\"");
-            return "";
+            return null;
         }
 
-        protected virtual string ParseLineInnerCloseBlock(string line)
+        protected virtual string NextLine(string remaining)
         {
-            var close = line.IndexOf('}');
-            var open = line.IndexOf('{');
+            if ((remaining?.Length ?? 0) > 0)
+                return remaining;
 
-            if (open != -1)
-                _blocks++;
-
-            if (close == -1)
-                return "";
-            
-            if (close < open)
-            {
-                _blocks--;
-            }
-
-                return line.Substring(close);
-        }
-
-        protected virtual string NextLine()
-        {
             if (_sr?.EndOfStream ?? true)
                 return null;
 

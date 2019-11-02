@@ -1,7 +1,6 @@
 using Xunit;
 using TileWindow.Configuration.Parser;
 using System.IO;
-using Moq;
 using TileWindow.Configuration.Parser.Commands;
 using TileWindow.Configuration.Parser.Instructions;
 using System.Text;
@@ -77,6 +76,21 @@ namespace TileWindow.Tests.Configuration.Parser
         }
 
         [Fact]
+        public void Bindsym_Run()
+        {
+            // Arrange
+            var file = "# This is a test\nbindsym WIN+Shift+Left run";
+            var sut = CreateSut();
+
+            // Act
+            sut.Parse(new MemoryStream(Encoding.UTF8.GetBytes(file)));
+
+            // Assert
+            sut.Data.KeyBinds.ContainsKey("WIN+Shift+Left").Should().BeTrue();
+            sut.Data.KeyBinds["WIN+Shift+Left"].Should().Be("run");
+            sut.Dispose();
+        
+        }        [Fact]
         public void Bindsym_Focus()
         {
             // Arrange
@@ -141,6 +155,72 @@ namespace TileWindow.Tests.Configuration.Parser
             // Assert
             sut.Errors.Should().HaveCount(1);
             sut.Errors.First().Item1.Should().Be(2);
+        }
+
+        [Fact]
+        public void Bar_Empty()
+        {
+            // Arrange
+            var file = "# This is a test\n  bar {}";
+            var sut = CreateSut();
+
+            // Act
+            sut.Parse(new MemoryStream(Encoding.UTF8.GetBytes(file)));
+
+            // Assert
+            sut.Errors.Should().HaveCount(0);
+            sut.Data.Modes.Should().HaveCount(1).And.ContainKey("bar");
+        }
+
+        [Fact]
+        public void BarWithPosition()
+        {
+            // Arrange
+            var file = "# This is a test\n  bar {\n\tposition top\n}";
+            var sut = CreateSut();
+
+            // Act
+            sut.Parse(new MemoryStream(Encoding.UTF8.GetBytes(file)));
+
+            // Assert
+            sut.Errors.Should().HaveCount(0);
+            sut.Data.Modes.Should().HaveCount(1).And.ContainKey("bar");
+            sut.Data.Modes["bar"].Data.Should().HaveCount(1).And.ContainKey("position");
+            sut.Data.Modes["bar"].Data["position"].Should().Be("top");
+        }
+
+        [Fact]
+        public void BarColors()
+        {
+            // Arrange
+            var file = "# This is a test\n  bar {\n\tcolors {}\n}";
+            var sut = CreateSut();
+
+            // Act
+            sut.Parse(new MemoryStream(Encoding.UTF8.GetBytes(file)));
+
+            // Assert
+            sut.Errors.Should().HaveCount(0);
+            sut.Data.Modes.Should().HaveCount(1).And.ContainKey("bar");
+            sut.Data.Modes["bar"].Modes.Should().HaveCount(1).And.ContainKey("colors");
+        }
+
+        [Fact]
+        public void BarColorsWithBackground()
+        {
+            // Arrange
+            var file = "# This is a test\n  bar {\n\tcolors {\n\t\tbackground #00ff00\n}\n}";
+            var sut = CreateSut();
+
+            // Act
+            sut.Parse(new MemoryStream(Encoding.UTF8.GetBytes(file)));
+
+            // Assert
+            sut.Errors.Should().HaveCount(0);
+            sut.Data.Modes.Should().HaveCount(1).And.ContainKey("bar");
+            sut.Data.Modes["bar"].Modes.Should().HaveCount(1).And.ContainKey("colors");
+            sut.Data.Modes["bar"].Modes["colors"].Data.Should().HaveCount(1).And.ContainKey("background");
+            sut.Data.Modes["bar"].Modes["colors"].Data["background"].Should().Be("#00ff00");
         }
 
         private FileParser CreateSut()

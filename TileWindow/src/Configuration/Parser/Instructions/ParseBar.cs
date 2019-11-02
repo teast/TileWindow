@@ -1,9 +1,11 @@
+using System.Linq;
+
 namespace TileWindow.Configuration.Parser.Instructions
 {
-    public class ParseDisableWinKey : IParseInstruction
+    public class ParseBar : IParseInstruction
     {
         public event AddErrorDelegate AddError;
-        public string Instruction => "disable_win_key";
+        public string Instruction => "bar";
 
         public ParseInstructionResult FetchResult { get; private set; }
 
@@ -14,19 +16,16 @@ namespace TileWindow.Configuration.Parser.Instructions
                 FetchResult = null;
                 return false;
             }
-            
-            if (bool.TryParse(particles[1], out bool val))
+
+            if (particles[1].StartsWith('{') == false)
             {
-                data.AddData(Instruction, val);
-            }
-            else
-            {
-                AddError("Invalid value for disable_win_key. Should be true or false");
+                AddError("Invalid value for bar. It should be followed by an {");
                 FetchResult = null;
                 return true;
             }
             
-            FetchResult = new ParseInstructionResult(FileParserStateResult.None, "", this);
+            var remaining = string.Join(' ', particles.Skip(1)).Substring(1);
+            FetchResult = new ParseInstructionResult(FileParserStateResult.OpenBracket, remaining, this);
             return true;
         }
     }

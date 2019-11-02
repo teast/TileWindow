@@ -11,7 +11,7 @@ namespace TileWindow.Forms
 {
 	public partial class FormAppBar : Form
     {
-        private readonly TransferDirection direction;
+        private readonly BarPosition direction;
         private readonly IPInvokeHandler pinvokeHandler;
         private readonly uint signalShowHide;
         private uint uCallBack;
@@ -37,19 +37,19 @@ namespace TileWindow.Forms
             }
         }
 
-        public FormAppBar(TransferDirection direction, AppConfig appConfig, IPInvokeHandler pinvokeHandler, uint signalShowHide)
+        public FormAppBar(AppConfig appConfig, IPInvokeHandler pinvokeHandler, uint signalShowHide)
 		{
-            this.direction = direction;
+            this.direction = appConfig.Bar.Position;
             this.pinvokeHandler = pinvokeHandler;
             this.signalShowHide = signalShowHide;
-            this.backColor = ColorTranslator.FromHtml("#000000");
-            this.focusForeColor = ColorTranslator.FromHtml("#ffffff");
-            this.focusBackColor = ColorTranslator.FromHtml("#4b6ea6");
-            this.color = ColorTranslator.FromHtml("#cccccc");
+            this.backColor = ColorTranslator.FromHtml(appConfig.Bar.Colors?.Background);
+            this.focusForeColor = ColorTranslator.FromHtml(appConfig.Bar.Colors?.FocusedWorkspace.Text);
+            this.focusBackColor = ColorTranslator.FromHtml(appConfig.Bar.Colors?.FocusedWorkspace.Background);
+            this.color = ColorTranslator.FromHtml(appConfig.Bar.Colors?.Statusline);
             this.wantedSize = 25;
             this.iconSize = 23;
             this.contentStart = 1;
-            this.contentStartTop = direction == TransferDirection.Up ||direction == TransferDirection.Down;
+            this.contentStartTop = direction == BarPosition.Top ||direction == BarPosition.Bottom;
             this.BackColor = backColor;
             this.ForeColor = color;
             InitializeComponent();
@@ -57,7 +57,7 @@ namespace TileWindow.Forms
             this.Height = wantedSize;
             this.Width = wantedSize;
             this.Size = new Size(wantedSize, wantedSize);
-			containerControl.Height = direction == Nodes.TransferDirection.Left || direction == Nodes.TransferDirection.Right ? 400 : wantedSize;
+			containerControl.Height = direction == BarPosition.Left || direction == BarPosition.Right ? 400 : wantedSize;
 			containerControl.Width = containerControl.Height == wantedSize ? 400 : wantedSize;
         }
 
@@ -195,16 +195,16 @@ namespace TileWindow.Forms
             abd.hWnd = this.Handle;
             switch(direction)
             {
-                case TransferDirection.Up:
+                case BarPosition.Top:
                     abd.uEdge = (int)ABEdge.ABE_TOP;
                     break;
-                case TransferDirection.Down:
+                case BarPosition.Bottom:
                     abd.uEdge = (int)ABEdge.ABE_BOTTOM;
                     break;
-                case TransferDirection.Left:
+                case BarPosition.Left:
                     abd.uEdge = (int)ABEdge.ABE_LEFT;
                     break;
-                case TransferDirection.Right:
+                case BarPosition.Right:
                     abd.uEdge = (int)ABEdge.ABE_RIGHT;
                     break;
             }

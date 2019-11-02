@@ -32,6 +32,7 @@ namespace TileWindow.Configuration.Parser.Commands
                 new ParseCommandDebug(VariableFinder),
                 new ParseCommandRestart(VariableFinder),
                 new ParseCommandResize(VariableFinder),
+                new ParseCommandRun(VariableFinder),
                 new ParseCommandFullscreen(VariableFinder)
             };
         }

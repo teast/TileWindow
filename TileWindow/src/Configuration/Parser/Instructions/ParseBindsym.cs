@@ -15,14 +15,23 @@ namespace TileWindow.Configuration.Parser.Instructions
         public event AddErrorDelegate AddError;
         public string Instruction => "bindsym";
 
+        public ParseInstructionResult FetchResult { get; private set; }
+
         public ParseBindsym(IVariableFinder variableFinder, ICommandExecutor commandExecutor, ICommandHandler commandHandler)
         {
             this.variableFinder = variableFinder;
             this.commandExecutor = commandExecutor;
             this.commandHandler = commandHandler;
         }
-        public string Parse(string[] particles, ref ConfigCollection data)
+
+        public bool Parse(string[] particles, ref ConfigCollection data)
         {
+            if (particles[0] != Instruction)
+            {
+                FetchResult = null;
+                return false;
+            }
+
             variableFinder.PushContext(data);
             var keybind = variableFinder.ParseAll(particles[1]);
             var command = string.Join(' ', particles.Skip(2));
@@ -31,12 +40,14 @@ namespace TileWindow.Configuration.Parser.Instructions
             {
                 AddError($"Unknown bindsym command \"{command}\"");
                 variableFinder.PopContext();
-                return "";
+                FetchResult = null;
+                return true;
             }
 
             data.KeyBinds.Add(keybind, command);
             variableFinder.PopContext();
-            return "";
+            FetchResult = new ParseInstructionResult(FileParserStateResult.None, "", this);
+            return true;
         }
     }
 }

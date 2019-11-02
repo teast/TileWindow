@@ -90,7 +90,7 @@ namespace TileWindow.Extensions
 
             Direction direction;
             Func<IScreenInfo, int> orderBy;
-            if (horizontals.Average() >= verticals.Average())
+            if (horizontals.Count == 0 || verticals.Count == 0 || horizontals.Average() >= verticals.Average())
             {
                 direction = Direction.Horizontal;
                 orderBy = (r) => r.WorkingArea.Left;

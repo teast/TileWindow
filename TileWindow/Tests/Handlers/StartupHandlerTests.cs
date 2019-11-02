@@ -32,7 +32,7 @@ namespace TileWindow.Tests.Handlers
             sut.HandleMessage(msg);
 
             // Assert
-            desktops[0].Verify(m => m.ScreensChanged(expected, Direction.Vertical));
+            desktops[0].Verify(m => m.ScreensChanged(expected, It.IsAny<Direction>()));
         }
 
         [Fact]

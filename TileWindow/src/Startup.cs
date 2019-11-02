@@ -150,7 +150,7 @@ namespace TileWindow
 				var pinvokeHandler = serviceProvider.GetRequiredService<IPInvokeHandler>();
 				var signalHandler = serviceProvider.GetRequiredService<ISignalHandler>();
 				var desktops = serviceProvider.GetRequiredService<IVirtualDesktopCollection>();
-				
+
 				try
 				{
 					if (File.Exists(tw32Path) == false)
@@ -167,24 +167,6 @@ namespace TileWindow
 						using(var thread64 = new TWHandler(tw64Path, "tilewindowpipe64", ref queue, appConfig, pinvokeHandler, signalHandler))
 						using(var sessionHandler = new SessionChangeHandler(serviceProvider.GetRequiredService<IPInvokeHandler>()))
 						{
-							/*
-							Func<string> getDesktopName = () => {
-								var desktop = pinvokeHandler.OpenInputDesktop(0, false, 0);
-								if (desktop == IntPtr.Zero)	
-									return "(null) desktop handler";
-
-								var b = new byte[1024];
-								uint l = 0;
-								var str = "";
-								var uir = pinvokeHandler.GetUserObjectInformation(desktop, 2, b, (uint)1024, out l);
-								if (uir && l > 1)
-									str = System.Text.Encoding.ASCII.GetString(b, 0, (int)l-1);
-								pinvokeHandler.CloseDesktop(desktop.ToInt32());
-								return str;
-							};
-							Log.Information($"START OF CODE! (Desktop: \"{getDesktopName()}\")");
-							*/
-
 							sessionHandler.MachineLocked += (sender, arg) => {
 								thread32.Stop();
 								thread64.Stop();
@@ -206,7 +188,7 @@ namespace TileWindow
 							var appbar = new Thread(() => {
 								try
 								{
-									var _form = new FormAppBar(TransferDirection.Down, appConfig, pinvokeHandler, signalHandler.WMC_SHOWNODE);
+									var _form = new FormAppBar(appConfig, pinvokeHandler, signalHandler.WMC_SHOWNODE);
 									appbarHandle = _form.Handle;
 		                            Application.Run(_form);
 								}
@@ -216,17 +198,20 @@ namespace TileWindow
 								}
 							});
 
-							appbar.Start();
-							desktops.DesktopChange += (sender, arg) => {
-								if (appbarHandle == IntPtr.Zero)
-									return;
+							if (appConfig.Bar != null)
+							{
+								appbar.Start();
+								desktops.DesktopChange += (sender, arg) => {
+									if (appbarHandle == IntPtr.Zero)
+										return;
 
-								var HWnd = new HWnd(appbarHandle);
-								var lParam = arg.Visible || arg.Focus ? 1 : 0; // focus == visible
-								if (arg.Focus) lParam += 2;
-								pinvokeHandler.PostMessage(new HandleRef(HWnd, HWnd.Hwnd), signalHandler.WMC_SHOWNODE, new IntPtr(arg.Index), new IntPtr(lParam));
-							};
-
+									var HWnd = new HWnd(appbarHandle);
+									var lParam = arg.Visible || arg.Focus ? 1 : 0; // focus == visible
+									if (arg.Focus) lParam += 2;
+									pinvokeHandler.PostMessage(new HandleRef(HWnd, HWnd.Hwnd), signalHandler.WMC_SHOWNODE, new IntPtr(arg.Index), new IntPtr(lParam));
+								};
+							}
+							
 							thread32.Start();
 							thread64.Start();
 							parser.Start();
@@ -240,6 +225,7 @@ namespace TileWindow
 							ParserSignal.Done = true;
 							thread32.Stop();
 							thread64.Stop();
+
 						}
 					} 
 					else
