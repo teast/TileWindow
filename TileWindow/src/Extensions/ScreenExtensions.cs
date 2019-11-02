@@ -71,15 +71,26 @@ namespace TileWindow.Extensions
 
         public static (Direction direction, int index, IEnumerable<RECT> rect) GetOrderRect(this IEnumerable<IScreenInfo> screens)
         {
-            var horizontal = screens.Select(r => r.WorkingArea.Left).Distinct().Count();
-            var vertical = screens.Select(r => r.WorkingArea.Top).Distinct().Count();
+            var first = screens.First();
+            var horizontal = first.WorkingArea.Right - first.WorkingArea.Left;
+            var vertical = first.WorkingArea.Bottom - first.WorkingArea.Top;
 
-            if (horizontal > 1 && vertical > 1)
-                throw new ArgumentException("Can only handle either vertical or horizontal orientation screens");
+            var horizontals = new List<int>();
+            var verticals = new List<int>();
+
+            foreach(var screen in screens.Skip(1))
+            {
+                var h = screen.WorkingArea.Right - screen.WorkingArea.Left;
+                var v = screen.WorkingArea.Bottom - screen.WorkingArea.Top;
+                horizontals.Add((horizontal/h)*100);
+                verticals.Add((vertical/v)*100);
+                vertical += v;
+                horizontal += h;
+            }
 
             Direction direction;
             Func<IScreenInfo, int> orderBy;
-            if (horizontal > 1)
+            if (horizontals.Average() >= verticals.Average())
             {
                 direction = Direction.Horizontal;
                 orderBy = (r) => r.WorkingArea.Left;
