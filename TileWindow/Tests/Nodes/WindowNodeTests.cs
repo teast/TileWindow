@@ -20,13 +20,14 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var hWnd = new IntPtr(1);
             var focusHandler = new Mock<IFocusHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
             var windowHandler = new Mock<IWindowEventHandler>();
             var windowTracker = new Mock<IWindowTracker>();
             var pinvokeHandler = new Mock<IPInvokeHandler>();
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
             // Arrange & Act
-            var sut = new WindowNode(focusHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
+            var sut = new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
 
             // Assert
             windowTracker.Verify(m => m.AddWindow(new IntPtr(1), sut));
@@ -38,6 +39,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var hWnd = new IntPtr(1);
             var focusHandler = new Mock<IFocusHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
             var windowHandler = new Mock<IWindowEventHandler>();
             var windowTracker = new Mock<IWindowTracker>();
             var pinvokeHandler = new Mock<IPInvokeHandler>();
@@ -45,7 +47,7 @@ namespace TileWindow.Tests.Nodes
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
             // Arrange & Act
-            var sut = new WindowNode(focusHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect, hWnd);
+            var sut = new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect, hWnd);
 
             // Assert
             pinvokeHandler.Verify(m => m.SetWindowPos(new IntPtr(1), IntPtr.Zero, rect.Left, rect.Top, rect.Right-rect.Left, rect.Bottom-rect.Top, It.IsAny<SetWindowPosFlags>()));
@@ -57,8 +59,9 @@ namespace TileWindow.Tests.Nodes
         {
             // Arrange
             var hWnd = new IntPtr(2);
-            var sut = CreateSut(focusHandler: out _, windowHandler: out _, windowTracker: out _, pinvokeHandler: out Mock<IPInvokeHandler> pInvokeHandler, hWnd);
-
+            var sut = CreateSut(focusHandler: out _, windowHandler: out _, windowTracker: out Mock<IWindowTracker> windowTracker, pinvokeHandler: out Mock<IPInvokeHandler> pInvokeHandler, hWnd);
+            windowTracker.Setup(m => m.RevalidateHwnd(sut, hWnd)).Returns(true);
+            
             // Act
             sut.SetFocus();
 
@@ -90,10 +93,10 @@ namespace TileWindow.Tests.Nodes
             var sut = CreateSut(focusHandler: out _, windowHandler: out _, windowTracker: out _, pinvokeHandler: out Mock<IPInvokeHandler> pInvokeHandler, hWnd);
 
             // Act
-            sut.QuitNode();
+            sut.QuitNodeImpl().Wait();
 
             // Assert
-            pInvokeHandler.Verify(m => m.PostMessage(It.Is<HandleRef>(r => r.Handle == hWnd), PInvoker.WM_CLOSE, IntPtr.Zero, IntPtr.Zero));
+            pInvokeHandler.Verify(m => m.SendMessage(hWnd, PInvoker.WM_CLOSE, IntPtr.Zero, IntPtr.Zero));
         }
 #endregion
 #region RemoveChild
@@ -416,22 +419,24 @@ namespace TileWindow.Tests.Nodes
         {
             var hWnd = hwnd ?? IntPtr.Zero;
             windowHandler = new Mock<IWindowEventHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
             windowTracker = new Mock<IWindowTracker>();
             pinvokeHandler = new Mock<IPInvokeHandler>();
 
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
-            return new WindowNode(focusHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
+            return new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
         }
         private WindowNode CreateSut(out Mock<IFocusHandler> focusHandler, out Mock<IWindowEventHandler> windowHandler, out Mock<IWindowTracker> windowTracker, Mock<IPInvokeHandler> pinvokeHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
         {
             var hWnd = hwnd ?? IntPtr.Zero;
             focusHandler = new Mock<IFocusHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
             windowHandler = new Mock<IWindowEventHandler>();
             windowTracker = new Mock<IWindowTracker>();
 
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
-            return new WindowNode(focusHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
+            return new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
         }
 #endregion
     }

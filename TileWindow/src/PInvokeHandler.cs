@@ -378,6 +378,15 @@ namespace TileWindow
         IntPtr GetActiveWindow();
         IntPtr SetFocus(IntPtr hWnd);
         bool SetForegroundWindow(IntPtr hWnd);
+
+        /// <summary>
+        /// Note, SendMessage will wait until the process response to the message
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="Msg"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <returns></returns>
         IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
         bool PostMessage(HandleRef hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
         bool EnumWindows(EnumWindowsProc lpEnumFunc, ref EnumExtraData data);

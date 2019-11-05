@@ -101,12 +101,13 @@ namespace TileWindow.Tests.TestHelpers
         {
             var hwnd = hWnd ?? IntPtr.Zero;
             var focusHandler = new Mock<IFocusHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
             var windowHandler = new Mock<IWindowEventHandler>();
             var windowTracker = new Mock<IWindowTracker>();
             var pinvokeHandler = new Mock<IPInvokeHandler>();
             pinvokeHandler.Setup(m => m.GetClassName(hwnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
             pinvokeHandler.Setup(m => m.GetWindowLongPtr(hwnd, It.IsAny<int>())).Returns(new IntPtr(PInvoker.WS_CAPTION | PInvoker.WS_SIZEBOX));
-            return new WindowNode(focusHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(), hwnd);
+            return new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(), hwnd);
         }
 
         public static ContainerNode CreateContainerNode(out Mock<IRenderer> renderer, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)

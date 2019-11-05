@@ -112,6 +112,8 @@ namespace TileWindow.Handlers
                 // read this object in here???
                 var hwnd = new IntPtr((long)msg.wParam);
                 var hit = false;
+                
+Log.Information($"StyleChanged for {hwnd} (visible: {pinvokeHandler.IsWindowVisible(hwnd)}, window: {pinvokeHandler.IsWindow(hwnd)})");
                 foreach(var l in _styleChangedListeners)
                 {
                     if (l.Value.Item1 == hwnd)

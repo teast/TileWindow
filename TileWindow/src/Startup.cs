@@ -93,6 +93,7 @@ namespace TileWindow
 				{
 					return new WindowNode(
 						serv.GetRequiredService<IFocusHandler>(),
+						serv.GetRequiredService<ISignalHandler>(),
 						serv.GetRequiredService<IWindowEventHandler>(),
 						serv.GetRequiredService<IWindowTracker>(),
 						serv.GetRequiredService<IPInvokeHandler>(),

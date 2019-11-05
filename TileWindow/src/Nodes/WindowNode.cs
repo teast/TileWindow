@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Serilog;
 using TileWindow.Handlers;
 using TileWindow.Trackers;
@@ -22,6 +23,7 @@ namespace TileWindow.Nodes
         private RECT _origRect;
         private bool _quit;
         private readonly IFocusHandler focusHandler;
+        private readonly ISignalHandler signalHandler;
         private readonly IWindowTracker windowTracker;
         private readonly IPInvokeHandler pinvokeHandler;
         private readonly IWindowEventHandler windowHandler;
@@ -57,13 +59,14 @@ namespace TileWindow.Nodes
             }
         }
 
-        public WindowNode(IFocusHandler focusHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler, RECT rect, IntPtr hwnd, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
+        public WindowNode(IFocusHandler focusHandler, ISignalHandler signalHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler, RECT rect, IntPtr hwnd, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
         {
             //Log.Information($"{nameof(WindowNode)}.ctor, Depth: {Depth}, hwnd: {hwnd} parent: {Parent?.GetType().ToString()} ({Parent?.WhatType.ToString()})");
             _quit = false;
             _width = rect.Right - rect.Left;
             _height = rect.Bottom - rect.Top;
             this.focusHandler = focusHandler;
+            this.signalHandler = signalHandler;
             this.windowTracker = windowTracker;
             this.pinvokeHandler = pinvokeHandler;
             this.windowHandler = windowHandler;
@@ -208,7 +211,19 @@ namespace TileWindow.Nodes
                 if (_exStyleBeforeHide > 0)
                     pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), GWL_EXSTYLE, new IntPtr(_exStyleBeforeHide));
                 _exStyleBeforeHide = 0;
-                pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, SetWindowPosFlags.SWP_SHOWWINDOW);
+
+                var show = pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, SetWindowPosFlags.SWP_SHOWWINDOW);
+
+                if (!show)
+                {
+                    var revalidate = windowTracker.RevalidateHwnd(this, Hwnd);
+                    Log.Warning($"{this} could not show window again. goingto revalidate window... ...result: {revalidate}");
+                    if (revalidate == false)
+                    {
+                        Parent?.RemoveChild(this);
+                    }
+
+                }
             }
 
             return base.Show();
@@ -227,24 +242,41 @@ namespace TileWindow.Nodes
             return true;
         }
 
-        public override bool QuitNode()
+        public virtual Task QuitNodeImpl()
         {
+            Task task = null;
             _quit = true;            
             if (Hwnd != IntPtr.Zero)
             {
-//                Log.Information($"WindowNode, going to quit [{Name}] {Hwnd}");
-                var hwnd = new HWnd { Hwnd = Hwnd };
-                if (!pinvokeHandler.PostMessage(new HandleRef(hwnd, hwnd.Hwnd), WM_CLOSE, IntPtr.Zero, IntPtr.Zero))
-                {
-                    Log.Error($"received false from PostMessage when sending WM_CLOSE to ({this}), PARENT is null?: {Parent == null}");
-                    Parent?.RemoveChild(this);
-                }
+                task = Task.Run(() => {
+                    if (pinvokeHandler.SendMessage(Hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero).ToInt32() != 0)
+                    {
+                        Log.Error($"received false from PostMessage when sending WM_CLOSE to ({this}), PARENT is null?: {Parent == null}");
+                        Parent?.RemoveChild(this);
+                    }
+
+                    if (windowTracker.RevalidateHwnd(this, Hwnd) == false)
+                    {
+                        Startup.ParserSignal.QueuePipeMessage(new PipeMessage
+                        {
+                            msg = signalHandler.WMC_DESTROY,
+                            wParam = (ulong)Hwnd,
+                            lParam = 0
+                        });
+                    }
+                });
             }
             else
             {
                 Parent?.RemoveChild(this);
             }
 
+            return task;
+        }
+
+        public override bool QuitNode()
+        {
+            QuitNodeImpl();
             return true;
         }
 
@@ -259,6 +291,13 @@ namespace TileWindow.Nodes
         {
             if (Hwnd != IntPtr.Zero)
             {
+                if (windowTracker.RevalidateHwnd(this, Hwnd) == false)
+                {
+                    Log.Warning($"{this} should get focus but it no longer exist...");
+                    Parent?.RemoveChild(this);
+                    return;
+                }
+
                 // This is a trick to get foreground focus and then pass on to another process/window
                 pinvokeHandler.AllocConsole();
                 var hWndConsole = pinvokeHandler.GetConsoleWindow();
