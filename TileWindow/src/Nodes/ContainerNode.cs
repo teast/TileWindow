@@ -96,7 +96,7 @@ namespace TileWindow.Nodes
             return result;
         }
 
-        public override Node AddWindow(IntPtr hWnd)
+        public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)
         {
             int? index = null;
             var focusNode = Desktop.FocusTracker.MyLastFocusNode(this);
@@ -105,13 +105,13 @@ namespace TileWindow.Nodes
                 if (focusNode.CanHaveChilds)
                 {
 //Log.Information($"Container.AddWindow {hWnd} goingt o call AddWindow on FocusNode ({FocusNode?.GetType()?.ToString()}");
-                    return focusNode.AddWindow(hWnd);
+                    return focusNode.AddWindow(hWnd, validation);
                 }
 
                 index = Childs.IndexOf(focusNode) + 1;
             }
 
-            var node = windowTracker.CreateNode(hWnd);
+            var node = windowTracker.CreateNode(hWnd, validation);
 //Log.Information($"ContainerNode.AddWindow {hWnd} Creating node (null? {(node == null)})");
             if (node == null)
                 return null;

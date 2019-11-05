@@ -257,11 +257,8 @@ namespace TileWindow.Handlers
                     var node = windowTracker.GetNodes(hwnd);
                     if (node == null)
                     {
-                        var old = windowTracker.IgnoreVisualFlag;
-                        windowTracker.IgnoreVisualFlag = true;
-                        if (windowTracker.CanHandleHwnd(hwnd))
-                            desktops.ActiveDesktop.HandleNewWindow(hwnd);
-                        windowTracker.IgnoreVisualFlag = old;
+                        if (windowTracker.CanHandleHwnd(hwnd, new ValidateHwndParams(validateApplicationFrame: false)))
+                            desktops.ActiveDesktop.HandleNewWindow(hwnd, new ValidateHwndParams(doValidate: false));
                     }
                 }
             }
@@ -351,11 +348,11 @@ namespace TileWindow.Handlers
                 }
                 else
                 {
-                    var canHandle  =windowTracker.CanHandleHwnd(hwnd);
+                    var canHandle = windowTracker.CanHandleHwnd(hwnd, new ValidateHwndParams(validatevisible: false));
                     Log.Information($"   ...Testing to see if I can handle {hwnd}... result: {canHandle}");
                     if (canHandle)
                     {
-                        node = desktops.ActiveDesktop.HandleNewWindow(hwnd);
+                        node = desktops.ActiveDesktop.HandleNewWindow(hwnd, new ValidateHwndParams(doValidate: false));
                         node?.SetFocus();
                     }
                 }

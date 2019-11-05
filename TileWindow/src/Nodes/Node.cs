@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Serilog;
 using TileWindow.Nodes.Renderers;
+using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
 {
@@ -295,8 +296,9 @@ namespace TileWindow.Nodes
         /// Add a new node for a window handler
         /// </summary>
         /// <param name="hWnd">window handler to add a node for</param>
+        /// <param name="validation">Instruction on how to validate window handler</param>
         /// <returns>return the new node</returns>
-        public abstract Node AddWindow(IntPtr hWnd);
+        public abstract Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null);
 
         public abstract bool AddNodes(params Node[] nodes);
 

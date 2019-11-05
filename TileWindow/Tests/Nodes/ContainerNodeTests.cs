@@ -112,10 +112,10 @@ namespace TileWindow.Tests.Nodes
             focusTracker.Setup(m => m.MyLastFocusNode(sut)).Returns(child1.Object);
 
             // Act
-            sut.AddWindow(hWnd);
+            sut.AddWindow(hWnd, null);
 
             // Assert
-            child1.Verify(m => m.AddWindow(hWnd));
+            child1.Verify(m => m.AddWindow(hWnd, null));
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace TileWindow.Tests.Nodes
             var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, windowTracker: out Mock<IWindowTracker> windowTracker, childs: childs);
             child1.SetupGet(m => m.CanHaveChilds).Returns(false);
             focusTracker.Setup(m => m.MyLastFocusNode(sut)).Returns(child1.Object);
-            windowTracker.Setup(m => m.CreateNode(hWnd, true)).Returns(NodeHelper.CreateWindowNode(hWnd));
+            windowTracker.Setup(m => m.CreateNode(hWnd, null)).Returns(NodeHelper.CreateWindowNode(hWnd));
             
             // Act
             sut.AddWindow(hWnd);
@@ -147,7 +147,7 @@ namespace TileWindow.Tests.Nodes
             var childs = new Node[] { child1.Object, child2.Object };
             var hWnd = new IntPtr(666);
             var sut = CreateSut(containerCreater: out _, windowTracker: out Mock<IWindowTracker> windowTracker, childs: childs);
-            windowTracker.Setup(m => m.CreateNode(hWnd, true)).Returns(NodeHelper.CreateWindowNode(hWnd));
+            windowTracker.Setup(m => m.CreateNode(hWnd, null)).Returns(NodeHelper.CreateWindowNode(hWnd));
             
             // Act
             sut.AddWindow(hWnd);
@@ -171,7 +171,7 @@ namespace TileWindow.Tests.Nodes
             child1.SetupGet(m => m.Rect).Returns(bigRect);
             child1.Setup(m => m.UpdateRect(It.IsAny<RECT>())).Returns<RECT>(bigRect.Equals);
             sut.RequestRectChange += (sender, args) => requestRectChangeTriggered = true;
-            windowTracker.Setup(m => m.CreateNode(hWnd, true)).Returns(NodeHelper.CreateWindowNode(hWnd));
+            windowTracker.Setup(m => m.CreateNode(hWnd, null)).Returns(NodeHelper.CreateWindowNode(hWnd));
 
             // Act
             sut.AddWindow(hWnd);

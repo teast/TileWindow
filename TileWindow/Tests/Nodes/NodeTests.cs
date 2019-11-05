@@ -2,6 +2,7 @@ using System;
 using TileWindow.Nodes;
 using Xunit;
 using FluentAssertions;
+using TileWindow.Trackers;
 
 namespace TileWindow.Tests.Nodes
 {
@@ -23,7 +24,7 @@ namespace TileWindow.Tests.Nodes
                 throw new NotImplementedException();
             }
 
-            public override Node AddWindow(IntPtr hWnd)
+            public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)
             {
                 throw new NotImplementedException();
             }

@@ -17,6 +17,55 @@ namespace TileWindow.Trackers
     /// <returns>a new <see cref="WindowNode" /> if success, else null</returns>
     public delegate WindowNode CreateWindowNode(RECT rect, IntPtr hWnd, Direction direction = Direction.Horizontal);
 
+    /// <summary>
+    /// Describes what to validate when checking an window handle
+    /// </summary>
+    public class ValidateHwndParams
+    {
+        /// <summary>
+        /// If true then do some of the validations.
+        /// </summary>
+        /// <remarks>If false then no validation will be made regardless of what rest of the parameters say</remarks>
+        public bool DoValidate { get; }
+
+        /// <summary>
+        /// Validate that window handler do not have WS_CHILD
+        /// </summary>
+        public bool ValidateChild { get; }
+
+        /// <summary>
+        /// Validate that window handler got WS_VISIBLE
+        /// </summary>
+        public bool ValidateVisible { get; }
+
+        /// <summary>
+        /// Validate that window handler do not have WM_EX_NOACTIVATE
+        /// </summary>
+        public bool ValidateNoActivate { get; }
+
+        /// <summary>
+        /// Validate window handlers that got class name "ApplicationFrameWindow" do have an child with class name "Windows.UI.Core.CoreWindow" (= visible)
+        /// </summary>
+        public bool ValidateApplicationFrame { get; }
+
+        /// <summary>
+        /// Validate that window handlers with class name "Windows.UI.Core.CoreWindow" do not have cloaked attribute: DWMWINDOWATTRIBUTE.Cloaked
+        /// </summary>
+        public bool ValidateDwm { get; }
+
+        public ValidateHwndParams(bool doValidate = true, bool validateChild = true,
+                                bool validatevisible = true, bool validateNoActivate = true,
+                                bool validateApplicationFrame = true, bool validateDwm = true)
+        {
+            DoValidate = doValidate;
+            ValidateChild = validateChild;
+            ValidateVisible = validatevisible;
+            ValidateNoActivate = validateNoActivate;
+            ValidateApplicationFrame = validateApplicationFrame;
+            ValidateDwm = validateDwm;
+        }
+    }
+
     public class IgnoreHwndInfo
     {
         public static readonly int Infinitive = -1;
@@ -44,15 +93,14 @@ namespace TileWindow.Trackers
 
     public interface IWindowTracker
     {
-        bool IgnoreVisualFlag { get; set; }
         void removeWindow(IntPtr hWnd);
         void AddWindow(IntPtr hWnd, Node node);
         void IgnoreHwnd(IgnoreHwndInfo hwnd);
         Node GetNodes(IntPtr hWnd);
         bool Contains(IntPtr hWnd);
         bool Contains(Node nodes);
-        bool CanHandleHwnd(IntPtr hWnd);
-        WindowNode CreateNode(IntPtr hWnd, bool doValidate = true);
+        bool CanHandleHwnd(IntPtr hWnd, ValidateHwndParams validation);
+        WindowNode CreateNode(IntPtr hWnd, ValidateHwndParams validation = null);
         bool RevalidateHwnd(WindowNode node, IntPtr hWnd);
     }
 
@@ -66,12 +114,9 @@ namespace TileWindow.Trackers
         private readonly CreateWindowNode windowNodeCreater;
         private readonly IWindowEventHandler windowHandler;
 
-        public bool IgnoreVisualFlag { get; set; }
-
         public WindowTracker(IPInvokeHandler pinvokeHandler, CreateWindowNode windowNodeCreater, IWindowEventHandler windowHandler)
         {
             this._ignoreHwnds = new List<IgnoreHwndInfo>();
-            this.IgnoreVisualFlag = false;
             this.pinvokeHandler = pinvokeHandler;
             this.windowNodeCreater = windowNodeCreater;
             this.windowHandler = windowHandler;
@@ -134,9 +179,13 @@ namespace TileWindow.Trackers
         /// Validates if an specific hWnd could probably be handled by WindowNode
         /// </summary>
         /// <param name="hWnd">window handler to validate</param>
+        /// <param name="validation">Instruction on what to validate</param>
         /// <returns>true if it probably can</returns>
-        public bool CanHandleHwnd(IntPtr hWnd)
+        public bool CanHandleHwnd(IntPtr hWnd, ValidateHwndParams validation)
         {
+            if (validation.DoValidate == false)
+                return true;
+
 Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
             if (hWnd == IntPtr.Zero)
             {
@@ -159,19 +208,19 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
                 return false;
             }
 
-            if ((style & PInvoker.WS_CHILD) == PInvoker.WS_CHILD)
+            if (validation.ValidateChild && (style & PInvoker.WS_CHILD) == PInvoker.WS_CHILD)
             {
                 Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it is a child window");
                 return false;
             }
 
-            if ((style & PInvoker.WS_VISIBLE) != PInvoker.WS_VISIBLE)
+            if (validation.ValidateVisible && (style & PInvoker.WS_VISIBLE) != PInvoker.WS_VISIBLE)
             {
                 Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it is not visible (style: {style}, exStyle: {exstyle})");
                 return false;
             }
 
-            if ((exstyle & PInvoker.WS_EX_NOACTIVATE) == PInvoker.WS_EX_NOACTIVATE)
+            if (validation.ValidateNoActivate && (exstyle & PInvoker.WS_EX_NOACTIVATE) == PInvoker.WS_EX_NOACTIVATE)
             {
                 Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it got WS_EX_NOACTIVATE (style: {style}, exStyle: {exstyle})");
                 return false;
@@ -190,7 +239,7 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
                 return false;
             }
 
-            if (className == "ApplicationFrameWindow" && IgnoreVisualFlag == false)
+            if (validation.ValidateApplicationFrame && className == "ApplicationFrameWindow")
             {
                 if (IsSpecialAppVisible(hWnd) == false)
                 {
@@ -200,7 +249,7 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
                 }
             }
 
-            if (className == "Windows.UI.Core.CoreWindow")
+            if (validation.ValidateDwm && className == "Windows.UI.Core.CoreWindow")
             {
                 var result = 0;
                 if ((result = pinvokeHandler.DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out bool pvAttribute, sizeof(int))) != 0 || pvAttribute)
@@ -234,12 +283,12 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
         /// Creates an WindowNode based on <c ref="hWnd" />
         /// </summary>
         /// <param name="hWnd">window handler to base our windownode on</param>
-        /// <param name="doValidate">If true will call <c ref="CanHandleHwnd" /> before tryingt o create the node</param>
+        /// <param name="validation">instruction on what to validate</param>
         /// <returns>null if anything wrong or if window handler deems not possible</returns>
-        public WindowNode CreateNode(IntPtr hWnd, bool doValidate = true)
+        public WindowNode CreateNode(IntPtr hWnd, ValidateHwndParams validation = null)
         {
             WindowNode node = null;
-            if (doValidate == false || CanHandleHwnd(hWnd))
+            if (CanHandleHwnd(hWnd, validation ?? new ValidateHwndParams()))
             {
                 if (!pinvokeHandler.GetWindowRect(hWnd, out RECT rect))
                 {

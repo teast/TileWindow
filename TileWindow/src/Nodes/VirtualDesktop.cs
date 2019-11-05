@@ -51,7 +51,7 @@ namespace TileWindow.Nodes
         bool GetScreenRect(int screenIndex, out RECT rect);
         void ScreensChanged(RECT[] screens, Direction direction);
 		void HandleMessageDestroy(PipeMessage msg);
-        Node HandleNewWindow(IntPtr hwnd);
+        Node HandleNewWindow(IntPtr hwnd, ValidateHwndParams validation = null);
         void HandleResize(int val, TransferDirection dir);
         void HandleVerticalDirection();
         void HandleHorizontalDirection();
@@ -229,10 +229,10 @@ namespace TileWindow.Nodes
             n?.QuitNode();
         }
 
-        public Node HandleNewWindow(IntPtr hwnd)
+        public Node HandleNewWindow(IntPtr hwnd, ValidateHwndParams validation = null)
         {
             //Log.Information($"{this}, HandleNewWindow {hwnd}");
-            return AddWindow(hwnd);
+            return AddWindow(hwnd, validation);
         }
 
         public void HandleResize(int val, TransferDirection dir)

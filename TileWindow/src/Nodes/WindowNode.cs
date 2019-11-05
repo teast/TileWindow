@@ -310,10 +310,10 @@ namespace TileWindow.Nodes
             OnWantFocus(this, new WantFocusEventArg(this));
         }
 
-        public override Node AddWindow(IntPtr hWnd)
+        public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)
         {
 //Log.Information($"{nameof(WindowNode)}.{nameof(AddWindow)}, (Style: {Style.ToString()}) calling Parent (type: {Parent?.GetType()?.ToString()})");
-            return Parent?.AddWindow(hWnd);
+            return Parent?.AddWindow(hWnd, validation);
         }
 
         public override bool AddNodes(params Node[] nodes)

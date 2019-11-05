@@ -27,7 +27,7 @@ namespace TileWindow.Nodes
             return UpdateChildRect(0, Childs.Count, out _);
         }
 
-        public override Node AddWindow(IntPtr hWnd)
+        public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)
         {
             if (MyFocusNode != null)
             {
@@ -39,7 +39,7 @@ namespace TileWindow.Nodes
                         if (child.CanHaveChilds && typeof(ContainerNode).IsInstanceOfType(child))
                         {
 //Log.Information($"  >>> {nameof(FixedContainerNode)}.{nameof(AddWindow)}, Found a child (type: {child.GetType().ToString()} ({child.WhatType.ToString()}))");
-                            return child.AddWindow(hWnd);
+                            return child.AddWindow(hWnd, validation);
                         }
                     }
 
@@ -47,7 +47,7 @@ namespace TileWindow.Nodes
                 }
 
 //Log.Information($"{nameof(FixedContainerNode)}.{nameof(AddWindow)}, calling FocusNode (type: {FocusNode.GetType().ToString()} ({FocusNode.WhatType.ToString()})) with rect {FocusNode.Rect} (my rect: {Rect})");
-                return MyFocusNode.AddWindow(hWnd);
+                return MyFocusNode.AddWindow(hWnd, validation);
             }
 
             throw new Exception($"{nameof(FixedContainerNode)}.{nameof(AddWindow)} was called with no MyFocusNode... what to do???");
