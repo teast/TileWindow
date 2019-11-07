@@ -222,7 +222,7 @@ namespace TileWindow.Handlers
 			if(msg.msg == signal.WMC_CREATE)
 			{
                 //HandleMessageCreate(msg);
-                Log.Information($"WMC_CREATE wParam: {msg.wParam}, lparam: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
+                //Log.Information($"WMC_CREATE wParam: {msg.wParam}, lparam: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
 			}
 			else if (msg.msg == signal.WMC_SHOW)
 			{
@@ -240,13 +240,13 @@ namespace TileWindow.Handlers
             {
                 var hwnd = new IntPtr((long)msg.wParam);
                 var node = windowTracker.GetNodes(hwnd);
-                Log.Information($"#################### NEW MESSAGE!!! SCCLOSE for {hwnd} ({node}) ###############");                
+                //Log.Information($"#################### NEW MESSAGE!!! SCCLOSE for {hwnd} ({node}) ###############");                
             }
             else if (msg.msg == signal.WMC_SCRESTORE)
             {
                 var hwnd = new IntPtr((long)msg.wParam);
                 var node = windowTracker.GetNodes(hwnd);
-                Log.Information($"#################### NEW MESSAGE!!! SCRESTORE for {hwnd} ({node}) ###############");                
+                //Log.Information($"#################### NEW MESSAGE!!! SCRESTORE for {hwnd} ({node}) ###############");                
             }
             else if (msg.msg == signal.WMC_ACTIVATEAPP)
             {
@@ -303,18 +303,18 @@ namespace TileWindow.Handlers
 
 		private void HandleMessageShowWindow(PipeMessage msg)
         {
-            Log.Information($"StartupHandler> WMC_ShowWindow received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
+            //Log.Information($"StartupHandler> WMC_ShowWindow received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
         }
 		private void HandleMessageDestroy(PipeMessage msg)
         {
-            Log.Information($"StartupHandler> WMC_DESTROY received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
+            //Log.Information($"StartupHandler> WMC_DESTROY received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
             desktops.ActiveDesktop.HandleMessageDestroy(msg);
         }
 
 		private void HandleMessageShow(PipeMessage msg)
         {
             var hwnd = new IntPtr(Convert.ToInt64(msg.wParam));
-            Log.Information($"StartupHandler> WMC_SHOW received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
+            //Log.Information($"StartupHandler> WMC_SHOW received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
             
             // Show signal and not hide
             if(msg.lParam == 1)
@@ -332,24 +332,24 @@ namespace TileWindow.Handlers
                     {
                         if (node.Desktop.Index == desktops.Index)
                         {
-                            Log.Information($"WMC_SHOW lParam == 1 and node exists, going to show it! ({node}) ({node.Desktop.Index} != {desktops.Index})");
+                            //Log.Information($"WMC_SHOW lParam == 1 and node exists, going to show it! ({node}) ({node.Desktop.Index} != {desktops.Index})");
                             node.Show();
                         }
                         else
                         {
-                            Log.Information($"WMC_SHOW lParam == 1 and node exists, going to hide it! ({node}) ({node.Desktop.Index} != {desktops.Index})");
+                            //Log.Information($"WMC_SHOW lParam == 1 and node exists, going to hide it! ({node}) ({node.Desktop.Index} != {desktops.Index})");
                             node.Hide();
                         }
                     }
                     else
                     {
-                        Log.Warning($"WindowNode.Desktop is null ({node})");
+                        //Log.Warning($"WindowNode.Desktop is null ({node})");
                     }
                 }
                 else
                 {
                     var canHandle = windowTracker.CanHandleHwnd(hwnd, new ValidateHwndParams(validatevisible: false));
-                    Log.Information($"   ...Testing to see if I can handle {hwnd}... result: {canHandle}");
+                    //Log.Information($"   ...Testing to see if I can handle {hwnd}... result: {canHandle}");
                     if (canHandle)
                     {
                         node = desktops.ActiveDesktop.HandleNewWindow(hwnd, new ValidateHwndParams(doValidate: false));
@@ -364,7 +364,7 @@ namespace TileWindow.Handlers
                 var node = windowTracker.GetNodes(hwnd);
                 if (node != null)
                 {
-                    Log.Information($"StartupHandler> WMC_SHOW going to remove node with name \"{node.Name}\"");
+                    //Log.Information($"StartupHandler> WMC_SHOW going to remove node with name \"{node.Name}\"");
                     node.Parent?.DisconnectChild(node);
                     node.Dispose();
                 }

@@ -31,6 +31,7 @@ UINT WMC_SCMINIMIZE __attribute__((section(".shared"), shared)) = 0;
 UINT WMC_SCRESTORE __attribute__((section(".shared"), shared)) = 0;
 UINT WMC_ACTIVATEAPP __attribute__((section(".shared"), shared)) = 0;
 UINT WMC_DISPLAYCHANGE __attribute__((section(".shared"), shared)) = 0;
+UINT WMC_SIZE __attribute__((section(".shared"), shared)) = 0;
 DWORD gThread __attribute__((section(".shared"), shared)) = 0;
 #pragma data_seg()
 #pragma comment(linker, "/SECTION:.shared,RWS")
@@ -65,6 +66,7 @@ BOOL APIENTRY DllMain(HANDLE hInstance, DWORD fdwReason, LPVOID lpvReserved)
             WMC_SCRESTORE = RegisterWindowMessageA("WMC_SCRESTORE");
             WMC_ACTIVATEAPP = RegisterWindowMessageA("WMC_ACTIVATEAPP");
             WMC_DISPLAYCHANGE = RegisterWindowMessageA("WMC_DISPLAYCHANGE");
+            WMC_SIZE = RegisterWindowMessageA("WMC_SIZE");
             
             g_hInstance = hInstance;
             // init
@@ -161,6 +163,12 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
                 LPARAM lpar = (LPARAM)cwps->lParam;
                 ((STYLESTRUCT*)cwps->lParam)->styleOld = cwps->wParam;
                 PostThreadMessage(gThread, WMC_STYLECHANGED, wpar, lpar);
+            }
+            else if (cwps->message == WM_SIZE)
+            {
+                WPARAM wpar = (WPARAM)cwps->hwnd;
+                LPARAM lpar = (LPARAM)cwps->lParam;
+                PostThreadMessage(gThread, WMC_SIZE, wpar, lpar);
             }
             else if (cwps->message == WM_SYSCOMMAND)
             {

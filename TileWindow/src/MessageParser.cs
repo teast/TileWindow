@@ -42,6 +42,7 @@ namespace TileWindow
 				if(!queue.TryDequeue(out msg))
 					break;
 				
+//Log.Information($"Message: {signal.SignalToString((uint)msg.msg)} wParam: {msg.wParam}, lParam: {msg.lParam}");
 				foreach(var handler in handlers)
 				{
 					handler.HandleMessage(msg);

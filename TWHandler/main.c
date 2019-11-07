@@ -66,7 +66,7 @@ typedef BOOL (CALLBACK* RemoveHook)(void);
 UINT WMC_SHOW = 0, WMC_CREATE = 0, WMC_MOVE = 0, WMC_EXITMOVE = 0, WMC_ENTERMOVE = 0, WMC_KEYDOWN = 0, WMC_KEYUP = 0, WMC_SETFOCUS = 0, WMC_KILLFOCUS = 0;
 UINT WMC_SHOWWINDOW = 0, WMC_DESTROY = 0, WMC_STYLECHANGED = 0, WMC_ACTIVATEAPP = 0;
 UINT WMC_SCCLOSE = 0, WMC_SCMAXIMIZE = 0, WMC_SCMINIMIZE = 0, WMC_SCRESTORE = 0;
-UINT WMC_DISPLAYCHANGE = 0;
+UINT WMC_DISPLAYCHANGE = 0, WMC_SIZE = 0;
 
 HMODULE hook = NULL;
 DWORD gThread = 0;
@@ -215,6 +215,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
     WMC_SCRESTORE = RegisterWindowMessageA("WMC_SCRESTORE");
     WMC_ACTIVATEAPP = RegisterWindowMessageA("WMC_ACTIVATEAPP");
     WMC_DISPLAYCHANGE = RegisterWindowMessageA("WMC_DISPLAYCHANGE");
+    WMC_SIZE = RegisterWindowMessageA("WMC_SIZE");
     gThread = GetCurrentThreadId();
 
     if(gThread == 0)
@@ -264,7 +265,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
             msg.message == WMC_SCMINIMIZE ||
             msg.message == WMC_SCRESTORE ||
             msg.message == WMC_ACTIVATEAPP ||
-            msg.message == WMC_DISPLAYCHANGE)
+            msg.message == WMC_DISPLAYCHANGE ||
+            msg.message == WMC_SIZE)
         {
             SendPipedMessage(msg.message, msg.wParam, msg.lParam);
         }

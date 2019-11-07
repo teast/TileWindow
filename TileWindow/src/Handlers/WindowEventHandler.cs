@@ -112,8 +112,11 @@ namespace TileWindow.Handlers
                 // read this object in here???
                 var hwnd = new IntPtr((long)msg.wParam);
                 var hit = false;
-                
-Log.Information($"StyleChanged for {hwnd} (visible: {pinvokeHandler.IsWindowVisible(hwnd)}, window: {pinvokeHandler.IsWindow(hwnd)})");
+
+//                var style1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_STYLE).ToInt64();
+//                var exstyle1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_EXSTYLE).ToInt64();
+//                pinvokeHandler.GetWindowRect(hwnd, out RECT r);
+//Log.Information($"StyleChanged for {hwnd} (visible: {pinvokeHandler.IsWindowVisible(hwnd)}, window: {pinvokeHandler.IsWindow(hwnd)}, style: {style1}, exstyle: {exstyle1}, rect: {r})");
                 foreach(var l in _styleChangedListeners)
                 {
                     if (l.Value.Item1 == hwnd)
