@@ -91,7 +91,7 @@ namespace TileWindow.Handlers
 			_onKeyChangeListeners = _onKeyChangeListeners.Where(l => l.Item1 != id).ToList();
 		}
 
-		public void HandleMessage(PipeMessage msg)
+		public void HandleMessage(PipeMessageEx msg)
 		{
 			if (msg.msg == signal.WMC_KEYDOWN)
 			{
@@ -291,7 +291,7 @@ namespace TileWindow.Handlers
 			return anyHit && repeatKeys;
 		}
 
-		private void HandleKeyDown(PipeMessage msg)
+		private void HandleKeyDown(PipeMessageEx msg)
 		{
 			if(msg.wParam > MAX_KEYS)
 			{
@@ -319,7 +319,7 @@ namespace TileWindow.Handlers
 			}
 		}
 		
-		private void HandleKeyUp(PipeMessage msg)
+		private void HandleKeyUp(PipeMessageEx msg)
 		{
 			if(msg.wParam > MAX_KEYS)
 			{

@@ -226,7 +226,7 @@ namespace TileWindow.Forms
                 lbl.Click += (sender, args) =>
                 {
                     var id = (Int64)((Label)sender).Tag;
-                    Startup.ParserSignal.QueuePipeMessage(new PipeMessage
+                    Startup.ParserSignal.QueuePipeMessage(new PipeMessageEx
                     {
                         msg = wmc_show,
                         wParam = (ulong)id,

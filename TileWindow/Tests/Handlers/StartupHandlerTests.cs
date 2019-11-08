@@ -22,7 +22,7 @@ namespace TileWindow.Tests.Handlers
             (var screens, var screenList) = SetupScreens(1);
             (var collection, var desktops) = SetupDeskops(1);
             var sut = CreateSut(screens: screens, desktopCollection: collection, signal: out Mock<ISignalHandler> signal);
-            var msg = new PipeMessage { msg = signalId };
+            var msg = new PipeMessageEx { msg = signalId };
             
             signal.SetupGet(m => m.WMC_DISPLAYCHANGE).Returns(signalId);
             screenList[0].SetupGet(m => m.WorkingArea).Returns(new RECT(0, 0, 20, 20));
@@ -43,7 +43,7 @@ namespace TileWindow.Tests.Handlers
             (var screens, var screenList) = SetupScreens(1);
             (var collection, var desktops) = SetupDeskops(1);
             var sut = CreateSut(screens: screens, desktopCollection: collection, signal: out Mock<ISignalHandler> signal);
-            var msg = new PipeMessage { msg = signalId };
+            var msg = new PipeMessageEx { msg = signalId };
             var restartThreadsCalled = false;
 
             signal.SetupGet(m => m.WMC_DISPLAYCHANGE).Returns(signalId);

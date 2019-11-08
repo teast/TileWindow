@@ -10,12 +10,12 @@ namespace TileWindow
 {
     public class MessageParser: IDisposable
 	{
-		private ConcurrentQueue<PipeMessage> queue;
+		private ConcurrentQueue<PipeMessageEx> queue;
 		private AppConfig _appConfig;
         private readonly ISignalHandler signal;
 		private readonly MessageHandlerCollection handlers;
 
-        public MessageParser(AppConfig appConfig, ISignalHandler signal, MessageHandlerCollection handlers, ConcurrentQueue<PipeMessage> queue)
+        public MessageParser(AppConfig appConfig, ISignalHandler signal, MessageHandlerCollection handlers, ConcurrentQueue<PipeMessageEx> queue)
 		{
 			_appConfig = appConfig;
             this.signal = signal;
@@ -27,7 +27,7 @@ namespace TileWindow
 		{
 			while(true)
 			{
-				PipeMessage msg;
+				PipeMessageEx msg;
 				
 				if(Startup.ParserSignal.ReloadConfig)
 				{
@@ -41,8 +41,10 @@ namespace TileWindow
 				
 				if(!queue.TryDequeue(out msg))
 					break;
-				
-//Log.Information($"Message: {signal.SignalToString((uint)msg.msg)} wParam: {msg.wParam}, lParam: {msg.lParam}");
+
+				if (msg.msg == signal.WMC_EXTRATRACK)
+					Log.Information($"Message: {signal.SignalToString((uint)msg.msg)} ({msg.from}) wParam: {msg.wParam}, lParam: {msg.lParam}");
+
 				foreach(var handler in handlers)
 				{
 					handler.HandleMessage(msg);
@@ -139,7 +141,7 @@ namespace TileWindow
 			private bool reloadConfig;
 			private bool stopHandlingMessages;
 			private AutoResetEvent msgSignal = new AutoResetEvent(false);
-			private ConcurrentQueue<PipeMessage> queue;
+			private ConcurrentQueue<PipeMessageEx> queue;
 			public event EventHandler RestartThreads;
 			public bool Done {get; set; }
 
@@ -174,12 +176,12 @@ namespace TileWindow
 				}
 			}
 			
-			public MHSignal(ref ConcurrentQueue<PipeMessage> queue)
+			public MHSignal(ref ConcurrentQueue<PipeMessageEx> queue)
 			{
 				this.queue = queue;
 			}
 			
-			public void QueuePipeMessage(PipeMessage message)
+			public void QueuePipeMessage(PipeMessageEx message)
 			{
 				queue.Enqueue(message);
 				SignalNewMessage();

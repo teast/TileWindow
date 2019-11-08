@@ -90,7 +90,7 @@ namespace TileWindow.Handlers
             _styleChangedListeners.Remove(id);
         }
 
-        public void HandleMessage(PipeMessage msg)
+        public void HandleMessage(PipeMessageEx msg)
         {
             if (msg.msg == signalHandler.WMC_SCMINIMIZE ||
                 msg.msg == signalHandler.WMC_SCMAXIMIZE)

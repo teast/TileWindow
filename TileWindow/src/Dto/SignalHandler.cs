@@ -21,6 +21,7 @@ public interface ISignalHandler
     uint WMC_ACTIVATEAPP { get; }
     uint WMC_DISPLAYCHANGE { get; }
     uint WMC_SIZE { get; }
+    uint WMC_EXTRATRACK { get; }
     uint WMC_SHOWNODE { get; }
 
     string SignalToString(uint signal);
@@ -47,6 +48,7 @@ public class SignalHandler: ISignalHandler
     public uint WMC_ACTIVATEAPP { get; }
     public uint WMC_DISPLAYCHANGE { get; }
     public uint WMC_SIZE { get; }
+    public uint WMC_EXTRATRACK { get; }
     public uint WMC_SHOWNODE { get; }
     public SignalHandler(IPInvokeHandler pinvokeHandler)
     {
@@ -69,6 +71,7 @@ public class SignalHandler: ISignalHandler
         WMC_ACTIVATEAPP = pinvokeHandler.RegisterWindowMessage("WMC_ACTIVATEAPP");
         WMC_DISPLAYCHANGE = pinvokeHandler.RegisterWindowMessage("WMC_DISPLAYCHANGE");
         WMC_SIZE = pinvokeHandler.RegisterWindowMessage("WMC_SIZE");
+        WMC_EXTRATRACK = pinvokeHandler.RegisterWindowMessage("WMC_EXTRATRACK");
 
         // Custom message not from winhook
         WMC_SHOWNODE = pinvokeHandler.RegisterWindowMessage("WMC_SHOWNODE");
@@ -96,6 +99,7 @@ public class SignalHandler: ISignalHandler
         if (signal == WMC_DISPLAYCHANGE) return "WMC_DISPLAYCHANGE";
         if (signal == WMC_SIZE) return "WMC_SIZE";
         if (signal == WMC_SHOWNODE) return "WMC_SHOWNODE";
+        if (signal == WMC_EXTRATRACK) return "WMC_EXTRATRACK";
 
         return "UNKNOWN";
     }

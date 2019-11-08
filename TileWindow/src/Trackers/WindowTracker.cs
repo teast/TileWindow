@@ -186,16 +186,16 @@ namespace TileWindow.Trackers
             if (validation.DoValidate == false)
                 return true;
 
-Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
+//Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
             if (hWnd == IntPtr.Zero)
             {
-                Log.Information($"WindowTracker.CanHandleHwnd: hWnd null: {hWnd}");
+                //Log.Information($"WindowTracker.CanHandleHwnd: hWnd null: {hWnd}");
                 return false;
             }
 
             if (ShouldIgnoreHwnd(hWnd))
             {
-                Log.Information($"WindowTracker.CanHandleHwnd: Should ignore: {hWnd}");
+                //Log.Information($"WindowTracker.CanHandleHwnd: Should ignore: {hWnd}");
                 return false;
             }
 
@@ -210,19 +210,19 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
 
             if (validation.ValidateChild && (style & PInvoker.WS_CHILD) == PInvoker.WS_CHILD)
             {
-                Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it is a child window");
+                //Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it is a child window");
                 return false;
             }
 
             if (validation.ValidateVisible && (style & PInvoker.WS_VISIBLE) != PInvoker.WS_VISIBLE)
             {
-                Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it is not visible (style: {style}, exStyle: {exstyle})");
+                //Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it is not visible (style: {style}, exStyle: {exstyle})");
                 return false;
             }
 
             if (validation.ValidateNoActivate && (exstyle & PInvoker.WS_EX_NOACTIVATE) == PInvoker.WS_EX_NOACTIVATE)
             {
-                Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it got WS_EX_NOACTIVATE (style: {style}, exStyle: {exstyle})");
+                //Log.Information($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} because it got WS_EX_NOACTIVATE (style: {style}, exStyle: {exstyle})");
                 return false;
             }
 
@@ -235,7 +235,7 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
             var className = cb.ToString();
             if (classNamesToIgnore.Any(regex => regex.IsMatch(className)))
             {
-                Log.Information($"WindowTracker.CanHandleHwnd: ignore because classname is to be ignored \"{className}\": {hWnd}");
+                //Log.Information($"WindowTracker.CanHandleHwnd: ignore because classname is to be ignored \"{className}\": {hWnd}");
                 return false;
             }
 
@@ -255,7 +255,7 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
                 if ((result = pinvokeHandler.DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out bool pvAttribute, sizeof(int))) != 0 || pvAttribute)
                 {
                     //var visible = pinvokeHandler.IsWindowVisible(hWnd);
-                    Log.Warning($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} \"{GetWindowText(hWnd)}\" because it is not visible according to cloaked (result: {result:X}, cloaked: {pvAttribute})");
+                    //Log.Warning($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} \"{GetWindowText(hWnd)}\" because it is not visible according to cloaked (result: {result:X}, cloaked: {pvAttribute})");
                     return false;
                 }
             }
@@ -263,7 +263,7 @@ Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
             var text = GetWindowText(hWnd);
             if (captionsToIgnore.Any(regex => regex.IsMatch(text)))
             {
-                Log.Information($"WindowTracker.CanHandleHwnd: Going to ignore because caption is to be ignored \"{text}\": {hWnd}");
+                //Log.Information($"WindowTracker.CanHandleHwnd: Going to ignore because caption is to be ignored \"{text}\": {hWnd}");
                 return false;
             }
 

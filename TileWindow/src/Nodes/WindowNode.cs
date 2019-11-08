@@ -257,7 +257,7 @@ namespace TileWindow.Nodes
 
                     if (windowTracker.RevalidateHwnd(this, Hwnd) == false)
                     {
-                        Startup.ParserSignal.QueuePipeMessage(new PipeMessage
+                        Startup.ParserSignal.QueuePipeMessage(new PipeMessageEx
                         {
                             msg = signalHandler.WMC_DESTROY,
                             wParam = (ulong)Hwnd,

@@ -217,7 +217,7 @@ namespace TileWindow.Handlers
             return cb.ToString();
         }
 
-		public void HandleMessage(PipeMessage msg)
+		public void HandleMessage(PipeMessageEx msg)
 		{
 			if(msg.msg == signal.WMC_CREATE)
 			{
@@ -234,13 +234,11 @@ namespace TileWindow.Handlers
             }
             else if (msg.msg == signal.WMC_DESTROY)
             {
-                HandleMessageDestroy(msg);
+                HandleQuitWindow(new IntPtr((long)msg.wParam));
             }
             else if (msg.msg == signal.WMC_SCCLOSE)
             {
-                var hwnd = new IntPtr((long)msg.wParam);
-                var node = windowTracker.GetNodes(hwnd);
-                //Log.Information($"#################### NEW MESSAGE!!! SCCLOSE for {hwnd} ({node}) ###############");                
+                HandleQuitWindow(new IntPtr((long)msg.wParam));
             }
             else if (msg.msg == signal.WMC_SCRESTORE)
             {
@@ -301,17 +299,18 @@ namespace TileWindow.Handlers
         {
         }
 
-		private void HandleMessageShowWindow(PipeMessage msg)
+		private void HandleMessageShowWindow(PipeMessageEx msg)
         {
             //Log.Information($"StartupHandler> WMC_ShowWindow received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
         }
-		private void HandleMessageDestroy(PipeMessage msg)
+		private void HandleQuitWindow(IntPtr hwnd)
         {
-            //Log.Information($"StartupHandler> WMC_DESTROY received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
-            desktops.ActiveDesktop.HandleMessageDestroy(msg);
+            //Log.Information($"StartupHandler> HandleQuitWindow received for {hwnd}");
+            var n = windowTracker.GetNodes(hwnd);
+            n?.QuitNode();
         }
 
-		private void HandleMessageShow(PipeMessage msg)
+		private void HandleMessageShow(PipeMessageEx msg)
         {
             var hwnd = new IntPtr(Convert.ToInt64(msg.wParam));
             //Log.Information($"StartupHandler> WMC_SHOW received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");

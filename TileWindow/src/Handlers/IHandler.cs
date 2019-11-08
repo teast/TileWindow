@@ -12,7 +12,7 @@ namespace TileWindow.Handlers
         /// Handle an incomming message
         /// </summary>
         /// <param name="msg">the incoming message</param>
-        void HandleMessage(PipeMessage msg);
+        void HandleMessage(PipeMessageEx msg);
 
         /// <summary>
         /// Will be called right after creation of object

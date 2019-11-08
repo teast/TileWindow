@@ -17,7 +17,7 @@ namespace TileWindow
 		private NamedPipeServerStream pipe = null;
 		private BinaryReader pipeReader = null;
 		private Process proc = null;
-		private ConcurrentQueue<PipeMessage> queue;
+		private ConcurrentQueue<PipeMessageEx> queue;
 		
 		private bool stopCalled = false;
 		private bool disableWinKey;
@@ -26,7 +26,7 @@ namespace TileWindow
         private readonly ISignalHandler signalHandler;
         private AutoResetEvent pipeDone = new AutoResetEvent(false);
 
-		public TWHandler(string exec, string pipeName, ref ConcurrentQueue<PipeMessage> queue, AppConfig appConfig, IPInvokeHandler pinvokeHandler, ISignalHandler signalHandler)
+		public TWHandler(string exec, string pipeName, ref ConcurrentQueue<PipeMessageEx> queue, AppConfig appConfig, IPInvokeHandler pinvokeHandler, ISignalHandler signalHandler)
 		{
 			this.queue = queue;
 			this.exec = exec;
@@ -180,9 +180,7 @@ namespace TileWindow
 
 			pipe.WaitForPipeDrain();
 			var msg = ByteToType<PipeMessage>(pipeReader);
-			//Trace.WriteLine("Msg: " + msg.msg + " wParam: " + msg.wParam + " lParam: " + msg.lParam);
-			//Log.Information($"{this} addind message to queue: {signalHandler.SignalToString((uint)msg.msg)}");
-			queue.Enqueue(msg);
+			queue.Enqueue(new PipeMessageEx(msg, ToString()));
 			Startup.ParserSignal.SignalNewMessage();
 		}
 		

@@ -59,7 +59,7 @@ namespace TileWindow.Handlers
             this._listeners[hwnd] = val;
         }
 
-        public void HandleMessage(PipeMessage msg)
+        public void HandleMessage(PipeMessageEx msg)
         {
 			if(msg.msg == signal.WMC_SETFOCUS)
             {

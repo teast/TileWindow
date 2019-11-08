@@ -4,6 +4,7 @@
 #include <wingdi.h>
 #include <shlwapi.h>
 #include <ctype.h>
+#include <math.h>
 
 #define MAX_TRIES 2
 //#define DEBUG
@@ -43,6 +44,11 @@
     #define ENVNAME "ENV64"
 #endif
 
+#ifdef ENV32
+    #define CINT long
+#else
+    #define CINT long long
+#endif
 typedef struct
 {
     UINT msg;
@@ -60,13 +66,13 @@ typedef struct
 } PipeMessage;
 
 
-typedef BOOL (CALLBACK* InstallHook)(DWORD hWnd, int disableWinKey);
+typedef BOOL (CALLBACK* InstallHook)(DWORD hWnd, int disableWinKey, CINT pinpointHandler);
 typedef BOOL (CALLBACK* RemoveHook)(void);
 
 UINT WMC_SHOW = 0, WMC_CREATE = 0, WMC_MOVE = 0, WMC_EXITMOVE = 0, WMC_ENTERMOVE = 0, WMC_KEYDOWN = 0, WMC_KEYUP = 0, WMC_SETFOCUS = 0, WMC_KILLFOCUS = 0;
 UINT WMC_SHOWWINDOW = 0, WMC_DESTROY = 0, WMC_STYLECHANGED = 0, WMC_ACTIVATEAPP = 0;
 UINT WMC_SCCLOSE = 0, WMC_SCMAXIMIZE = 0, WMC_SCMINIMIZE = 0, WMC_SCRESTORE = 0;
-UINT WMC_DISPLAYCHANGE = 0, WMC_SIZE = 0;
+UINT WMC_DISPLAYCHANGE = 0, WMC_SIZE = 0, WMC_EXTRATRACK = 0;
 
 HMODULE hook = NULL;
 DWORD gThread = 0;
@@ -75,6 +81,8 @@ RemoveHook uninstallHook = NULL;
 HINSTANCE hInstance = NULL;
 HANDLE hPipe = NULL;
 
+int cmdLine_disableWinKey;
+CINT cmdLine_pinpointHandler;
 void onExit(int exitCode, const char* str, ...)
 {
     va_list arg;
@@ -178,22 +186,66 @@ void InitPipe()
     }
 }
 
+BOOL IsPositiveNumber(char *str, int length, CINT *result)
+{
+    CINT res = 0;
+    for(int i = 0; i < length; i++)
+    {
+        if (str[i] < '0' || str[i] > '9')
+            return FALSE;
+        res += ((str[i] - '0')) * pow(10, length - i - 1);
+    }
+
+    *result = res;
+    return TRUE;
+}
+
+void ParseArgs(LPSTR lpCmdLine)
+{
+    int start = 0;
+    for(int i = 0; lpCmdLine[i]; i++)
+    {
+        if (lpCmdLine[i] == ' ' || lpCmdLine[i+1] == '\0')
+        {
+            int len = i - start;
+            CINT result;
+
+            if (lpCmdLine[i] != ' ')
+                len++;
+
+            if (len == 13 && strncmp(&lpCmdLine[start], "disablewinkey", 13) == 0)
+            {
+                cmdLine_disableWinKey = 1;
+                printf(ENVNAME " Going to disable win key\n");
+            }
+            else if (len > 0 && IsPositiveNumber(&lpCmdLine[start], len, &result) == TRUE)
+            {
+                cmdLine_pinpointHandler = result;
+                #ifdef ENV32
+                    printf(ENVNAME " Going to track %li\n", result);
+                    printf(ENVNAME " pointer address: %p, %li\n", cmdLine_pinpointHandler, cmdLine_pinpointHandler);
+                #else
+                    printf(ENVNAME " Going to track %I64i\n", result);
+                    printf(ENVNAME " pointer address: %p, %I64i\n", cmdLine_pinpointHandler, cmdLine_pinpointHandler);
+                #endif
+            }
+
+            start = i+1;
+        }
+        else
+        {
+            lpCmdLine[i] = tolower(lpCmdLine[i]);
+        }
+    }
+}
+
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     hInstance = hInst;
     atexit(handleExit);
-    int disableWinKey = 0;
-    
-    for(int i = 0; lpCmdLine[i]; i++)
-    {
-         lpCmdLine[i] = tolower(lpCmdLine[i]);
-    }
+    cmdLine_disableWinKey = 0;
 
-    if (strcmp("disablewinkey", lpCmdLine) == 0)
-    {
-        disableWinKey = 1;
-        printf(ENVNAME " Going to disable win key\n");
-    }
+    ParseArgs(lpCmdLine);
 
     // Load DLL and setup all the custom messages
     hook = LoadLibrary(LIBWINHOOK);
@@ -216,6 +268,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
     WMC_ACTIVATEAPP = RegisterWindowMessageA("WMC_ACTIVATEAPP");
     WMC_DISPLAYCHANGE = RegisterWindowMessageA("WMC_DISPLAYCHANGE");
     WMC_SIZE = RegisterWindowMessageA("WMC_SIZE");
+    WMC_EXTRATRACK = RegisterWindowMessageA("WMC_EXTRATRACK");
     gThread = GetCurrentThreadId();
 
     if(gThread == 0)
@@ -235,7 +288,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
     InitPipe();
 
     // Now activate our hook
-    if(installHook(gThread, disableWinKey) == FALSE)
+    if(installHook(gThread, cmdLine_disableWinKey, cmdLine_pinpointHandler) == FALSE)
         onExit(3, ENVNAME " Error while installing \"hook\"\n");
 
 
@@ -266,7 +319,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
             msg.message == WMC_SCRESTORE ||
             msg.message == WMC_ACTIVATEAPP ||
             msg.message == WMC_DISPLAYCHANGE ||
-            msg.message == WMC_SIZE)
+            msg.message == WMC_SIZE ||
+            msg.message == WMC_EXTRATRACK)
         {
             SendPipedMessage(msg.message, msg.wParam, msg.lParam);
         }

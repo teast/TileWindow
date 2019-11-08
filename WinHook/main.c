@@ -32,7 +32,9 @@ UINT WMC_SCRESTORE __attribute__((section(".shared"), shared)) = 0;
 UINT WMC_ACTIVATEAPP __attribute__((section(".shared"), shared)) = 0;
 UINT WMC_DISPLAYCHANGE __attribute__((section(".shared"), shared)) = 0;
 UINT WMC_SIZE __attribute__((section(".shared"), shared)) = 0;
+UINT WMC_EXTRATRACK __attribute__((section(".shared"), shared)) = 0;
 DWORD gThread __attribute__((section(".shared"), shared)) = 0;
+HWND g_pinpointHandler __attribute__((section(".shared"), shared)) = 0;
 #pragma data_seg()
 #pragma comment(linker, "/SECTION:.shared,RWS")
 
@@ -67,6 +69,7 @@ BOOL APIENTRY DllMain(HANDLE hInstance, DWORD fdwReason, LPVOID lpvReserved)
             WMC_ACTIVATEAPP = RegisterWindowMessageA("WMC_ACTIVATEAPP");
             WMC_DISPLAYCHANGE = RegisterWindowMessageA("WMC_DISPLAYCHANGE");
             WMC_SIZE = RegisterWindowMessageA("WMC_SIZE");
+            WMC_EXTRATRACK = RegisterWindowMessageA("WMC_EXTRATRACK");
             
             g_hInstance = hInstance;
             // init
@@ -91,7 +94,8 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 	if (nCode == HC_ACTION)
 	{
 		// not after: CWPSTRUCT *cwps = (CWPSTRUCT*)lParam;
-		CWPRETSTRUCT *cwps = (CWPRETSTRUCT*)lParam;
+		//CWPRETSTRUCT *cwps = (CWPRETSTRUCT*)lParam;
+		CWPSTRUCT *cwps = (CWPSTRUCT*)lParam;
 		if(GetParent(cwps->hwnd) == NULL)
         {
             if (cwps->message == WM_CREATE)
@@ -204,6 +208,9 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
                 PostThreadMessage(gThread, WMC_DISPLAYCHANGE, (WPARAM)WM_SETTINGCHANGE, (LPARAM)NULL);
             }
         }
+        
+        if (g_pinpointHandler != NULL && cwps->hwnd == g_pinpointHandler)
+            PostThreadMessage(gThread, WMC_EXTRATRACK, (WPARAM)cwps->hwnd, (LPARAM)cwps->message);
 	}
 
     return CallNextHookEx(g_hook, nCode, wParam, lParam);
@@ -300,13 +307,16 @@ static LRESULT CALLBACK KeyboardProcLL(int nCode, WPARAM wParam, LPARAM lParam)
 /*
     Install our listener *should be called from "host"*
 */
-BOOL WINHOOK_API InstallHook(DWORD thread, int disableWinKey)
+BOOL WINHOOK_API InstallHook(DWORD thread, int disableWinKey, CINT pinpointHandler)
 {
+    g_pinpointHandler = (HWND)pinpointHandler;
+
     if(!g_hook)
     {
         gThread = thread;
         // Not after: g_hook = SetWindowsHookEx(WH_CALLWNDPROC,
-        g_hook = SetWindowsHookEx(WH_CALLWNDPROCRET,
+        //g_hook = SetWindowsHookEx(WH_CALLWNDPROCRET,
+        g_hook = SetWindowsHookEx(WH_CALLWNDPROC,
                                   CallWndProc,
                                   g_hInstance,
                                   0);

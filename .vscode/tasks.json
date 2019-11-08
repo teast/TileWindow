@@ -180,7 +180,8 @@
             },
             "dependsOn": [
                 "TileWindow build (full)"
-            ]
+            ],
+            "problemMatcher": []
         },
         {
             "label": "TileWindow build (full)",

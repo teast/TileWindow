@@ -50,7 +50,6 @@ namespace TileWindow.Nodes
         // TODO: See TODO for Screen
         bool GetScreenRect(int screenIndex, out RECT rect);
         void ScreensChanged(RECT[] screens, Direction direction);
-		void HandleMessageDestroy(PipeMessage msg);
         Node HandleNewWindow(IntPtr hwnd, ValidateHwndParams validation = null);
         void HandleResize(int val, TransferDirection dir);
         void HandleVerticalDirection();
@@ -219,14 +218,6 @@ namespace TileWindow.Nodes
 
             rect = Childs[screenIndex].Rect;
             return true;
-        }
-
-		public void HandleMessageDestroy(PipeMessage msg)
-        {
-            var hwnd = new IntPtr((long)msg.wParam);
-            var n = windowTracker.GetNodes(hwnd);
-            //Log.Information($"{this}.{nameof(HandleMessageDestroy)} for {hwnd} ({n})");
-            n?.QuitNode();
         }
 
         public Node HandleNewWindow(IntPtr hwnd, ValidateHwndParams validation = null)

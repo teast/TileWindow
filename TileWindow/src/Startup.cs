@@ -23,7 +23,7 @@ namespace TileWindow
 {
     public static class Startup
     {
-		private static ConcurrentQueue<PipeMessage> queue = new ConcurrentQueue<PipeMessage>();
+		private static ConcurrentQueue<PipeMessageEx> queue = new ConcurrentQueue<PipeMessageEx>();
 		public static MessageParser.MHSignal ParserSignal = new MessageParser.MHSignal(ref queue);
 		
 		private static readonly Object lock32 = new Object();
@@ -80,7 +80,7 @@ namespace TileWindow
 			services.AddSingleton<VirtualDesktopCollection, VirtualDesktopCollection>();
 			services.AddSingleton<IPInvokeHandler, PInvokeHandler>();
 			services.AddSingleton<ISignalHandler, SignalHandler>();
-			services.AddSingleton<ConcurrentQueue<PipeMessage>>(_ => queue);
+			services.AddSingleton<ConcurrentQueue<PipeMessageEx>>(_ => queue);
 			services.AddSingleton<IVariableFinder, VariableFinder>();
 			services.AddSingleton<IParseCommandBuilder, ParseCommandBuilder>();
 			services.AddSingleton<ICommandExecutor, CommandExecutor>();
@@ -162,7 +162,7 @@ namespace TileWindow
 					if (isFirstInstance)
 					{
 						var appConfig = serviceProvider.GetService<AppConfig>() ?? new AppConfig();
-						var queue = serviceProvider.GetRequiredService<ConcurrentQueue<PipeMessage>>();
+						var queue = serviceProvider.GetRequiredService<ConcurrentQueue<PipeMessageEx>>();
 
 						using(var thread32 = new TWHandler(tw32Path, "tilewindowpipe32", ref queue, appConfig, pinvokeHandler, signalHandler))
 						using(var thread64 = new TWHandler(tw64Path, "tilewindowpipe64", ref queue, appConfig, pinvokeHandler, signalHandler))
