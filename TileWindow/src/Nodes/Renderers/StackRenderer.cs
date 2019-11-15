@@ -149,6 +149,7 @@ namespace TileWindow.Nodes.Renderers
             if (_formHandle != IntPtr.Zero)
                 pinvokeHandler.SendMessage(_formHandle, signalRefresh, IntPtr.Zero, IntPtr.Zero);
 
+            var toHide = new List<Node>();
             // TODO: Add IsVisible property to Node and use that to minimize calls to show/hide
             //foreach(var child in Owner.Childs)
             for (var i = 0; i < Owner.Childs.Count; i++)
@@ -169,8 +170,10 @@ namespace TileWindow.Nodes.Renderers
                     Owner.Childs[i].Show();
                 }
                 else
-                    Owner.Childs[i].Hide();
+                    toHide.Add(Owner.Childs[i]);
             }
+
+            toHide.ForEach(n => n.Hide());
 
             return (true, Owner.Rect);
         }
