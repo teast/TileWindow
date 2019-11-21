@@ -86,12 +86,14 @@ namespace TileWindow
 			services.AddSingleton<ICommandExecutor, CommandExecutor>();
 			services.AddSingleton<ICommandHelper, CommandHelper>();
 			services.AddSingleton<IFocusHandler, FocusHandler>();
+			services.AddSingleton<IDragHandler, DragHandler>();
 			services.AddSingleton<IWindowTracker, WindowTracker>();
 			services.AddSingleton<IContainerNodeCreater, ContainerNodeCreater>();
 			services.AddTransient<CreateWindowNode, CreateWindowNode>(serv => (rect, hWnd, direction) => {
 				try
 				{
 					return new WindowNode(
+						serv.GetRequiredService<IDragHandler>(),
 						serv.GetRequiredService<IFocusHandler>(),
 						serv.GetRequiredService<ISignalHandler>(),
 						serv.GetRequiredService<IWindowEventHandler>(),
@@ -114,6 +116,7 @@ namespace TileWindow
 			services.AddSingleton<IWindowEventHandler, WindowEventHandler>();
 			services.AddSingleton<MessageHandlerCollection>(serv => new MessageHandlerCollection(
 				serv.GetRequiredService<IFocusHandler>(),
+				serv.GetRequiredService<IDragHandler>(),
 				serv.GetRequiredService<IKeyHandler>(),
 				serv.GetRequiredService<IWindowEventHandler>(),
 				serv.GetRequiredService<IStartupHandler>()

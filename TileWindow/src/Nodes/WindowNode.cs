@@ -22,6 +22,7 @@ namespace TileWindow.Nodes
         private long _exStyleBeforeHide;
         private RECT _origRect;
         private bool _quit;
+        private readonly IDragHandler dragHandler;
         private readonly IFocusHandler focusHandler;
         private readonly ISignalHandler signalHandler;
         private readonly IWindowTracker windowTracker;
@@ -32,7 +33,7 @@ namespace TileWindow.Nodes
         private Guid _styleChangedListener = Guid.Empty;
         public string ClassName { get; }
         private long _parentHwnd;
-
+        private bool _insideDragAction;
         public IntPtr Hwnd { get; private set; }
 
         public override NodeTypes WhatType =>NodeTypes.Leaf;
@@ -59,12 +60,14 @@ namespace TileWindow.Nodes
             }
         }
 
-        public WindowNode(IFocusHandler focusHandler, ISignalHandler signalHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler, RECT rect, IntPtr hwnd, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
+        public WindowNode(IDragHandler dragHandler, IFocusHandler focusHandler, ISignalHandler signalHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler, RECT rect, IntPtr hwnd, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
         {
             //Log.Information($"{nameof(WindowNode)}.ctor, Depth: {Depth}, hwnd: {hwnd} parent: {Parent?.GetType().ToString()} ({Parent?.WhatType.ToString()})");
             _quit = false;
             _width = rect.Right - rect.Left;
             _height = rect.Bottom - rect.Top;
+            _insideDragAction = false;
+            this.dragHandler = dragHandler;
             this.focusHandler = focusHandler;
             this.signalHandler = signalHandler;
             this.windowTracker = windowTracker;
@@ -132,6 +135,13 @@ namespace TileWindow.Nodes
                 }
             });
 
+            if (Hwnd != IntPtr.Zero)
+            {
+                dragHandler.OnDragStart += HandleOnDragStart;
+                dragHandler.OnDragMove += HandleOnDragMove;
+                dragHandler.OnDragEnd += HandleOnDragEnd;
+            }
+
             SetupWindowNode(_origStyle, _origExStyle, ClassName);
             windowTracker.AddWindow(hwnd, this);
             Log.Information($"WindowNode.ctor done: {this} ({this.Rect}) (orig style: {_origStyle}, exStyle: {_origExStyle}, rect: {_origRect})");
@@ -139,46 +149,6 @@ namespace TileWindow.Nodes
 
         public override void PostInit()
         {
-        }
-
-        private string GetWindowText()
-        {
-            var tb = new StringBuilder(1024);
-            if (pinvokeHandler.GetWindowText(Hwnd, tb, tb.Capacity) > 0)
-                return tb.ToString();
-            else
-                return Hwnd.ToString();
-        }
-
-        private string GetClassName()
-        {
-            var cb = new StringBuilder(1024);
-            if (pinvokeHandler.GetClassName(Hwnd, cb, cb.Capacity) == 0)
-                throw new Exception($"{nameof(WindowNode)}.ctor could not retrieve class name for {Hwnd} [{Name}], error: {pinvokeHandler.GetLastError()}");
-            return cb.ToString();
-        }
-
-        private void SetupWindowNode(long style, long exstyle, string className)
-        {
-            var _style = NodeStyle.Tile;
-
-            if (((style & PInvoker.WS_CAPTION) != PInvoker.WS_CAPTION) ||
-                ((style & PInvoker.WS_SIZEBOX) != PInvoker.WS_SIZEBOX))
-            {
-                _style = NodeStyle.Floating;
-            }
-
-            /* Example to hide window bars.
-                NOTE: that it wont work on dwm bars (custom bars like chrome)
-            var prev = style;
-            style = WS_POPUP;
-            var HWnd = new HWnd(Hwnd);
-            var result = pinvokeHandler.SetWindowLongPtr(new HandleRef(HWnd, HWnd.Hwnd), GWL_STYLE, new IntPtr(style));
-            Log.Information($"WindowNode, removing caption (prev: {prev}, new: {style}) result: {result}");
-            */
-
-            Style = _style;
-            pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, 0);
         }
 
         public override bool Hide()
@@ -341,35 +311,6 @@ namespace TileWindow.Nodes
             }
         }
 
-        private void RestoreHwndIfNeeded()
-        {
-            var style = pinvokeHandler.GetWindowLongPtr(Hwnd, PInvoker.GWL_STYLE).ToInt64();
-            if (((style & PInvoker.WS_MAXIMIZE) == PInvoker.WS_MAXIMIZE) ||
-                ((style & PInvoker.WS_MINIMIZE) == PInvoker.WS_MINIMIZE))
-            {
-                //Log.Information($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} goingt o bring hwnd out of minimize/maximize ({this})");
-                var h = new HWnd(Hwnd);
-                if (pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), PInvoker.GWL_STYLE, new IntPtr(style & (~PInvoker.WS_MINIMIZE & ~PInvoker.WS_MAXIMIZE))) == IntPtr.Zero)
-                {
-                    Log.Error($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} Could not change {Hwnd} [{Name}] from minimize/maximize to normal (with SetWindowLongPtr), error: {pinvokeHandler.GetLastError()}");
-                }
-
-                if (pinvokeHandler.ShowWindow(Hwnd, ShowWindowCmd.SW_RESTORE) == false)
-                {
-                    Log.Error($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} Could not change {Hwnd} [{Name}] from minimize/maximize to normal (With ShowWindow), error: {pinvokeHandler.GetLastError()}");
-                }
-            }
-        }
-
-        private bool SetHwndPos(RECT r, out RECT winRect)
-        {
-            RestoreHwndIfNeeded();
-            _width = r.Right - r.Left;
-            _height = r.Bottom - r.Top;
-            pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, r.Left, r.Top, _width, _height, 0);
-            return pinvokeHandler.GetWindowRect(Hwnd, out winRect);
-        }
-
         public override bool UpdateRect(RECT r)
         {
             base.UpdateRect(r);
@@ -412,6 +353,10 @@ namespace TileWindow.Nodes
 
                 if (Hwnd != IntPtr.Zero)
                 {
+                    dragHandler.OnDragStart -= HandleOnDragStart;
+                    dragHandler.OnDragMove -= HandleOnDragMove;
+                    dragHandler.OnDragEnd -= HandleOnDragEnd;
+
                     windowTracker.removeWindow(Hwnd);
                     
                     if (_focusListener != Guid.Empty)
@@ -465,6 +410,125 @@ namespace TileWindow.Nodes
                 int hash = (int)2166136262;
                 hash = (hash * 16777617) ^ Id.GetHashCode();
                 return hash;
+            }
+        }
+
+        private void HandleOnDragStart(object sender, DragStartEvent arg)
+        {
+            if (arg.hWnd != Hwnd)
+                return;
+
+            if (Style != NodeStyle.Floating)
+            {
+                Style = NodeStyle.Floating;
+            }
+
+            _insideDragAction = true;
+        }
+
+        private void HandleOnDragMove(object sender, DragMoveEvent arg)
+        {
+            if (arg.hWnd != Hwnd)
+                return;
+
+            // TODO: Maybe we should handle this anyway... make sure x/y equals our current x/y?
+            if (_insideDragAction == false)
+                return;
+
+            if (Style != NodeStyle.Floating)
+                Style = NodeStyle.Floating;
+            
+            if (!pinvokeHandler.GetWindowRect(Hwnd, out RECT rect))
+            {
+                Log.Warning($"{nameof(WindowNode)}.{nameof(HandleOnDragMove)} Could not retrieve window rect for {this}");
+                rect = Rect;
+                rect.Left = arg.X;
+                rect.Top = arg.Y;
+            }
+
+            if (!UpdateRect(rect))
+            {
+                Log.Warning($"{nameof(WindowNode)}.{nameof(HandleOnDragMove)} Could not update window rect for {this} (new rect: {rect})");
+            }
+        }
+
+        private void HandleOnDragEnd(object sender, DragEndEvent arg)
+        {
+            if (arg.hWnd != Hwnd)
+                return;
+
+            if (Style != NodeStyle.Floating)
+                Style = NodeStyle.Floating;
+
+            _insideDragAction = false;
+        }
+
+        private string GetWindowText()
+        {
+            var tb = new StringBuilder(1024);
+            if (pinvokeHandler.GetWindowText(Hwnd, tb, tb.Capacity) > 0)
+                return tb.ToString();
+            else
+                return Hwnd.ToString();
+        }
+
+        private string GetClassName()
+        {
+            var cb = new StringBuilder(1024);
+            if (pinvokeHandler.GetClassName(Hwnd, cb, cb.Capacity) == 0)
+                throw new Exception($"{nameof(WindowNode)}.ctor could not retrieve class name for {Hwnd} [{Name}], error: {pinvokeHandler.GetLastError()}");
+            return cb.ToString();
+        }
+
+        private void SetupWindowNode(long style, long exstyle, string className)
+        {
+            var _style = NodeStyle.Tile;
+
+            if (((style & PInvoker.WS_CAPTION) != PInvoker.WS_CAPTION) ||
+                ((style & PInvoker.WS_SIZEBOX) != PInvoker.WS_SIZEBOX))
+            {
+                _style = NodeStyle.Floating;
+            }
+
+            /* Example to hide window bars.
+                NOTE: that it wont work on dwm bars (custom bars like chrome)
+            var prev = style;
+            style = WS_POPUP;
+            var HWnd = new HWnd(Hwnd);
+            var result = pinvokeHandler.SetWindowLongPtr(new HandleRef(HWnd, HWnd.Hwnd), GWL_STYLE, new IntPtr(style));
+            Log.Information($"WindowNode, removing caption (prev: {prev}, new: {style}) result: {result}");
+            */
+
+            Style = _style;
+            pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, 0);
+        }
+
+        private bool SetHwndPos(RECT r, out RECT winRect)
+        {
+            RestoreHwndIfNeeded();
+            _width = r.Right - r.Left;
+            _height = r.Bottom - r.Top;
+            pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, r.Left, r.Top, _width, _height, 0);
+            return pinvokeHandler.GetWindowRect(Hwnd, out winRect);
+        }
+
+        private void RestoreHwndIfNeeded()
+        {
+            var style = pinvokeHandler.GetWindowLongPtr(Hwnd, PInvoker.GWL_STYLE).ToInt64();
+            if (((style & PInvoker.WS_MAXIMIZE) == PInvoker.WS_MAXIMIZE) ||
+                ((style & PInvoker.WS_MINIMIZE) == PInvoker.WS_MINIMIZE))
+            {
+                //Log.Information($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} goingt o bring hwnd out of minimize/maximize ({this})");
+                var h = new HWnd(Hwnd);
+                if (pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), PInvoker.GWL_STYLE, new IntPtr(style & (~PInvoker.WS_MINIMIZE & ~PInvoker.WS_MAXIMIZE))) == IntPtr.Zero)
+                {
+                    Log.Error($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} Could not change {Hwnd} [{Name}] from minimize/maximize to normal (with SetWindowLongPtr), error: {pinvokeHandler.GetLastError()}");
+                }
+
+                if (pinvokeHandler.ShowWindow(Hwnd, ShowWindowCmd.SW_RESTORE) == false)
+                {
+                    Log.Error($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} Could not change {Hwnd} [{Name}] from minimize/maximize to normal (With ShowWindow), error: {pinvokeHandler.GetLastError()}");
+                }
             }
         }
     }

@@ -19,6 +19,7 @@ namespace TileWindow.Tests.Nodes
         {
             // Arrange
             var hWnd = new IntPtr(1);
+            var dragHandler = new Mock<IDragHandler>();
             var focusHandler = new Mock<IFocusHandler>();
             var signalHandler = new Mock<ISignalHandler>();
             var windowHandler = new Mock<IWindowEventHandler>();
@@ -27,10 +28,35 @@ namespace TileWindow.Tests.Nodes
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
             // Arrange & Act
-            var sut = new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
+            var sut = new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
 
             // Assert
             windowTracker.Verify(m => m.AddWindow(new IntPtr(1), sut));
+        }
+
+        [Fact]
+        public void When_Initialize_With_hWnd_Then_ListenToDragHandlerEvents()
+        {
+            // Arrange
+            var hWnd = new IntPtr(1);
+            var dragHandler = new Mock<IDragHandler>();
+            var focusHandler = new Mock<IFocusHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
+            var windowHandler = new Mock<IWindowEventHandler>();
+            var windowTracker = new Mock<IWindowTracker>();
+            var pinvokeHandler = new Mock<IPInvokeHandler>();
+            pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
+            dragHandler.SetupAdd(m => m.OnDragEnd += (sender, args) => { });
+            dragHandler.SetupAdd(m => m.OnDragStart += (sender, args) => { });
+            dragHandler.SetupAdd(m => m.OnDragMove += (sender, args) => { });
+
+            // Act
+            var sut = new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
+
+            // Assert
+            dragHandler.VerifyAdd(m => m.OnDragEnd += It.IsAny<EventHandler<DragEndEvent>>(), Times.Once);
+            dragHandler.VerifyAdd(m => m.OnDragStart += It.IsAny<EventHandler<DragStartEvent>>(), Times.Once);
+            dragHandler.VerifyAdd(m => m.OnDragMove += It.IsAny<EventHandler<DragMoveEvent>>(), Times.Once);
         }
 
         [Fact]
@@ -38,6 +64,7 @@ namespace TileWindow.Tests.Nodes
         {
             // Arrange
             var hWnd = new IntPtr(1);
+            var dragHandler = new Mock<IDragHandler>();
             var focusHandler = new Mock<IFocusHandler>();
             var signalHandler = new Mock<ISignalHandler>();
             var windowHandler = new Mock<IWindowEventHandler>();
@@ -47,7 +74,7 @@ namespace TileWindow.Tests.Nodes
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
             // Arrange & Act
-            var sut = new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect, hWnd);
+            var sut = new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect, hWnd);
 
             // Assert
             pinvokeHandler.Verify(m => m.SetWindowPos(new IntPtr(1), IntPtr.Zero, rect.Left, rect.Top, rect.Right-rect.Left, rect.Bottom-rect.Top, It.IsAny<SetWindowPosFlags>()));
@@ -363,6 +390,26 @@ namespace TileWindow.Tests.Nodes
         }
 
         [Fact]
+        public void When_Disposed_And_HwndIsSet_Then_UnsubscribeFromDragHandlerEvents()
+        {
+            // Arrange
+            var hWnd = new IntPtr(1);
+            var guid = Guid.NewGuid();
+            var sut = CreateSut(dragHandler: out Mock<IDragHandler> dragHandler, hwnd: hWnd);
+            dragHandler.SetupRemove(m => m.OnDragEnd -= (sender, arg) => {});
+            dragHandler.SetupRemove(m => m.OnDragStart -= (sender, arg) => {});
+            dragHandler.SetupRemove(m => m.OnDragMove -= (sender, arg) => {});
+
+            // Act
+            sut.Dispose();
+            
+            // Assert
+            dragHandler.VerifyRemove(m => m.OnDragEnd -= It.IsAny<EventHandler<DragEndEvent>>());
+            dragHandler.VerifyRemove(m => m.OnDragStart -= It.IsAny<EventHandler<DragStartEvent>>());
+            dragHandler.VerifyRemove(m => m.OnDragMove -= It.IsAny<EventHandler<DragMoveEvent>>());
+        }
+
+        [Fact]
         public void When_Disposed_Then_NotifyDelete()
         {
             // Arrange
@@ -407,8 +454,185 @@ namespace TileWindow.Tests.Nodes
             pinvokeHandler.Verify(m => m.SetWindowPos(hwnd, HWND_NOTOPMOST, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, SetWindowPosFlags.SWP_SHOWWINDOW)); // Bug #87, restore HWND_NOTOPMOST
         }
 #endregion
+#region HandleOnDragStart
+        [Fact]
+        public void When_OnDragStart_And_StyleIsNotFloating_And_HwndEquals_Then_ChangeStyleToFloating()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            dragHandler.Raise(m => m.OnDragStart += null, null, new DragStartEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Floating);
+        }
+        [Fact]
+        public void When_OnDragStart_And_StyleIsNotFloating_And_HwndDoNotEquals_Then_DoNothing()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            dragHandler.Raise(m => m.OnDragStart += null, null, new DragStartEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt32() + 1 }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Tile);
+        }
+#endregion
+#region HandleOnDragMove
+        [Fact]
+        public void When_OnDragMove_Then_GetWindowRect_And_UpdateOwnRectWithIt()
+        {
+            // Arranges
+            var expected = new RECT(10, 20, 100, 200);
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(dragHandler: out Mock<IDragHandler> dragHandler, pinvokeHandler: out Mock<IPInvokeHandler> pinvokeHandler,  hwnd: hwnd);
+            dragHandler.Raise(m => m.OnDragStart += null, null, new DragStartEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            pinvokeHandler.Setup(m => m.GetWindowRect(hwnd, out expected)).Returns(true);
+
+            // Act
+            dragHandler.Raise(m => m.OnDragMove += null, null, new DragMoveEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            
+            // Assert
+            pinvokeHandler.Verify(m => m.GetWindowRect(hwnd, out expected));
+            sut.Rect.Should().Be(expected);
+        }
+
+        [Fact]
+        public void When_OnDragMove_And_GetWindowRectFails_Then_UpdateOwnRectWithParameterCoordinates()
+        {
+            // Arranges
+            var notExpected = new RECT(10, 20, 100, 200);
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(dragHandler: out Mock<IDragHandler> dragHandler, pinvokeHandler: out Mock<IPInvokeHandler> pinvokeHandler,  hwnd: hwnd);
+            dragHandler.Raise(m => m.OnDragStart += null, null, new DragStartEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            pinvokeHandler.Setup(m => m.GetWindowRect(hwnd, out notExpected)).Returns(false);
+
+            // Act
+            dragHandler.Raise(m => m.OnDragMove += null, null, new DragMoveEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64(), lParam = 0x00080003 })); // Note: Upper dword: y coordinate, lower dword: x coordinates
+            
+            // Assert
+            pinvokeHandler.Verify(m => m.GetWindowRect(hwnd, out notExpected));
+            sut.Rect.Left.Should().Be(3);
+            sut.Rect.Top.Should().Be(8);
+        }
+
+        [Fact]
+        public void When_OnDragMove_And_StyleIsNotFloating_And_HwndEquals_Then_ChangeStyleToFloating()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+            dragHandler.Raise(m => m.OnDragStart += null, null, new DragStartEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            sut.Style.Should().Be(NodeStyle.Tile);
+            dragHandler.Raise(m => m.OnDragMove += null, null, new DragMoveEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Floating);
+        }
+
+        [Fact]
+        public void When_OnDragMove_And_StyleIsNotFloating_And_HwndDoNotEquals_Then_DoNothing()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+            dragHandler.Raise(m => m.OnDragStart += null, null, new DragStartEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            sut.Style.Should().Be(NodeStyle.Tile);
+            dragHandler.Raise(m => m.OnDragMove += null, null, new DragMoveEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() + 1 }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Tile);
+        }
+
+        [Fact]
+        public void When_OnDragMove_And_OnDragStartHaveNotBeenTriggered_Then_DoNothing()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            dragHandler.Raise(m => m.OnDragMove += null, null, new DragMoveEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Tile);
+        }
+#endregion
+#region HandleOnDragEnd
+        [Fact]
+        public void When_OnDragEnd_And_StyleIsNotFloating_And_HwndEquals_Then_ChangeStyleToFloating()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            dragHandler.Raise(m => m.OnDragEnd += null, null, new DragEndEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt64() }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Floating);
+        }
+        [Fact]
+        public void When_OnDragEnd_And_StyleIsNotFloating_And_HwndDoNotEquals_Then_DoNothing()
+        {
+            // Arranges
+            var hwnd = new IntPtr(1);
+            var sut = CreateSut(out Mock<IDragHandler> dragHandler, hwnd: hwnd);
+            sut.Style = NodeStyle.Tile;
+
+            // Act
+            dragHandler.Raise(m => m.OnDragEnd += null, null, new DragEndEvent(new PipeMessageEx { wParam = (ulong)hwnd.ToInt32() + 1 }));
+            
+            // Assert
+            sut.Style.Should().Be(NodeStyle.Tile);
+        }
+#endregion
 
 #region Helpers
+        private WindowNode CreateSut(out Mock<IDragHandler> dragHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
+        {
+            var hWnd = hwnd ?? IntPtr.Zero;
+            dragHandler = new Mock<IDragHandler>();
+            var focusHandler = new Mock<IFocusHandler>();
+            var windowHandler = new Mock<IWindowEventHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
+            var windowTracker = new Mock<IWindowTracker>();
+            var pinvokeHandler = new Mock<IPInvokeHandler>();
+
+            pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
+            return new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
+        }
+
+        private WindowNode CreateSut(out Mock<IDragHandler> dragHandler, out Mock<IPInvokeHandler> pinvokeHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
+        {
+            var hWnd = hwnd ?? IntPtr.Zero;
+            dragHandler = new Mock<IDragHandler>();
+            var focusHandler = new Mock<IFocusHandler>();
+            var windowHandler = new Mock<IWindowEventHandler>();
+            var signalHandler = new Mock<ISignalHandler>();
+            var windowTracker = new Mock<IWindowTracker>();
+            pinvokeHandler = new Mock<IPInvokeHandler>();
+
+            pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
+            return new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
+        }
+
         private WindowNode CreateSut(out Mock<IFocusHandler> focusHandler, out Mock<IWindowEventHandler> windowHandler, out Mock<IWindowTracker> windowTracker, out Mock<IPInvokeHandler> pinvokeHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
         {
             focusHandler = new Mock<IFocusHandler>();
@@ -418,6 +642,7 @@ namespace TileWindow.Tests.Nodes
         private WindowNode CreateSut(Mock<IFocusHandler> focusHandler, out Mock<IWindowEventHandler> windowHandler, out Mock<IWindowTracker> windowTracker, out Mock<IPInvokeHandler> pinvokeHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
         {
             var hWnd = hwnd ?? IntPtr.Zero;
+            var dragHandler = new Mock<IDragHandler>();
             windowHandler = new Mock<IWindowEventHandler>();
             var signalHandler = new Mock<ISignalHandler>();
             windowTracker = new Mock<IWindowTracker>();
@@ -425,18 +650,25 @@ namespace TileWindow.Tests.Nodes
 
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
-            return new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
+            return new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
         }
+
         private WindowNode CreateSut(out Mock<IFocusHandler> focusHandler, out Mock<IWindowEventHandler> windowHandler, out Mock<IWindowTracker> windowTracker, Mock<IPInvokeHandler> pinvokeHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
         {
+            return CreateSut(dragHandler: out _, focusHandler: out focusHandler, windowHandler: out windowHandler, windowTracker: out windowTracker, pinvokeHandler: pinvokeHandler, hwnd: hwnd, rect: rect, parent: parent, direction: direction);
+        }
+
+        private WindowNode CreateSut(out Mock<IDragHandler> dragHandler, out Mock<IFocusHandler> focusHandler, out Mock<IWindowEventHandler> windowHandler, out Mock<IWindowTracker> windowTracker, Mock<IPInvokeHandler> pinvokeHandler, IntPtr? hwnd = null, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)
+        {
             var hWnd = hwnd ?? IntPtr.Zero;
+            dragHandler = new Mock<IDragHandler>();
             focusHandler = new Mock<IFocusHandler>();
             var signalHandler = new Mock<ISignalHandler>();
             windowHandler = new Mock<IWindowEventHandler>();
             windowTracker = new Mock<IWindowTracker>();
 
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
-            return new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
+            return new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect ?? new RECT(10, 20, 30, 40), hWnd, direction, parent);
         }
 #endregion
     }

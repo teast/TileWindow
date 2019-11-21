@@ -13,20 +13,20 @@ namespace TileWindow.Tests.TestHelpers
 {
     public static class NodeHelper
     {
-        public static Delegate GetDelegate(this Node node, string eventName)
+        public static Delegate GetDelegate<T>(this T node, string eventName)
         {
-            return typeof(Node).GetField(eventName, BindingFlags.NonPublic |BindingFlags.Instance).GetValue(node) as Delegate;
+            return typeof(T).GetField(eventName, BindingFlags.NonPublic |BindingFlags.Instance).GetValue(node) as Delegate;
         }
 
-        public static void EventShouldNotBeNull(this Node node,string eventName)
+        public static void EventShouldNotBeNull<T>(this T node,string eventName)
         {
-            var dg = node.GetDelegate(eventName);
+            var dg = node.GetDelegate<T>(eventName);
             dg.Should().NotBeNull();
         }
 
-        public static void EventShouldBeNull(this Node node,string eventName)
+        public static void EventShouldBeNull<T>(this T node,string eventName)
         {
-            var dg = node.GetDelegate(eventName);
+            var dg = node.GetDelegate<T>(eventName);
             dg.Should().BeNull();
         }
 
@@ -100,6 +100,7 @@ namespace TileWindow.Tests.TestHelpers
        public static WindowNode CreateWindowNode(IntPtr? hWnd = null)
         {
             var hwnd = hWnd ?? IntPtr.Zero;
+            var dragHandler = new Mock<IDragHandler>();
             var focusHandler = new Mock<IFocusHandler>();
             var signalHandler = new Mock<ISignalHandler>();
             var windowHandler = new Mock<IWindowEventHandler>();
@@ -107,7 +108,7 @@ namespace TileWindow.Tests.TestHelpers
             var pinvokeHandler = new Mock<IPInvokeHandler>();
             pinvokeHandler.Setup(m => m.GetClassName(hwnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
             pinvokeHandler.Setup(m => m.GetWindowLongPtr(hwnd, It.IsAny<int>())).Returns(new IntPtr(PInvoker.WS_CAPTION | PInvoker.WS_SIZEBOX));
-            return new WindowNode(focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(), hwnd);
+            return new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(), hwnd);
         }
 
         public static ContainerNode CreateContainerNode(out Mock<IRenderer> renderer, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal)

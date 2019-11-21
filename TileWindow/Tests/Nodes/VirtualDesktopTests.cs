@@ -573,6 +573,26 @@ namespace TileWindow.Tests.Nodes
             newParent.Verify(m => m.Dispose());
         }
 #endregion
+#region ChildNodeStyleChange
+        [Fact]
+        public void When_NodestyleChanges_And_StyleBecomesFloating_Then_TakeOverNode()
+        {
+            // Arrange
+            var child = NodeHelper.CreateMockScreen(direction: Direction.Vertical, callPostInit: false).Object;
+            var screen = NodeHelper.CreateMockScreen(callPostInit: false).Object;
+            var sut = CreateSut(callPostInit: false);
+            sut.PostInit(screen);
+            screen.PostInit(child);
+
+            // Act
+            child.Style = NodeStyle.Floating;
+
+            // Assert
+            child.Style.Should().Be(NodeStyle.Floating);
+            sut.FloatingNodes.Should().Contain(child);
+        }
+#endregion
+
 #region helpers
         private VirtualDesktop CreateSut(out Mock<IScreenNodeCreater> screenCreater, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
         {

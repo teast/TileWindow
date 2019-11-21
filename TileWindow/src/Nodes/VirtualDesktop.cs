@@ -311,45 +311,11 @@ namespace TileWindow.Nodes
             // Going to switch to floating
             if (FocusNode.Style != NodeStyle.Floating)
             {
-                if (!(FocusNode.Parent?.DisconnectChild(FocusNode) ?? false))
-                {
-                    return;
-                }
-
-                TakeOverNode(FocusNode);
-                FocusNode.Style = NodeStyle.Floating;
-                FloatingNodes.Add(FocusNode);
+                MakeNodeFloating(FocusNode);
             }
             else
             {
-                var i = FloatingNodes.IndexOf(FocusNode);
-                DisconnectChild(FocusNode);
-                var screen = Childs.FirstOrDefault();
-                var area = 0L;
-                foreach(var c in Childs)
-                {
-                    if (!typeof(ContainerNode).IsInstanceOfType(c))
-                        continue;
-
-                    var t = c.Rect.Intersection(FocusNode.Rect).CalcArea();
-                    if (t > area)
-                    {
-                        area = t;
-                        screen = c;
-                    }
-                }
-
-                if (screen != null)
-                {
-                    FocusNode.Style = NodeStyle.Tile;
-                    if (!((ContainerNode)screen).AddNodes(FocusNode))
-                    {
-                        Log.Warning($"Could not take node from Floating to Tile");
-                        TakeOverNode(FocusNode);
-                        FocusNode.Style = NodeStyle.Floating;
-                        return;
-                    }
-                }
+                MakeNodeNonFloating(FocusNode);
             }
         }
 
@@ -420,7 +386,7 @@ namespace TileWindow.Nodes
             var i = FloatingNodes.IndexOf(child);
             if (i == -1)
             {
-                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(DisconnectChild)} could not find floating node in array. node: {child}");
+                //Log.Warning($"{nameof(VirtualDesktop)}.{nameof(DisconnectChild)} could not find floating node in array. node: {child}");
                 return false;
             }
 
@@ -647,6 +613,24 @@ namespace TileWindow.Nodes
             RaiseChildCountChange(false);
         }
 
+        protected override void ChildNodeStyleChange(object sender, StyleChangedEventArg args)
+        {
+            if (args.Source.Style == NodeStyle.Floating)
+            {
+                if (args.Source != null)
+                {
+                    if (!MakeNodeFloating(args.Source))
+                    {
+//                        args.Source.Style = args.Prev;
+                        Log.Warning($"{nameof(VirtualDesktop)}.{nameof(ChildNodeStyleChange)} Could not take over node for floating, reverting style change. node: {args.Source}");
+                        return;
+                    }
+                }
+            }
+
+            OnStyleChanged(this, args);
+        }
+
         protected virtual void MoveFloatingNodeToDesktop(Node node, IVirtualDesktop destination)
         {
             var old = node;
@@ -686,6 +670,58 @@ namespace TileWindow.Nodes
         protected void RaiseChildCountChange(bool removed)
         {
             ChildSetChange?.Invoke(this, new ChildSetChangeArg(_childs.Any(c => ((ScreenNode)c).Childs.Count > 0), removed));
+        }
+
+        private bool MakeNodeFloating(Node node)
+        {
+            if (!(node.Parent?.DisconnectChild(node) ?? false))
+            {
+                return false;
+            }
+
+            TakeOverNode(node);
+            if (node.Style != NodeStyle.Floating)
+                node.Style = NodeStyle.Floating;
+            FloatingNodes.Add(node);
+
+            return true;
+        }
+
+        private bool MakeNodeNonFloating(Node node)
+        {
+            var i = FloatingNodes.IndexOf(node);
+            DisconnectChild(node);
+            var screen = Childs.FirstOrDefault();
+            var area = 0L;
+            foreach(var c in Childs)
+            {
+                if (!typeof(ContainerNode).IsInstanceOfType(c))
+                    continue;
+
+                var t = c.Rect.Intersection(node.Rect).CalcArea();
+                if (t > area)
+                {
+                    area = t;
+                    screen = c;
+                }
+            }
+
+            if (screen == null)
+            {
+                Log.Warning($"${nameof(VirtualDesktop)}.{nameof(MakeNodeNonFloating)} Could not find a matching screen for unfloating {node}, picking first screen");
+                screen = Childs.First();
+            }
+
+            node.Style = NodeStyle.Tile;
+            if (!((ContainerNode)screen).AddNodes(node))
+            {
+                Log.Warning($"Could not take node from Floating to Tile");
+                TakeOverNode(node);
+                node.Style = NodeStyle.Floating;
+                return false;
+            }
+
+            return true;
         }
 
         private void ChangeDirectionOnChild(Node child, Direction direction)

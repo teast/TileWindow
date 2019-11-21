@@ -15,14 +15,16 @@ namespace TileWindow.Nodes.Creaters
 
     public class WindowNodeCreater: IWindowNodeCreater
     {
+        private readonly IDragHandler dragHandler;
         private readonly IFocusHandler focusHandler;
         private readonly ISignalHandler signalHandler;
         private readonly IWindowEventHandler windowHandler;
         private readonly IWindowTracker windowTracker;
         private readonly IPInvokeHandler pinvokeHandler;
 
-        public WindowNodeCreater(IFocusHandler focusHandler, ISignalHandler signalHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler)
+        public WindowNodeCreater(IDragHandler dragHandler, IFocusHandler focusHandler, ISignalHandler signalHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler)
         {
+            this.dragHandler = dragHandler;
             this.focusHandler = focusHandler;
             this.signalHandler = signalHandler;
             this.windowHandler = windowHandler;
@@ -34,7 +36,7 @@ namespace TileWindow.Nodes.Creaters
         {
             try
             {
-                var node = new WindowNode(
+                var node = new WindowNode(dragHandler,
                     focusHandler, signalHandler, windowHandler,
                     windowTracker, pinvokeHandler,
                     rect, hWnd, dir);
