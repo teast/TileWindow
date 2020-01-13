@@ -222,7 +222,7 @@ namespace TileWindow.Nodes
                     if (pinvokeHandler.SendMessage(Hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero).ToInt32() != 0)
                     {
                         Log.Error($"received false from PostMessage when sending WM_CLOSE to ({this}), PARENT is null?: {Parent == null}");
-                        Parent?.RemoveChild(this);
+                        //Parent?.RemoveChild(this);
                     }
 
                     if (windowTracker.RevalidateHwnd(this, Hwnd) == false)
