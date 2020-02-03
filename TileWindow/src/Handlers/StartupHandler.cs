@@ -145,12 +145,12 @@ namespace TileWindow.Handlers
             })
             .GroupBy(wind => wind.Screen).ToDictionary(s => s.Key, s => s.Select(s2 => s2.node).ToList());
 
-            foreach(var progs in programPerScreen)
+            foreach(var progs in programPerScreen.ToList())
             {
                 // -1 == floating nodes
                 if (progs.Key == -1)
                 {
-                    progs.Value.ForEach(node => desktops.ActiveDesktop.AddFloatingNode(node));
+                    progs.Value.ToList().ForEach(node => desktops.ActiveDesktop.AddFloatingNode(node));
                     continue;
                 }
 

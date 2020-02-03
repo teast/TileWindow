@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Serilog;
@@ -173,7 +174,7 @@ namespace TileWindow.Nodes.Renderers
                     toHide.Add(Owner.Childs[i]);
             }
 
-            toHide.ForEach(n => n.Hide());
+            toHide.ToList().ForEach(n => n.Hide());
 
             return (true, Owner.Rect);
         }

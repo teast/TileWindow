@@ -238,6 +238,7 @@ namespace TileWindow.Nodes
             }
             else
             {
+                task = Task.Run(() => {});
                 Parent?.RemoveChild(this);
             }
 

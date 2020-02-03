@@ -93,7 +93,7 @@ namespace TileWindow.Handlers
         {
             if (!this._listeners.TryGetValue(hwnd, out List<Tuple<Guid, Action<bool>>> val))
                 return;
-            val.ForEach(v => v.Item2(gotFocus));
+            val.ToList().ForEach(v => v.Item2(gotFocus));
         }
 
         private void SignalAllListenersExcept(bool gotFocus, IntPtr hwnd)

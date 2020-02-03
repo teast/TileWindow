@@ -413,7 +413,7 @@ namespace TileWindow.Nodes
         {
             IsVisible = true;
             var result = base.Show();
-            FloatingNodes.ForEach(c => result = c.Show() && result);
+            FloatingNodes.ToList().ForEach(c => result = c.Show() && result);
 
             if (FocusTracker.FocusNode() == null)
                 Childs.First().SetFocus();
@@ -427,7 +427,7 @@ namespace TileWindow.Nodes
         {
             IsVisible = false;
             var result = base.Hide();            
-            FloatingNodes.ForEach(c => result = c.Hide() && result);
+            FloatingNodes.ToList().ForEach(c => result = c.Hide() && result);
             return result;
         }
 
