@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Serilog;
 using TileWindow.Nodes.Creaters;
 using TileWindow.Nodes.Renderers;
@@ -60,7 +61,7 @@ namespace TileWindow.Nodes
             if (this.Id == id)
                 return this;
             
-            foreach(var child in Childs)
+            foreach(var child in Childs.ToList())
             {
                 var node = child.FindNodeWithId(id);
                 if (node != null)
@@ -73,7 +74,7 @@ namespace TileWindow.Nodes
         public override bool Hide()
         {
             var result = true;
-            foreach(var child in Childs)
+            foreach(var child in Childs.ToList())
                 result = child.Hide() && result;
             _isVisible = false;
             return base.Hide() && result;
@@ -82,7 +83,7 @@ namespace TileWindow.Nodes
         public override bool Show()
         {
             var result = true;
-            foreach(var child in Childs)
+            foreach(var child in Childs.ToList())
                 result = child.Show() && result;
             _isVisible = true;
             return base.Show() && result;
@@ -91,7 +92,7 @@ namespace TileWindow.Nodes
         public override bool Restore()
         {
             var result = true;
-            foreach(var child in Childs)
+            foreach(var child in Childs.ToList())
                 result = child.Restore() && result;
             return result;
         }
@@ -489,7 +490,7 @@ namespace TileWindow.Nodes
 
             Renderer.Dispose();
             if (Childs != null)
-                foreach(var child in Childs)
+                foreach(var child in Childs.ToList())
                     child.Dispose();
 
             base.Dispose();
