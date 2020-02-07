@@ -124,7 +124,7 @@ namespace TileWindow.Nodes
                 var node = MyFocusNode;
                 if (MyFocusNode == null)
                 {
-                    FocusTracker.ExplicitSetMyFocusNode(this, Childs.First());
+                    FocusTracker.ExplicitSetMyFocusNode(this, Childs.FirstOrDefault());
                     return 0;
                 }
 
@@ -133,7 +133,7 @@ namespace TileWindow.Nodes
                         return i;
                 
                 Log.Warning($"{this} got an unknown node as activenode ({node})");
-                FocusTracker.ExplicitSetMyFocusNode(this, Childs.First());
+                FocusTracker.ExplicitSetMyFocusNode(this, Childs.FirstOrDefault());
                 return 0;
             }
         }
@@ -172,7 +172,7 @@ namespace TileWindow.Nodes
                 throw new ArgumentNullException($"{nameof(VirtualDesktop)} requires at least one {nameof(childs)}");
 
             base.PostInit(childs);
-            childs.First()?.SetFocus();
+            childs.FirstOrDefault()?.SetFocus();
         }
 
         public void ScreensChanged(RECT[] screens, Direction direction)
@@ -399,7 +399,7 @@ namespace TileWindow.Nodes
             FloatingNodes.RemoveAt(i);
 
             if (gotFocus)
-                FocusTracker.ExplicitSetMyFocusNode(this, Childs.First());
+                FocusTracker.ExplicitSetMyFocusNode(this, Childs.FirstOrDefault());
 
             return true;
         }
@@ -416,7 +416,12 @@ namespace TileWindow.Nodes
             FloatingNodes.ToList().ForEach(c => result = c.Show() && result);
 
             if (FocusTracker.FocusNode() == null)
-                Childs.First().SetFocus();
+            {
+                var child = Childs.FirstOrDefault();
+                child?.SetFocus();
+                if (child == null)
+                    Log.Warning($"{this} was going to set focus in {nameof(Show)} but Childs is empty");
+            }
             else
                 FocusTracker.FocusNode()?.SetFocus();
 

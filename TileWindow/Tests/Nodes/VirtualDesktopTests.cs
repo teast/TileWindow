@@ -314,6 +314,18 @@ namespace TileWindow.Tests.Nodes
             child.Verify(m => m.Show());
         }
 
+        // Bug #139, no null-check on "Childs.First().SetFocus()"
+        [Fact]
+        public void When_Show_And_ThereIsNoFocusNode_And_NoChilds_then_DoNotCrash()
+        {
+            // Arrange
+            var sut = CreateSut(focusTracker: out var focusTracker, childs: new ScreenNode[] { NodeHelper.CreateMockScreen().Object });
+            focusTracker.Setup(_ => _.FocusNode()).Returns((Node)null);
+            sut.Childs.Clear();
+
+            // Act && Assert
+            sut.Show();
+        }
 #endregion
 #region Hide
         [Fact]
