@@ -123,12 +123,8 @@ namespace TileWindow.Nodes
         /// </summary>
         public bool FixedRect { get; set; }
 
+        #region Events
         public event EventHandler MyFocusNodeChanged;
-
-        public void RaiseMyFocusNodeChanged()
-        {
-            MyFocusNodeChanged?.Invoke(this, new EventArgs());
-        }
 
         /// <summary>
         /// Gets called when the nodes Style property changes
@@ -149,6 +145,14 @@ namespace TileWindow.Nodes
         /// Gets called when the node should be deleted and disposed
         /// </summary>
         public event EventHandler Deleted;
+
+        #endregion
+
+        #region "Event triggers"
+        public void RaiseMyFocusNodeChanged()
+        {
+            MyFocusNodeChanged?.Invoke(this, new EventArgs());
+        }
 
         /// <summary>
         /// Trigger an <see cref="Deleted" /> event
@@ -191,6 +195,8 @@ namespace TileWindow.Nodes
                 handler(sender, args);
             }
         }
+        #endregion
+
         private NodeStyle _style;
 
         /// <summary>
@@ -508,6 +514,7 @@ namespace TileWindow.Nodes
 
         public virtual void Dispose()
         {
+            Log.Verbose($"(NODE.cs){this} Dispose (IsDisposed == {IsDisposed}");
             if (IsDisposed)
                 return;
 

@@ -132,8 +132,9 @@ namespace TileWindow
 			var tw64Path = Path.Combine(rootDir, "twhandler64.exe");
 
 			Log.Logger = new LoggerConfiguration()
+				.MinimumLevel.Verbose()
 				.WriteTo.File(Path.Combine(rootDir, "logs", "tilewindow.log"), Serilog.Events.LogEventLevel.Verbose)
-				.WriteTo.Console()
+				.WriteTo.Console(Serilog.Events.LogEventLevel.Verbose)
 				.CreateLogger();
 
 			Application.EnableVisualStyles();

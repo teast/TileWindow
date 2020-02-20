@@ -226,6 +226,7 @@ namespace TileWindow.Trackers
 
         protected virtual void OnDeleted(object sender, EventArgs arg)
         {
+            Log.Verbose($"{this} OnDeleted for {sender}");
             Untrack(sender as Node);
         }
 

@@ -348,6 +348,7 @@ namespace TileWindow.Nodes
 
         public override void Dispose()
         {
+            Log.Verbose($"{this} Dispose (IsDisposed == {IsDisposed}");
             if (IsDisposed == false)
             {
                 OnDeleted(this);
