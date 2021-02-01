@@ -120,7 +120,7 @@ namespace TileWindow
         GW_ENABLEDPOPUP = 6
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct RECT : IEquatable<RECT>
+    public struct RECT : IEquatable<RECT>, ICloneable
     {
         public int Left;        // x position of upper-left corner
         public int Top;         // y position of upper-left corner
@@ -162,6 +162,9 @@ namespace TileWindow
 
             return true;
         }
+
+        public object Clone() => CloneType();
+        public RECT CloneType() => new RECT(Left, Top, Right, Bottom);
     }
 
     [StructLayout(LayoutKind.Sequential)]
