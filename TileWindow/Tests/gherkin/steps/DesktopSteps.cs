@@ -19,8 +19,16 @@ namespace TileWindow.Tests.Gherkin.Steps
             _world = (TestWorld)_scenarioContext["World"];
         }
 
-        [Given("a virtual desktop with (.*) desktops.")]
+        [Given(@"a virtual desktop with (.*) desktops.")]
         public void CreateDesktop(int desktops) =>
             _world.CreateDesktop(desktops);
+        
+        [Then(@"ActiveDesktop should be index '(.*)'\.")]
+        public void ActiveDesktopIndex(int index) =>
+            _world.ActiveDesktopIndexShouldBe(index);
+
+        [When(@"switching ActiveDesktop to index '(.*)'\.")]
+        public void SwitchActiveDesktop(int index) =>
+            _world.SwitchActiveDesktop(index);
    }
 }

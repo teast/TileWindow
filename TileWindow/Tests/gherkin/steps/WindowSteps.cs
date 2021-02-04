@@ -19,20 +19,34 @@ namespace TileWindow.Tests.Gherkin.Steps
             _world = (TestWorld)_scenarioContext["World"];
         }
 
-       [Given("a window '(.*)' on screen '(.*)'.")]
+       [Given(@"a window '(.*)' on screen '(.*)'.")]
         public void CreateWindow(string name, string screenName) =>
             _world.CreateWindow(name, screenName);
 
-       [Given("window '(.*)' is focus.")]
+       [Given(@"window '(.*)' is focus.")]
         public void WindowFocus(string name) =>
             _world.WindowFocus(name);
 
-       [Then("window '(.*)' is in position (.*) on screen '(.*)'.")]
+       [Then(@"window '(.*)' is in position (.*) on screen '([a-zA-z0-9_-]*)'.")]
         public void WindowPosition(string name, int position, string screen) =>
             _world.WindowPosition(name, position, screen);
         
-        [When("moving focused window (.*).")]
+       [Then(@"window '(.*)' is in position (.*) on screen '([a-zA-z0-9_-]*)' desktop '(.*)'.")]
+        public void WindowPositionWithDesktop(string name, int position, string screen, int desktop) =>
+            _world.WindowPosition(name, position, screen, desktop);
+
+        [When(@"moving focused window ([a-zA-z0-9_-]*).")]
         public void MoveFocusWindow(string direction) =>
             _world.MoveFocusWindow(direction);
+        
+        [When(@"moving focused window to desktop '(.*)'.")]
+        public void MoveFocusWindowToDesktop(int desktop) =>
+            _world.MoveFocusWindowToDesktop(desktop);
+
+        [Then(@"node '(.*)' on screen '(.*)' desktop '(.*)' should have position (.*)x(.*) and size (.*)x(.*)\.")]
+        public void NodePositionAndSize(int index, string screen, int desktop, int left, int top, int width, int height) =>
+            _world.NodePositionAndSize(index, screen, desktop, left, top, width, height);
+
+
    }
 }

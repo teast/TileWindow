@@ -80,14 +80,34 @@ namespace TileWindowTests.Gherkin.Features
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Two windows horizontal to each other. Moving right window to left")]
+        [Xunit.SkippableTheoryAttribute(DisplayName="Two windows and one screen. Moving one of them one step")]
         [Xunit.TraitAttribute("FeatureTitle", "Moving windows around on a screen")]
-        [Xunit.TraitAttribute("Description", "Two windows horizontal to each other. Moving right window to left")]
-        public virtual void TwoWindowsHorizontalToEachOther_MovingRightWindowToLeft()
+        [Xunit.TraitAttribute("Description", "Two windows and one screen. Moving one of them one step")]
+        [Xunit.InlineDataAttribute("vertical", "win1", "down", "win1", "win2", "win2", "win1", "move top window down.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win1", "up", "win1", "win2", "win1", "win2", "move top window up.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win1", "left", "win1", "win2", "win1", "win2", "move top window left.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win1", "right", "win1", "win2", "win1", "win2", "move top window right.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win2", "down", "win1", "win2", "win1", "win2", "move bottom window down.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win2", "up", "win1", "win2", "win2", "win1", "move bottom window up.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win2", "left", "win1", "win2", "win1", "win2", "move bottom window left.", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win2", "right", "win1", "win2", "win1", "win2", "move bottom window right.", new string[0])]
+        [Xunit.InlineDataAttribute("horizontal", "win1", "right", "win1", "win2", "win2", "win1", "move left window right.", new string[0])]
+        [Xunit.InlineDataAttribute("horizontal", "win1", "left", "win1", "win2", "win1", "win2", "move left window left.", new string[0])]
+        [Xunit.InlineDataAttribute("horizontal", "win1", "up", "win1", "win2", "win1", "win2", "move left window up.", new string[0])]
+        [Xunit.InlineDataAttribute("horizontal", "win1", "down", "win1", "win2", "win1", "win2", "move left window down.", new string[0])]
+        public virtual void TwoWindowsAndOneScreen_MovingOneOfThemOneStep(string orientation, string focus, string direction, string expect1_1, string expect1_2, string expect2_1, string expect2_2, string comment, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Two windows horizontal to each other. Moving right window to left", null, tagsOfScenario, argumentsOfScenario);
+            argumentsOfScenario.Add("orientation", orientation);
+            argumentsOfScenario.Add("focus", focus);
+            argumentsOfScenario.Add("direction", direction);
+            argumentsOfScenario.Add("expect1_1", expect1_1);
+            argumentsOfScenario.Add("expect1_2", expect1_2);
+            argumentsOfScenario.Add("expect2_1", expect2_1);
+            argumentsOfScenario.Add("expect2_2", expect2_2);
+            argumentsOfScenario.Add("comment", comment);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Two windows and one screen. Moving one of them one step", null, tagsOfScenario, argumentsOfScenario);
 #line 3
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -112,7 +132,7 @@ this.ScenarioInitialize(scenarioInfo);
     testRunner.Given("a primary screen \'screen1\' position 0x0 with resolution 1920x1080.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 5
-    testRunner.And("screen \'screen1\' has orientation horizontal.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+    testRunner.And(string.Format("screen \'screen1\' has orientation {0}.", orientation), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 6
     testRunner.And("a window \'win1\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
@@ -121,22 +141,182 @@ this.ScenarioInitialize(scenarioInfo);
     testRunner.And("a window \'win2\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 8
-    testRunner.And("window \'win2\' is focus.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+    testRunner.And(string.Format("window \'{0}\' is focus.", focus), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 9
-    testRunner.Then("window \'win1\' is in position 0 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+    testRunner.Then(string.Format("window \'{0}\' is in position 0 on screen \'screen1\'.", expect1_1), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 10
-    testRunner.And("window \'win2\' is in position 1 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+    testRunner.And(string.Format("window \'{0}\' is in position 1 on screen \'screen1\'.", expect1_2), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 11
-    testRunner.When("moving focused window left.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+    testRunner.When(string.Format("moving focused window {0}.", direction), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 12
-    testRunner.Then("window \'win2\' is in position 0 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+    testRunner.Then(string.Format("window \'{0}\' is in position 0 on screen \'screen1\'.", expect2_1), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 13
-    testRunner.And("window \'win1\' is in position 1 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+    testRunner.And(string.Format("window \'{0}\' is in position 1 on screen \'screen1\'.", expect2_2), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.SkippableTheoryAttribute(DisplayName="Three windows and one screen. Moving one of them two steps")]
+        [Xunit.TraitAttribute("FeatureTitle", "Moving windows around on a screen")]
+        [Xunit.TraitAttribute("Description", "Three windows and one screen. Moving one of them two steps")]
+        [Xunit.InlineDataAttribute("vertical", "win3", "up", "win1", "win3", "win2", "win3", "win1", "win2", "move bottom window up", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win3", "down", "win1", "win2", "win3", "win1", "win2", "win3", "move bottom window down", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win3", "left", "win1", "win2", "win3", "win1", "win2", "win3", "move bottom window left", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win3", "right", "win1", "win2", "win3", "win1", "win2", "win3", "move bottom window right", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win1", "down", "win2", "win1", "win3", "win2", "win3", "win1", "move top window down", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win1", "up", "win1", "win2", "win3", "win1", "win2", "win3", "move top window up", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win2", "down", "win1", "win3", "win2", "win1", "win3", "win2", "move middle window down", new string[0])]
+        [Xunit.InlineDataAttribute("vertical", "win2", "up", "win2", "win1", "win3", "win2", "win1", "win3", "move middle window up", new string[0])]
+        public virtual void ThreeWindowsAndOneScreen_MovingOneOfThemTwoSteps(string orientation, string focus, string direction, string expect1_1, string expect1_2, string expect1_3, string expect2_1, string expect2_2, string expect2_3, string comment, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("orientation", orientation);
+            argumentsOfScenario.Add("focus", focus);
+            argumentsOfScenario.Add("direction", direction);
+            argumentsOfScenario.Add("expect1_1", expect1_1);
+            argumentsOfScenario.Add("expect1_2", expect1_2);
+            argumentsOfScenario.Add("expect1_3", expect1_3);
+            argumentsOfScenario.Add("expect2_1", expect2_1);
+            argumentsOfScenario.Add("expect2_2", expect2_2);
+            argumentsOfScenario.Add("expect2_3", expect2_3);
+            argumentsOfScenario.Add("comment", comment);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Three windows and one screen. Moving one of them two steps", null, tagsOfScenario, argumentsOfScenario);
+#line 31
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 32
+    testRunner.Given("a primary screen \'screen1\' position 0x0 with resolution 1920x1080.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 33
+    testRunner.And(string.Format("screen \'screen1\' has orientation {0}.", orientation), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 34
+    testRunner.And("a window \'win1\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 35
+    testRunner.And("a window \'win2\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 36
+    testRunner.And("a window \'win3\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 37
+    testRunner.And(string.Format("window \'{0}\' is focus.", focus), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 38
+    testRunner.Then("window \'win1\' is in position 0 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 39
+    testRunner.And("window \'win2\' is in position 1 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 40
+    testRunner.And("window \'win3\' is in position 2 on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 41
+    testRunner.When(string.Format("moving focused window {0}.", direction), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 42
+    testRunner.Then(string.Format("window \'{0}\' is in position 0 on screen \'screen1\'.", expect1_1), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 43
+    testRunner.And(string.Format("window \'{0}\' is in position 1 on screen \'screen1\'.", expect1_2), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 44
+    testRunner.And(string.Format("window \'{0}\' is in position 2 on screen \'screen1\'.", expect1_3), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 45
+    testRunner.When(string.Format("moving focused window {0}.", direction), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 46
+    testRunner.Then(string.Format("window \'{0}\' is in position 0 on screen \'screen1\'.", expect2_1), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 47
+    testRunner.And(string.Format("window \'{0}\' is in position 1 on screen \'screen1\'.", expect2_2), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 48
+    testRunner.And(string.Format("window \'{0}\' is in position 2 on screen \'screen1\'.", expect2_3), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Moving window to another desktop")]
+        [Xunit.TraitAttribute("FeatureTitle", "Moving windows around on a screen")]
+        [Xunit.TraitAttribute("Description", "Moving window to another desktop")]
+        public virtual void MovingWindowToAnotherDesktop()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Moving window to another desktop", null, tagsOfScenario, argumentsOfScenario);
+#line 63
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 64
+    testRunner.Given("a primary screen \'screen1\' position 0x0 with resolution 1920x1080.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 65
+    testRunner.And("a window \'win1\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 66
+    testRunner.And("a window \'win2\' on screen \'screen1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 67
+    testRunner.And("window \'win1\' is focus.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 68
+    testRunner.Then("window \'win1\' is in position 0 on screen \'screen1\' desktop \'0\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 69
+    testRunner.And("window \'win2\' is in position 1 on screen \'screen1\' desktop \'0\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 70
+    testRunner.When("moving focused window to desktop \'1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 71
+    testRunner.Then("window \'win1\' is in position 0 on screen \'screen1\' desktop \'1\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 72
+    testRunner.And("window \'win2\' is in position 0 on screen \'screen1\' desktop \'0\'.", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();

@@ -19,8 +19,12 @@ namespace TileWindow.Tests.Gherkin.Steps
             _world = (TestWorld)_scenarioContext["World"];
         }
 
-        [When("moving focus (.*).")]
+        [When(@"moving focus (.*).")]
         public void MoveFocus(string direction) =>
             _world.MoveFocus(direction);
+
+        [Then(@"window '(.*)' has focus\.")]
+        public void HasFocus(string name) =>
+            _world.HasFocus(name);
    }
 }
