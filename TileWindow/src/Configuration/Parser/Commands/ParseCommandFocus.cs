@@ -8,15 +8,18 @@ namespace TileWindow.Configuration.Parser.Commands
 
         public override bool Execute(ICommandHandler handler, string data)
         {
-            if (data == "focus up")
-                return handler.CmdFocusUp(data);
-            if (data == "focus left")
-                return handler.CmdFocusLeft(data);
-            if (data == "focus right")
-                return handler.CmdFocusRight(data);
-            if (data == "focus down")
-                return handler.CmdFocusDown(data);
-            
+            switch (data)
+            {
+                case "focus up":
+                    return handler.CmdFocusUp(data);
+                case "focus left":
+                    return handler.CmdFocusLeft(data);
+                case "focus right":
+                    return handler.CmdFocusRight(data);
+                case "focus down":
+                    return handler.CmdFocusDown(data);
+            }
+
             throw new System.InvalidOperationException($"Unknown focus command \"{data}\"");
         }
 

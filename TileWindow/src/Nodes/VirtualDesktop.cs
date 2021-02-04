@@ -76,9 +76,9 @@ namespace TileWindow.Nodes
         void HandleLayoutToggleSplit();
         void ReRaiseChildCountChange();
     }
-    
+
     // Describes an desktop that can contains multiple real screens
-    public class VirtualDesktop: FixedContainerNode, IVirtualDesktop, IEquatable<VirtualDesktop>
+    public class VirtualDesktop : FixedContainerNode, IVirtualDesktop, IEquatable<VirtualDesktop>
     {
         public event EventHandler<ChildSetChangeArg> ChildSetChange;
 
@@ -95,7 +95,7 @@ namespace TileWindow.Nodes
         public override Collection<Node> Childs
         {
             get => _childs;
-            protected set 
+            protected set
             {
                 if (typeof(ObservableCollection<Node>).IsInstanceOfType(value))
                 {
@@ -106,7 +106,8 @@ namespace TileWindow.Nodes
                     _childs = new ObservableCollection<Node>(value);
                 }
 
-                _childs.CollectionChanged += (sender, args) => {
+                _childs.CollectionChanged += (sender, args) =>
+                {
                     if (args.Action == NotifyCollectionChangedAction.Add)
                         RaiseChildCountChange(false);
                     else if (args.Action == NotifyCollectionChangedAction.Remove)
@@ -128,10 +129,10 @@ namespace TileWindow.Nodes
                     return 0;
                 }
 
-                for(var i = 0; i < Childs.Count; i++)
+                for (var i = 0; i < Childs.Count; i++)
                     if (Childs[i] == node)
                         return i;
-                
+
                 Log.Warning($"{this} got an unknown node as activenode ({node})");
                 FocusTracker.ExplicitSetMyFocusNode(this, Childs.FirstOrDefault());
                 return 0;
@@ -169,7 +170,9 @@ namespace TileWindow.Nodes
         public override void PostInit(params Node[] childs)
         {
             if ((childs?.Length ?? 0) == 0)
+            {
                 throw new ArgumentNullException($"{nameof(VirtualDesktop)} requires at least one {nameof(childs)}");
+            }
 
             base.PostInit(childs);
             childs.FirstOrDefault()?.SetFocus();
@@ -186,7 +189,7 @@ namespace TileWindow.Nodes
                 }
             }
 
-            for(var i = 0; i <Math.Min(screens.Length, Childs.Count); i++)
+            for (var i = 0; i < Math.Min(screens.Length, Childs.Count); i++)
             {
                 if (Childs[i].Rect.Equals(screens[i]) == false)
                 {
@@ -196,7 +199,7 @@ namespace TileWindow.Nodes
 
             if (screens.Length > Childs.Count)
             {
-                for(var i = Childs.Count; i < screens.Length; i++)
+                for (var i = Childs.Count; i < screens.Length; i++)
                 {
                     InsertChildAt(screenNodeCreater.Create("Screen" + i, screens[i], dir: direction));
                 }
@@ -249,9 +252,13 @@ namespace TileWindow.Nodes
             }
 
             if (FocusNode.Style == NodeStyle.FullscreenOne)
+            {
                 FocusNode.Style = NodeStyle.Tile;
+            }
             else
+            {
                 FocusNode.Style = NodeStyle.FullscreenOne;
+            }
         }
 
         public bool AddFloatingNode(Node node)
@@ -260,7 +267,7 @@ namespace TileWindow.Nodes
             node.Style = NodeStyle.Floating;
             FloatingNodes.Add(node);
 
-            if(IsVisible)
+            if (IsVisible)
                 node.Show();
             else
                 node.Hide();
@@ -287,14 +294,19 @@ namespace TileWindow.Nodes
             else
             {
                 var p = FocusNode;
-                while(p != null)
+                while (p != null)
                 {
                     if (p.CanHaveChilds)
                     {
                         if (p.Direction == Direction.Horizontal)
+                        {
                             p.ChangeDirection(Direction.Vertical);
+                        }
                         else
+                        {
                             p.ChangeDirection(Direction.Horizontal);
+                        }
+
                         break;
                     }
 
@@ -420,7 +432,9 @@ namespace TileWindow.Nodes
                 var child = Childs.FirstOrDefault();
                 child?.SetFocus();
                 if (child == null)
+                {
                     Log.Warning($"{this} was going to set focus in {nameof(Show)} but Childs is empty");
+                }
             }
             else
                 FocusTracker.FocusNode()?.SetFocus();
@@ -431,7 +445,7 @@ namespace TileWindow.Nodes
         public override bool Hide()
         {
             IsVisible = false;
-            var result = base.Hide();            
+            var result = base.Hide();
             FloatingNodes.ToList().ForEach(c => result = c.Hide() && result);
             return result;
         }
@@ -440,7 +454,7 @@ namespace TileWindow.Nodes
         {
             if (child.Style != NodeStyle.Floating)
                 return false;
-            
+
             if (!DisconnectChild(child))
             {
                 Log.Warning($"{nameof(VirtualDesktop)}.{nameof(RemoveChild)} Could not disconnect floating node {child}");
@@ -461,7 +475,7 @@ namespace TileWindow.Nodes
             if (i == -1 && focusNode.Style == NodeStyle.FullscreenOne)
             {
                 Node p = focusNode.Parent;
-                while(p != null)
+                while (p != null)
                 {
                     if ((i = Childs.IndexOf(p)) >= 0)
                     {
@@ -481,7 +495,7 @@ namespace TileWindow.Nodes
             else if (i == -1)
                 return false;
 
-            switch(direction)
+            switch (direction)
             {
                 case TransferDirection.Left:
                     if (Direction == Direction.Vertical || Childs.Count == 1 || i == 0)
@@ -522,24 +536,24 @@ namespace TileWindow.Nodes
         public override bool AddNodes(params Node[] nodes)
         {
             var result = true;
-//Log.Information($"{this} will handle AddNodes for {nodes?.Count()} nodes");
-            foreach(var child in nodes)
+            //Log.Information($"{this} will handle AddNodes for {nodes?.Count()} nodes");
+            foreach (var child in nodes)
             {
                 if (child.Style == NodeStyle.Floating)
                 {
-//Log.Information($"  >>> Adding floating node");
+                    //Log.Information($"  >>> Adding floating node");
                     result = this.AddFloatingNode(child) && result;
                 }
                 else
                 {
-//Log.Information($"   >>> not floating.. calling base add nodes {child.GetType().ToString()}");
+                    //Log.Information($"   >>> not floating.. calling base add nodes {child.GetType().ToString()}");
                     result = base.AddNodes(child) && result;
                 }
             }
 
             if (result)
                 RaiseChildCountChange(false);
-                
+
             return result;
         }
 
@@ -597,7 +611,7 @@ namespace TileWindow.Nodes
             {
                 return false;
             }
-            
+
             return true;
         }
 
@@ -626,7 +640,7 @@ namespace TileWindow.Nodes
                 {
                     if (!MakeNodeFloating(args.Source))
                     {
-//                        args.Source.Style = args.Prev;
+                        //                        args.Source.Style = args.Prev;
                         Log.Warning($"{nameof(VirtualDesktop)}.{nameof(ChildNodeStyleChange)} Could not take over node for floating, reverting style change. node: {args.Source}");
                         return;
                     }
@@ -698,10 +712,12 @@ namespace TileWindow.Nodes
             DisconnectChild(node);
             var screen = Childs.FirstOrDefault();
             var area = 0L;
-            foreach(var c in Childs)
+            foreach (var c in Childs)
             {
                 if (!typeof(ContainerNode).IsInstanceOfType(c))
+                {
                     continue;
+                }
 
                 var t = c.Rect.Intersection(node.Rect).CalcArea();
                 if (t > area)
@@ -733,7 +749,7 @@ namespace TileWindow.Nodes
         {
             if (child == null)
                 return;
-            
+
             if (child.CanHaveChilds)
             {
                 child.ChangeDirection(direction);

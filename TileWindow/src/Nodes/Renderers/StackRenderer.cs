@@ -23,8 +23,8 @@ namespace TileWindow.Nodes.Renderers
         private bool _changedDirection = false;
 
         private Thread _formThread = null;
-        private AutoResetEvent _formShow = new AutoResetEvent(false);
-        private AutoResetEvent _formStopped = new AutoResetEvent(false);
+        private readonly AutoResetEvent _formShow = new AutoResetEvent(false);
+        private readonly AutoResetEvent _formStopped = new AutoResetEvent(false);
         private IntPtr _formHandle;
         private bool _formVisible;
 
@@ -171,7 +171,9 @@ namespace TileWindow.Nodes.Renderers
                     Owner.Childs[i].Show();
                 }
                 else
+                {
                     toHide.Add(Owner.Childs[i]);
+                }
             }
 
             toHide.ToList().ForEach(n => n.Hide());

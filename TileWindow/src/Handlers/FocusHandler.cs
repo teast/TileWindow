@@ -27,14 +27,17 @@ namespace TileWindow.Handlers
 
         public void ReadConfig(AppConfig config)
         {
+            // Nothing to do here
         }
 
         public void Init()
         {
+            // Nothing to do here
         }
         
         public void Quit()
         {
+            // Nothing to do here
         }
 
         public Guid AddListener(IntPtr hwnd, Action<bool> callback)
@@ -106,11 +109,12 @@ namespace TileWindow.Handlers
 
         public void DumpDebug()
         {
-            
+            // Nothing to do here
         }
 
         public void Dispose()
         {
+            // Nothing to do here
         }
     }
 }

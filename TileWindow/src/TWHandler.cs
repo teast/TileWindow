@@ -19,7 +19,7 @@ namespace TileWindow
 		private Process proc = null;
 		private ConcurrentQueue<PipeMessageEx> queue;
 		
-		private bool stopCalled = false;
+		private bool stopCalled;
 		private bool disableWinKey;
         private readonly bool showHooks;
         private readonly IPInvokeHandler pinvokeHandler;

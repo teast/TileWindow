@@ -9,9 +9,13 @@ namespace TileWindow.Configuration.Parser.Commands
         public override bool Execute(ICommandHandler handler, string data)
         {
             if (data == "layout stacking")
+            {
                 return handler.CmdLayoutStacking(data);
+            }
             if (data == "layout toggle split")
+            {
                 return handler.CmdLayoutToggleSplit(data);
+            }
             
             throw new System.InvalidOperationException($"Unknown layout command \"{data}\"");
         }

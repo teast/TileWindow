@@ -143,8 +143,10 @@ namespace TileWindow.Extra.GraphViz
                 var obj = AllocObject();
                 obj.Label = c.ShortName;
                 obj.Shape = GraphShapeEnum.Circle;
+                
                 if (c == focusNode)
                     obj.FillColor = GraphColor.Red;
+
                 if (c == myFocusNode)
                     obj.Color = GraphColor.Red;
 

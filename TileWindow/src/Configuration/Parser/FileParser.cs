@@ -98,7 +98,9 @@ namespace TileWindow.Configuration.Parser
 
             // Comment or empty line, ignore
             if (line.StartsWith('#') || string.IsNullOrEmpty(line))
+            {
                 return new ParseInstructionResult(FileParserStateResult.None, "", null);
+            }
             
             if (line.StartsWith('{'))
             {

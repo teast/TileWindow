@@ -24,7 +24,7 @@ namespace TileWindow.UserControls
 		private const int KEY_SHIFT = 16;
 		private const int KEY_CTRL = 17;
 		private bool handleKeystate = false;
-		private bool[] keystate = new bool[512];
+		private readonly bool[] keystate = new bool[512];
 		
 		public KeyCombinationControl()
 		{
@@ -102,9 +102,13 @@ namespace TileWindow.UserControls
 					continue;
 				
 				if(speclst.Contains(i))
+				{
 					spec.Add(KeyToString(i));
+				}
 				else
+				{
 					normal.Add(KeyToString(i));
+				}
 			}
 			
 			txtKeyComb.Text = string.Join("+", spec.Concat(normal));

@@ -11,7 +11,7 @@ using static TileWindow.PInvoker;
 
 namespace TileWindow.Nodes
 {
-    public class WindowNode: Node, IEquatable<WindowNode>
+    public class WindowNode : Node, IEquatable<WindowNode>
     {
         private RECT _fullscreenRect;
 
@@ -36,7 +36,7 @@ namespace TileWindow.Nodes
         private bool _insideDragAction;
         public IntPtr Hwnd { get; private set; }
 
-        public override NodeTypes WhatType =>NodeTypes.Leaf;
+        public override NodeTypes WhatType => NodeTypes.Leaf;
 
         public override NodeStyle Style
         {
@@ -50,11 +50,11 @@ namespace TileWindow.Nodes
                 {
                     if (value == NodeStyle.Floating || value == NodeStyle.FullscreenOne)
                     {
-                        pinvokeHandler.SetWindowPos(Hwnd, HWND_TOPMOST, 0, 0, 0, 0, SetWindowPosFlags.SWP_NOMOVE |SetWindowPosFlags.SWP_NOSIZE);
+                        pinvokeHandler.SetWindowPos(Hwnd, HWND_TOPMOST, 0, 0, 0, 0, SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE);
                     }
                     else if (value == NodeStyle.Tile)
                     {
-                        pinvokeHandler.SetWindowPos(Hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SetWindowPosFlags.SWP_NOMOVE |SetWindowPosFlags.SWP_NOSIZE);
+                        pinvokeHandler.SetWindowPos(Hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE);
                     }
                 }
             }
@@ -85,18 +85,21 @@ namespace TileWindow.Nodes
 
             pinvokeHandler.GetWindowRect(hwnd, out _origRect);
 
-            _focusListener = focusHandler.AddListener(Hwnd, isFocus => {
+            _focusListener = focusHandler.AddListener(Hwnd, isFocus =>
+            {
                 if (isFocus)
                 {
                     OnWantFocus(this, new WantFocusEventArg(this));
                 }
             });
 
-            _closeListener = this.windowHandler.AddWindowCloseListener(Hwnd, _ => {
+            _closeListener = this.windowHandler.AddWindowCloseListener(Hwnd, _ =>
+            {
                 Parent?.RemoveChild(this);
             });
 
-            _styleChangedListener = this.windowHandler.AddWindowStyleChangedListener(Hwnd, arg => {
+            _styleChangedListener = this.windowHandler.AddWindowStyleChangedListener(Hwnd, arg =>
+            {
                 if (Hwnd == IntPtr.Zero)
                 {
                     Log.Warning($"Got WindowStyleChanged event (type: {arg.StyleChangedType.ToString()}) but Hwnd is zero...");
@@ -104,29 +107,29 @@ namespace TileWindow.Nodes
                 }
 
                 var updateRect = false;
-                switch(arg.StyleChangedType)
+                switch (arg.StyleChangedType)
                 {
                     case WindowStyleChangedType.Minimize:
-                    {
-                        if (_quit)
                         {
-                            this.Parent?.RemoveChild(this);
-                            return;
-                        }
+                            if (_quit)
+                            {
+                                this.Parent?.RemoveChild(this);
+                                return;
+                            }
 
-                        updateRect = true;
-                    }
-                    break;
+                            updateRect = true;
+                        }
+                        break;
                     case WindowStyleChangedType.Maximize:
-                    updateRect = true;
-                    break;
+                        updateRect = true;
+                        break;
                     case WindowStyleChangedType.Style:
-                    {
-                    var style = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_STYLE);
-                    var exstyle = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE);
-                    //Log.Information($"WindowNode [{Name}] {Hwnd} got StyleChanged event {arg.Style} (style: {style}, exstyle: {exstyle}");
-                    }
-                    break;
+                        {
+                            var style = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_STYLE);
+                            var exstyle = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE);
+                            //Log.Information($"WindowNode [{Name}] {Hwnd} got StyleChanged event {arg.Style} (style: {style}, exstyle: {exstyle}");
+                        }
+                        break;
                 }
 
                 if (updateRect)
@@ -198,7 +201,7 @@ namespace TileWindow.Nodes
 
             return base.Show();
         }
-        
+
         public override bool Restore()
         {
             if (Hwnd != IntPtr.Zero)
@@ -215,10 +218,11 @@ namespace TileWindow.Nodes
         public virtual Task QuitNodeImpl()
         {
             Task task = null;
-            _quit = true;            
+            _quit = true;
             if (Hwnd != IntPtr.Zero)
             {
-                task = Task.Run(() => {
+                task = Task.Run(() =>
+                {
                     if (pinvokeHandler.SendMessage(Hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero).ToInt32() != 0)
                     {
                         Log.Error($"received false from PostMessage when sending WM_CLOSE to ({this}), PARENT is null?: {Parent == null}");
@@ -238,7 +242,7 @@ namespace TileWindow.Nodes
             }
             else
             {
-                task = Task.Run(() => {});
+                task = Task.Run(() => { });
                 Parent?.RemoveChild(this);
             }
 
@@ -283,7 +287,7 @@ namespace TileWindow.Nodes
 
         public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)
         {
-//Log.Information($"{nameof(WindowNode)}.{nameof(AddWindow)}, (Style: {Style.ToString()}) calling Parent (type: {Parent?.GetType()?.ToString()})");
+            //Log.Information($"{nameof(WindowNode)}.{nameof(AddWindow)}, (Style: {Style.ToString()}) calling Parent (type: {Parent?.GetType()?.ToString()})");
             return Parent?.AddWindow(hWnd, validation);
         }
 
@@ -331,8 +335,8 @@ namespace TileWindow.Nodes
                     var h2 = winRect.Bottom - winRect.Top;
                     if (w2 <= _width && h2 <= _height)
                         return true;
-                    
-//Log.Information($"   ...window ({Name}) dont like the size! {_width}/{_height} != {w2}/{h2}");
+
+                    //Log.Information($"   ...window ({Name}) dont like the size! {_width}/{_height} != {w2}/{h2}");
                     _width = Math.Max(_width, w2);
                     _height = Math.Max(_height, h2);
                     r.Right = r.Left + _width;
@@ -360,7 +364,7 @@ namespace TileWindow.Nodes
                     dragHandler.OnDragEnd -= HandleOnDragEnd;
 
                     windowTracker.removeWindow(Hwnd);
-                    
+
                     if (_focusListener != Guid.Empty)
                         focusHandler.RemoveListener(Hwnd, _focusListener);
                     if (_closeListener != Guid.Empty)
@@ -373,7 +377,7 @@ namespace TileWindow.Nodes
             base.Dispose();
 
             Hwnd = IntPtr.Zero;
-            _closeListener =_styleChangedListener = _focusListener = Guid.Empty;
+            _closeListener = _styleChangedListener = _focusListener = Guid.Empty;
         }
 
         public override string ToString()
@@ -401,7 +405,7 @@ namespace TileWindow.Nodes
             {
                 return false;
             }
-            
+
             return true;
         }
 
@@ -415,7 +419,7 @@ namespace TileWindow.Nodes
             }
         }
 
-        private void HandleOnDragStart(object sender, DragStartEvent arg)
+        private void HandleOnDragStart(object _, DragStartEvent arg)
         {
             if (arg.hWnd != Hwnd)
                 return;
@@ -428,7 +432,7 @@ namespace TileWindow.Nodes
             _insideDragAction = true;
         }
 
-        private void HandleOnDragMove(object sender, DragMoveEvent arg)
+        private void HandleOnDragMove(object _, DragMoveEvent arg)
         {
             if (arg.hWnd != Hwnd)
                 return;
@@ -439,7 +443,7 @@ namespace TileWindow.Nodes
 
             if (Style != NodeStyle.Floating)
                 Style = NodeStyle.Floating;
-            
+
             if (!pinvokeHandler.GetWindowRect(Hwnd, out RECT rect))
             {
                 Log.Warning($"{nameof(WindowNode)}.{nameof(HandleOnDragMove)} Could not retrieve window rect for {this}");
@@ -478,7 +482,10 @@ namespace TileWindow.Nodes
         {
             var cb = new StringBuilder(1024);
             if (pinvokeHandler.GetClassName(Hwnd, cb, cb.Capacity) == 0)
+            {
                 throw new Exception($"{nameof(WindowNode)}.ctor could not retrieve class name for {Hwnd} [{Name}], error: {pinvokeHandler.GetLastError()}");
+            }
+            
             return cb.ToString();
         }
 

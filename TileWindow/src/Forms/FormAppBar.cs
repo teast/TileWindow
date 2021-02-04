@@ -130,11 +130,9 @@ namespace TileWindow.Forms
         {
             if (m.Msg == uCallBack)
             {
-                switch(m.WParam.ToInt32())
+                if (m.WParam.ToInt32() == (int)ABNotify.ABN_POSCHANGED)
                 {
-                    case (int)ABNotify.ABN_POSCHANGED:
-                        ABSetPos();
-                        break;
+                    ABSetPos();
                 }
             }
             else if (m.Msg == PInvoker.WM_DESTROY)

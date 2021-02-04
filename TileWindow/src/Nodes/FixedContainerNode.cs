@@ -24,7 +24,7 @@ namespace TileWindow.Nodes
                 return r.Equals(Rect);
 
             RecalcDeltaWithHeight();
-            return UpdateChildRect(0, Childs.Count, out _);
+            return TryUpdateChildRect(0, Childs.Count, out _);
         }
 
         public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)

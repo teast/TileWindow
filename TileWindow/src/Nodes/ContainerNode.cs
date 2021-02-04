@@ -47,7 +47,7 @@ namespace TileWindow.Nodes
             if (Childs.Count > 0)
             {
 //Log.Information($"   ...Calling UpdateChildRect from ctor");
-                if (UpdateChildRect(0, Childs.Count, out RECT newRect) == false)
+                if (TryUpdateChildRect(0, Childs.Count, out RECT newRect) == false)
                 {
                     base.UpdateRect(newRect);
                     RecalcDeltaWithHeight();
@@ -59,7 +59,9 @@ namespace TileWindow.Nodes
         public override Node FindNodeWithId(long id)
         {
             if (this.Id == id)
+            {
                 return this;
+            }
             
             foreach(var child in Childs.ToList())
             {
@@ -130,7 +132,7 @@ namespace TileWindow.Nodes
             //focusTracker.Track(node);
             InsertChildAt(node, index);
             RecalcDeltaWithHeight();
-            if (!UpdateChildRect(0, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -185,7 +187,7 @@ namespace TileWindow.Nodes
 
 //Log.Information($"   >>> ContainerNode.AddNode RecalcDeltaWithHeight");
             RecalcDeltaWithHeight();
-            if (!UpdateChildRect(0, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -214,7 +216,7 @@ namespace TileWindow.Nodes
 
             if (old != dir)
             {
-                if (!UpdateChildRect(0, Childs.Count, out RECT newRect))
+                if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect))
                 {
                     base.UpdateRect(newRect);
                     RecalcDeltaWithHeight();
@@ -339,7 +341,7 @@ namespace TileWindow.Nodes
                     RecalcDeltaWithHeight();
 
                     // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!UpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
                         base.UpdateRect(newRect);
                         RecalcDeltaWithHeight();
@@ -362,7 +364,7 @@ namespace TileWindow.Nodes
                     RecalcDeltaWithHeight();
 
                     // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!UpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
                         base.UpdateRect(newRect);
                         RecalcDeltaWithHeight();
@@ -385,7 +387,7 @@ namespace TileWindow.Nodes
                     RecalcDeltaWithHeight();
 
                     // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!UpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
                         base.UpdateRect(newRect);
                         RecalcDeltaWithHeight();
@@ -408,7 +410,7 @@ namespace TileWindow.Nodes
                     RecalcDeltaWithHeight();
 
                     // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!UpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
                         base.UpdateRect(newRect);
                         RecalcDeltaWithHeight();
@@ -472,7 +474,7 @@ namespace TileWindow.Nodes
         {
             base.UpdateRect(r);
             RecalcDeltaWithHeight();
-            return UpdateChildRect(0, Childs.Count, out _);
+            return TryUpdateChildRect(0, Childs.Count, out _);
         }
 
         public override void SetRenderer(IRenderer newRenderer)
@@ -513,7 +515,7 @@ namespace TileWindow.Nodes
             }
 
             RecalcDeltaWithHeight();
-            if (!UpdateChildRect(0, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -531,7 +533,7 @@ namespace TileWindow.Nodes
         /// </summary>
         /// <param name="from">start index in Childs</param>
         /// <param name="to">end index in Childs</param>
-        protected bool UpdateChildRect(int from, int to, out RECT newRect)
+        protected bool TryUpdateChildRect(int from, int to, out RECT newRect)
         {
             var result = Renderer.Update(_ignoreChildsOnUpdateRect);
             newRect = result.newRect;
@@ -610,7 +612,7 @@ namespace TileWindow.Nodes
                 if (doRecalcAfterDelete)
                 {
                     RecalcDeltaWithHeight();
-                    if (!UpdateChildRect(0, Childs.Count, out RECT newRect))
+                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect))
                     {
                         base.UpdateRect(newRect);
                         RecalcDeltaWithHeight();
@@ -656,7 +658,7 @@ namespace TileWindow.Nodes
             // No, then jump over that node and insert this before it
             Childs.RemoveAt(i);
             Childs.Insert(i-1, child);
-            if (!UpdateChildRect(i-1, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(i-1, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -700,7 +702,7 @@ namespace TileWindow.Nodes
             // No, then jump over that node and insert this before it
             Childs.RemoveAt(i);
             Childs.Insert(i-1, child);
-            if (!UpdateChildRect(i-1, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(i-1, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -743,7 +745,7 @@ namespace TileWindow.Nodes
 
             Childs.RemoveAt(i);
             Childs.Insert(i+1, child);
-            if (!UpdateChildRect(i, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(i, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -786,7 +788,7 @@ namespace TileWindow.Nodes
 
             Childs.RemoveAt(i);
             Childs.Insert(i+1, child);
-            if (!UpdateChildRect(i, Childs.Count, out RECT newRect))
+            if (!TryUpdateChildRect(i, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();

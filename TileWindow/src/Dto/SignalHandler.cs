@@ -80,25 +80,45 @@ public class SignalHandler: ISignalHandler
     public string SignalToString(uint signal)
     {
         if (signal == WMC_SHOW) return "WMC_SHOW";
+
         if (signal == WMC_CREATE) return "WMC_CREATE";
+
         if (signal == WMC_ENTERMOVE) return "WMC_ENTERMOVE";
+
         if (signal == WMC_MOVE) return "WMC_MOVE";
+
         if (signal == WMC_EXITMOVE) return "WMC_EXITMOVE";
+
         if (signal == WMC_KEYDOWN) return "WMC_KEYDOWN";
+
         if (signal == WMC_KEYUP ) return "WMC_KEYUP ";
+
         if (signal == WMC_SETFOCUS ) return "WMC_SETFOCUS ";
+
         if (signal == WMC_KILLFOCUS ) return "WMC_KILLFOCUS ";
+
         if (signal == WMC_SHOWWINDOW ) return "WMC_SHOWWINDOW ";
+
         if (signal == WMC_DESTROY ) return "WMC_DESTROY ";
+
         if (signal == WMC_STYLECHANGED ) return "WMC_STYLECHANGED ";
+
         if (signal == WMC_SCCLOSE) return "WMC_SCCLOSE";
+
         if (signal == WMC_SCMAXIMIZE) return "WMC_SCMAXIMIZE";
+
         if (signal == WMC_SCMINIMIZE) return "WMC_SCMINIMIZE";
+
         if (signal == WMC_SCRESTORE) return "WMC_SCRESTORE";
+
         if (signal == WMC_ACTIVATEAPP) return "WMC_ACTIVATEAPP";
+
         if (signal == WMC_DISPLAYCHANGE) return "WMC_DISPLAYCHANGE";
+
         if (signal == WMC_SIZE) return "WMC_SIZE";
+
         if (signal == WMC_SHOWNODE) return "WMC_SHOWNODE";
+
         if (signal == WMC_EXTRATRACK) return "WMC_EXTRATRACK";
 
         return "UNKNOWN";

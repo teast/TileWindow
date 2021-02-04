@@ -41,7 +41,9 @@ namespace TileWindow.Configuration.Parser.Instructions.Bar
             foreach(var color in _validColorClass)
             {
                 if (ParseColorClass(color, particles, ref data))
+                {
                     return true;
+                }
             }
 
             return false;

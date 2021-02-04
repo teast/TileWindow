@@ -689,9 +689,9 @@ namespace TileWindow
         
         public static readonly uint MK_LBUTTON = 0x1;
 
-        public const int NOTIFY_FOR_THIS_SESSION = 0;
-        public const int WM_WTSSESSION_CHANGE = 0x2b1;
-        public const int WTS_SESSION_LOCK = 0x7;
-        public const int WTS_SESSION_UNLOCK = 0x8;
+        public static readonly int NOTIFY_FOR_THIS_SESSION = 0;
+        public static readonly int WM_WTSSESSION_CHANGE = 0x2b1;
+        public static readonly int WTS_SESSION_LOCK = 0x7;
+        public static readonly int WTS_SESSION_UNLOCK = 0x8;
     }
 }

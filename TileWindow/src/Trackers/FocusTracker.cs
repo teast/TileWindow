@@ -81,7 +81,7 @@ namespace TileWindow.Trackers
         void UpdateFocusTree();
     }
 
-    public class FocusTracker: IFocusTracker
+    public class FocusTracker : IFocusTracker
     {
         public virtual event EventHandler<FocusChangedEventArg> FocusChanged;
 
@@ -100,7 +100,7 @@ namespace TileWindow.Trackers
         {
             if (node == null)
                 return false;
-            
+
             if (ContainsKey(node))
                 return true;
 
@@ -114,18 +114,23 @@ namespace TileWindow.Trackers
         {
             if (node == null)
                 return false;
-            
+
             if (_focusNode == node)
                 _focusNode = null;
-            
-            foreach(var key in _tracker.Keys.ToList())
-                if(_tracker[key] == node)
+
+            foreach (var key in _tracker.Keys.ToList())
+            {
+                if (_tracker[key] == node)
                 {
                     _tracker[key] = null;
                 }
+            }
 
             if (ContainsKey(node) == false)
+            {
                 return true;
+            }
+            
             _tracker.Remove(node);
             node.Deleted -= OnDeleted;
             node.WantFocus -= OnWantFocus;
@@ -137,11 +142,16 @@ namespace TileWindow.Trackers
         public virtual Node[] TraceToFocusNode(Node node)
         {
             var result = new List<Node>();
-            if(node == null)
+            if (node == null)
+            {
                 return result.ToArray();
+            }
+
             if (_focusNode == null)
+            {
                 return result.ToArray();
-            
+            }
+
             var prev = _focusNode;
             do
             {
@@ -150,7 +160,7 @@ namespace TileWindow.Trackers
                     return result.ToArray();
 
                 prev = prev.Parent;
-            } while(prev != null);
+            } while (prev != null);
 
             return new Node[0];
         }
@@ -159,7 +169,7 @@ namespace TileWindow.Trackers
         {
             if (node == null)
                 return null;
-                
+
             if (_tracker.TryGetValue(node, out Node child))
             {
                 return child;
@@ -184,7 +194,7 @@ namespace TileWindow.Trackers
         {
             Node prev = null;
             var p = _focusNode;
-            while(p != null)
+            while (p != null)
             {
                 if (ContainsKey(p))
                 {
@@ -209,9 +219,14 @@ namespace TileWindow.Trackers
         protected virtual void TriggerFocusChanged(Node newFocus)
         {
             if (newFocus == null)
+            {
                 return;
+            }
+
             if (newFocus == _focusNode)
+            {
                 return;
+            }
 
             var oldFocus = _focusNode;
             _focusNode = newFocus;
