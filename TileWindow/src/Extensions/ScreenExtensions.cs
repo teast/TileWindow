@@ -14,13 +14,21 @@ namespace TileWindow.Extensions
             foreach (var rect in rects)
             {
                 if (left == null || rect.Left < left)
+                {
                     left = rect.Left;
+                }
                 if (top == null || rect.Top < top)
+                {
                     top = rect.Top;
+                }
                 if (right == null || rect.Left + rect.Right > right)
+                {
                     right = rect.Right;
+                }
                 if (bottom == null || rect.Top + rect.Bottom > bottom)
+                {
                     bottom = rect.Bottom;
+                }
             }
 
             return new RECT
@@ -42,12 +50,12 @@ namespace TileWindow.Extensions
         {
             if (
                 // r2 has no points inside r1
-                (r1.InsideRect(r2.Left, r2.Top) == false && 
+                (r1.InsideRect(r2.Left, r2.Top) == false &&
                 r1.InsideRect(r2.Left, r2.Bottom) == false &&
                 r1.InsideRect(r2.Right, r2.Top) == false &&
                 r1.InsideRect(r2.Right, r2.Bottom) == false) &&
                 // r1 has no points inside r2
-                (r2.InsideRect(r1.Left, r1.Top) == false && 
+                (r2.InsideRect(r1.Left, r1.Top) == false &&
                 r2.InsideRect(r1.Left, r1.Bottom) == false &&
                 r2.InsideRect(r1.Right, r1.Top) == false &&
                 r2.InsideRect(r1.Right, r1.Bottom) == false)
@@ -64,10 +72,7 @@ namespace TileWindow.Extensions
             return new RECT(left, top, right, bottom);
         }
 
-        public static long CalcArea(this RECT rect)
-        {
-            return (rect.Right-rect.Left) * (rect.Bottom - rect.Top);
-        }
+        public static long CalcArea(this RECT rect) => (rect.Right - rect.Left) * (rect.Bottom - rect.Top);
 
         public static (Direction direction, int index, IEnumerable<RECT> rect) GetOrderRect(this IEnumerable<IScreenInfo> screens)
         {
@@ -78,12 +83,12 @@ namespace TileWindow.Extensions
             var horizontals = new List<int>();
             var verticals = new List<int>();
 
-            foreach(var screen in screens.Skip(1))
+            foreach (var screen in screens.Skip(1))
             {
                 var h = screen.WorkingArea.Right - screen.WorkingArea.Left;
                 var v = screen.WorkingArea.Bottom - screen.WorkingArea.Top;
-                horizontals.Add((horizontal/h)*100);
-                verticals.Add((vertical/v)*100);
+                horizontals.Add((horizontal / h) * 100);
+                verticals.Add((vertical / v) * 100);
                 vertical += v;
                 horizontal += h;
             }
@@ -105,7 +110,10 @@ namespace TileWindow.Extensions
             var rects = screens.OrderBy(orderBy).Select((screen, i) =>
             {
                 if (screen.Primary)
+                {
                     primIndex = i;
+                }
+                
                 return new RECT
                 {
                     Left = screen.WorkingArea.Left,

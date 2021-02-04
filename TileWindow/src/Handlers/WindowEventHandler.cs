@@ -26,7 +26,7 @@ namespace TileWindow.Handlers
         }
     }
 
-    public interface IWindowEventHandler: IHandler
+    public interface IWindowEventHandler : IHandler
     {
         event EventHandler<Tuple<IntPtr, long>> UnknownWindow;
         Guid AddWindowStyleChangedListener(IntPtr hWnd, Action<WindowStyleChangedArg> handler);
@@ -54,14 +54,17 @@ namespace TileWindow.Handlers
 
         public void Init()
         {
+            // Nothing to do here
         }
 
         public void Quit()
         {
+            // Nothing to do here
         }
 
         public void ReadConfig(AppConfig config)
         {
+            // Nothing to do here
         }
 
         public Guid AddWindowCloseListener(IntPtr hWnd, Action<IntPtr> handler)
@@ -97,7 +100,7 @@ namespace TileWindow.Handlers
             {
                 var type = msg.msg == signalHandler.WMC_SCMAXIMIZE ? WindowStyleChangedType.Maximize : WindowStyleChangedType.Minimize;
                 var hwnd = new IntPtr((long)msg.wParam);
-                foreach(var l in _styleChangedListeners)
+                foreach (var l in _styleChangedListeners)
                 {
                     if (l.Value.Item1 == hwnd)
                     {
@@ -113,11 +116,11 @@ namespace TileWindow.Handlers
                 var hwnd = new IntPtr((long)msg.wParam);
                 var hit = false;
 
-//                var style1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_STYLE).ToInt64();
-//                var exstyle1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_EXSTYLE).ToInt64();
-//                pinvokeHandler.GetWindowRect(hwnd, out RECT r);
-//Log.Information($"StyleChanged for {hwnd} (visible: {pinvokeHandler.IsWindowVisible(hwnd)}, window: {pinvokeHandler.IsWindow(hwnd)}, style: {style1}, exstyle: {exstyle1}, rect: {r})");
-                foreach(var l in _styleChangedListeners)
+                //                var style1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_STYLE).ToInt64();
+                //                var exstyle1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_EXSTYLE).ToInt64();
+                //                pinvokeHandler.GetWindowRect(hwnd, out RECT r);
+                //Log.Information($"StyleChanged for {hwnd} (visible: {pinvokeHandler.IsWindowVisible(hwnd)}, window: {pinvokeHandler.IsWindow(hwnd)}, style: {style1}, exstyle: {exstyle1}, rect: {r})");
+                foreach (var l in _styleChangedListeners)
                 {
                     if (l.Value.Item1 == hwnd)
                     {
@@ -135,9 +138,13 @@ namespace TileWindow.Handlers
             {
                 var hwnd = new IntPtr((long)msg.wParam);
                 //Log.Information($"WindoeEvent.WMC_DESTROY hwnd: {msg.wParam} ({GetWindowText(hwnd)}) [{GetClassName(hwnd)}]");
-                foreach(var l in _closeListeners)
+                foreach (var l in _closeListeners)
+                {
                     if (l.Value.Item1 == hwnd)
+                    {
                         l.Value.Item2(hwnd);
+                    }
+                }
             }
         }
 
@@ -145,9 +152,13 @@ namespace TileWindow.Handlers
         {
             var tb = new StringBuilder(1024);
             if (pinvokeHandler.GetWindowText(Hwnd, tb, tb.Capacity) > 0)
+            {
                 return tb.ToString();
+            }
             else
+            {
                 return Hwnd.ToString();
+            }
         }
 
         private string GetClassName(IntPtr Hwnd)
@@ -159,11 +170,12 @@ namespace TileWindow.Handlers
 
         public void DumpDebug()
         {
-            
+            // Nothing to do here
         }
 
         public void Dispose()
         {
+            // Nothing to do here
         }
     }
 }

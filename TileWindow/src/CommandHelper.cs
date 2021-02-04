@@ -14,7 +14,7 @@ namespace TileWindow.Handlers
         bool GetCommand(string command);
     }
 
-    public class CommandHelper: ICommandHelper, ICommandHandler
+    public class CommandHelper : ICommandHelper, ICommandHandler
     {
         public readonly IVirtualDesktopCollection desktops;
         public readonly IPInvokeHandler pinvokeHandler;
@@ -26,7 +26,7 @@ namespace TileWindow.Handlers
             this.pinvokeHandler = pinvokeHandler;
             this.commandExecutor = commandExecutor;
         }
-        
+
         public bool GetCommand(string command)
         {
             var result = commandExecutor.Execute(command, this);
@@ -43,17 +43,23 @@ namespace TileWindow.Handlers
             Log.Warning($"ExternalCommand: \"{command}\" not implemented");
             return false;
         }
-        
+
         public bool CmdToggleTaskbar(string cmd)
         {
             var trayHwnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null);
             if (trayHwnd == IntPtr.Zero)
+            {
                 return false;
+            }
 
             if (pinvokeHandler.IsWindowVisible(trayHwnd))
+            {
                 pinvokeHandler.SetWindowPos(trayHwnd, IntPtr.Zero, 0, 0, 0, 0, SetWindowPosFlags.SWP_HIDEWINDOW | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE);
+            }
             else
+            {
                 pinvokeHandler.SetWindowPos(trayHwnd, IntPtr.Zero, 0, 0, 0, 0, SetWindowPosFlags.SWP_SHOWWINDOW | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE);
+            }
 
             return false;
         }
@@ -67,8 +73,8 @@ namespace TileWindow.Handlers
 
             var hTaskBarWnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null);
             var hStartButtonWnd = pinvokeHandler.GetWindow(hTaskBarWnd, GetWindowType.GW_CHILD);
-            pinvokeHandler.SendMessage(hStartButtonWnd, PInvoker.WM_LBUTTONDOWN, new IntPtr(PInvoker.MK_LBUTTON), new IntPtr(5 + (5<<8)));
-            pinvokeHandler.SendMessage(hStartButtonWnd, PInvoker.WM_LBUTTONUP, new IntPtr(PInvoker.MK_LBUTTON), new IntPtr(5 + (5<<8)));
+            pinvokeHandler.SendMessage(hStartButtonWnd, PInvoker.WM_LBUTTONDOWN, new IntPtr(PInvoker.MK_LBUTTON), new IntPtr(5 + (5 << 8)));
+            pinvokeHandler.SendMessage(hStartButtonWnd, PInvoker.WM_LBUTTONUP, new IntPtr(PInvoker.MK_LBUTTON), new IntPtr(5 + (5 << 8)));
             return false;
         }
 
@@ -89,7 +95,7 @@ namespace TileWindow.Handlers
             });
             return false;
         }
-        
+
         public bool CmdDebugGraph(string cmd)
         {
             var desktop = desktops.ActiveDesktop;
@@ -99,8 +105,10 @@ namespace TileWindow.Handlers
             var rootDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             rootDir = Path.Combine(rootDir, "output");
             if (!Directory.Exists(rootDir))
+            {
                 Directory.CreateDirectory(rootDir);
-
+            }
+            
             var index = Directory.GetFiles(rootDir, "image*.dot")
                 .Select(fullPath => Path.GetFileNameWithoutExtension(fullPath))
                 .Select(fileName => Convert.ToInt64(fileName.Substring(5)))
@@ -112,7 +120,9 @@ namespace TileWindow.Handlers
 
             var dotExe = "c:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
             if (File.Exists(dotExe) == false)
+            {
                 return false;
+            }
 
             Process.Start(dotExe, $"-Tpng -o\"{pngFile}\" \"{dotFile}\"");
             return false;
@@ -142,7 +152,10 @@ namespace TileWindow.Handlers
             var src = desktops.ActiveDesktop;
             var dst = desktops[index];
             if (dst == null)
+            {
                 return false;
+            }
+
             src.TransferFocusNodeToDesktop(dst);
             return false;
         }

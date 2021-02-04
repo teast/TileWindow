@@ -11,11 +11,11 @@ using TileWindow.Trackers;
 
 namespace TileWindow.Handlers
 {
-    public interface IStartupHandler: IHandler
+    public interface IStartupHandler : IHandler
     {
     }
 
-    public class StartupHandler: IStartupHandler
+    public class StartupHandler : IStartupHandler
     {
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly ISignalHandler signal;
@@ -45,7 +45,7 @@ namespace TileWindow.Handlers
             var result = screensInfo.AllScreens.GetOrderRect();
             _screens = result.rect.ToArray();
 
-            for(var i = 0; i < desktops.Count; i++)
+            for (var i = 0; i < desktops.Count; i++)
             {
                 var screensToAdd = _screens.Select((rect, i) => screenNodeCreator.Create("Screen" + i, rect, dir: result.direction)).ToArray();
                 desktops[i] = virtualDesktopCreator.Create(i, rect: _screens.TotalRect(), dir: result.direction, childs: screensToAdd);
@@ -68,7 +68,7 @@ namespace TileWindow.Handlers
 
         private void ValidateAndAddKeyShortcuts(Dictionary<string, string> shortcuts)
         {
-            foreach(var shortcut in shortcuts)
+            foreach (var shortcut in shortcuts)
             {
                 if (string.IsNullOrEmpty(shortcut.Value))
                 {
@@ -92,9 +92,9 @@ namespace TileWindow.Handlers
 
         public void Quit()
         {
-            foreach(var desktop in desktops)
+            foreach (var desktop in desktops)
                 desktop.Restore();
-            
+
             var trayHwnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null);
             if (trayHwnd != IntPtr.Zero)
             {
@@ -121,15 +121,17 @@ namespace TileWindow.Handlers
             var windowsToHandle = sb.Hwnd
                 .Select(hwnd => windowTracker.CreateNode(hwnd))
                 .Where(n => n != null);
-            var programPerScreen = windowsToHandle.Select(node => {
+            var programPerScreen = windowsToHandle.Select(node =>
+            {
                 if (node.Style == NodeStyle.Floating)
-                    return new {
+                    return new
+                    {
                         node = node,
                         Screen = -1
                     };
 
                 var screen = Tuple.Create((int)0, (long)0);
-                for(int i = 0; i < _screens.Length; i++)
+                for (int i = 0; i < _screens.Length; i++)
                 {
                     long area = 0;
                     if ((area = _screens[i].Intersection(node.Rect).CalcArea()) > screen.Item2)
@@ -138,14 +140,15 @@ namespace TileWindow.Handlers
                     }
                 }
 
-                return new {
+                return new
+                {
                     node = node,
                     Screen = screen.Item1
                 };
             })
             .GroupBy(wind => wind.Screen).ToDictionary(s => s.Key, s => s.Select(s2 => s2.node).ToList());
 
-            foreach(var progs in programPerScreen.ToList())
+            foreach (var progs in programPerScreen.ToList())
             {
                 // -1 == floating nodes
                 if (progs.Key == -1)
@@ -154,7 +157,7 @@ namespace TileWindow.Handlers
                     continue;
                 }
 
-//Log.Information($"Screen[{progs.Key}] got {progs.Value.Count} windows to sort out");
+                //Log.Information($"Screen[{progs.Key}] got {progs.Value.Count} windows to sort out");
                 if (!desktops.ActiveDesktop.GetScreenRect(progs.Key, out RECT sr))
                 {
                     Log.Error($"Could not get screen rect for screen index {progs.Key}");
@@ -177,16 +180,18 @@ namespace TileWindow.Handlers
                 else
                     wn = desktops.ActiveDesktop.Screen(progs.Key);
 
-                foreach(var node in progs.Value)
+                foreach (var node in progs.Value)
                 {
-                    if(wn.AddNodes(node))
+                    if (wn.AddNodes(node))
+                    {
                         lastAdded = node;
-
+                    }
+                    
                     col++;
                     if (col == maxProgPerRow)
                     {
                         row++;
-                        col=0;
+                        col = 0;
                         if (rows > 1)
                         {
                             wn = containerNodeCreator.Create(sr);
@@ -217,17 +222,17 @@ namespace TileWindow.Handlers
             return cb.ToString();
         }
 
-		public void HandleMessage(PipeMessageEx msg)
-		{
-			if(msg.msg == signal.WMC_CREATE)
-			{
+        public void HandleMessage(PipeMessageEx msg)
+        {
+            if (msg.msg == signal.WMC_CREATE)
+            {
                 //HandleMessageCreate(msg);
                 //Log.Information($"WMC_CREATE wParam: {msg.wParam}, lparam: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
-			}
-			else if (msg.msg == signal.WMC_SHOW)
-			{
+            }
+            else if (msg.msg == signal.WMC_SHOW)
+            {
                 HandleMessageShow(msg);
-			}
+            }
             else if (msg.msg == signal.WMC_SHOWWINDOW)
             {
                 HandleMessageShowWindow(msg);
@@ -268,7 +273,7 @@ namespace TileWindow.Handlers
                 if (_screens.Length == screens.Length)
                 {
                     diff = false;
-                    for(var i = 0; i < _screens.Length; i++)
+                    for (var i = 0; i < _screens.Length; i++)
                     {
                         if (!_screens[i].Equals(screens[i]))
                         {
@@ -282,9 +287,9 @@ namespace TileWindow.Handlers
                 if (diff)
                 {
                     _screens = screens;
-                    foreach(var desktop in desktops)
+                    foreach (var desktop in desktops)
                         desktop.ScreensChanged(_screens, result.direction);
-                    
+
                     Startup.ParserSignal.SignalRestartThreads();
                 }
             }
@@ -293,30 +298,30 @@ namespace TileWindow.Handlers
                 var node = desktops.ActiveDesktop.FindNodeWithId((long)msg.wParam);
                 node?.SetFocus();
             }
-		}
+        }
 
         public void Dispose()
         {
         }
 
-		private void HandleMessageShowWindow(PipeMessageEx msg)
+        private void HandleMessageShowWindow(PipeMessageEx msg)
         {
             //Log.Information($"StartupHandler> WMC_ShowWindow received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
         }
-		private void HandleQuitWindow(IntPtr hwnd)
+        private void HandleQuitWindow(IntPtr hwnd)
         {
             //Log.Information($"StartupHandler> HandleQuitWindow received for {hwnd}");
             var n = windowTracker.GetNodes(hwnd);
             n?.QuitNode();
         }
 
-		private void HandleMessageShow(PipeMessageEx msg)
+        private void HandleMessageShow(PipeMessageEx msg)
         {
             var hwnd = new IntPtr(Convert.ToInt64(msg.wParam));
             //Log.Information($"StartupHandler> WMC_SHOW received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
-            
+
             // Show signal and not hide
-            if(msg.lParam == 1)
+            if (msg.lParam == 1)
             {
                 var node = windowTracker.GetNodes(hwnd);
                 if (node != null)

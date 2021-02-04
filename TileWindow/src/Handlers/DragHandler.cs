@@ -89,18 +89,22 @@ namespace TileWindow.Handlers
 
         public void Init()
         {
+            // nothing to do here
         }
 
         public void ReadConfig(AppConfig config)
         {
+            // nothing to do here
         }
 
         public void Quit()
         {
+            // nothing to do here
         }
 
         public void Dispose()
         {
+            // nothing to do here
         }
 
         public void DumpDebug()

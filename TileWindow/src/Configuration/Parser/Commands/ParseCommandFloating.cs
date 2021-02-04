@@ -9,7 +9,9 @@ namespace TileWindow.Configuration.Parser.Commands
         public override bool Execute(ICommandHandler handler, string data)
         {
             if (data == "floating toggle")
+            {
                 return handler.CmdFloatingToggle(data);
+            }
             
             throw new System.InvalidOperationException($"Unknown floating command \"{data}\"");
         }

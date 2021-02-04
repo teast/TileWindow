@@ -10,14 +10,18 @@ namespace TileWindow.Configuration.Parser.Commands
         {
             var workspaceNumber = "move workspace number ";
 
-            if (data == "move up")
-                return handler.CmdMoveUp(data);
-            if (data == "move down")
-                return handler.CmdMoveDown(data);
-            if (data == "move left")
-                return handler.CmdMoveLeft(data);
-            if (data == "move right")
-                return handler.CmdMoveRight(data);
+            switch (data)
+            {
+                case "move up":
+                    return handler.CmdMoveUp(data);
+                case "move down":
+                    return handler.CmdMoveDown(data);
+                case "move left":
+                    return handler.CmdMoveLeft(data);
+                case "move right":
+                    return handler.CmdMoveRight(data);
+            }
+
             if (data.StartsWith(workspaceNumber) && int.TryParse(data.Substring(workspaceNumber.Length), out int result) && result >= 0 && result < 10)
                 return ExecuteMoveWorkspace(handler, result, data);
 

@@ -99,7 +99,7 @@ namespace TileWindow.Nodes
             Source = source;
         }
     }
-    public abstract class Node: IDisposable, IEquatable<Node>
+    public abstract class Node : IDisposable, IEquatable<Node>
     {
         private static long _globalCounter = 1;
         private long _id = (_globalCounter++);
@@ -140,7 +140,7 @@ namespace TileWindow.Nodes
         /// gets called when the node want focus
         /// </summary>
         public event EventHandler<WantFocusEventArg> WantFocus;
-        
+
         /// <summary>
         /// Gets called when the node should be deleted and disposed
         /// </summary>
@@ -171,7 +171,7 @@ namespace TileWindow.Nodes
                 handler?.Invoke(sender, arg);
             }
         }
-        
+
         protected virtual void OnWantFocus(Node sender, WantFocusEventArg arg)
         {
             // Make a temporary copy of the event to avoid possibility of
@@ -249,15 +249,18 @@ namespace TileWindow.Nodes
         public virtual IRenderer GetRenderer()
         {
             if (Renderer != null)
+            {
                 return Renderer;
+            }
+
             return Parent?.GetRenderer();
         }
 
         public virtual void Resize(int val, TransferDirection direction)
         {
-//Log.Information($"{nameof(Node)}.{nameof(Resize)}({this.ToString()}) val: {val}, direction: {direction.ToString()}");
+            //Log.Information($"{nameof(Node)}.{nameof(Resize)}({this.ToString()}) val: {val}, direction: {direction.ToString()}");
             var r = Rect;
-            switch(direction)
+            switch (direction)
             {
                 case TransferDirection.Left:
                     r.Left += val;
@@ -371,7 +374,7 @@ namespace TileWindow.Nodes
             Log.Warning($"{this.GetType().ToString()}(Node).{nameof(QuitNode)} not implemented");
             return false;
         }
-        
+
         /// <summary>
         /// Specific node will now have focus
         /// </summary>
@@ -403,7 +406,7 @@ namespace TileWindow.Nodes
         /// <param name="child">node to move</param>
         /// <param name="direction">direction to move the node in</param>
         public virtual void ChildWantMove(Node child, TransferDirection direction) { }
-        
+
         /// <summary>
         /// Indicate that focus should change from <c ref="focusNode" /> to next one in <c ref="direction" />
         /// </summary>
@@ -412,7 +415,7 @@ namespace TileWindow.Nodes
         /// <returns>true if it was a success</returns>
         public virtual bool FocusNodeInDirection(Node focusNode, TransferDirection direction)
         {
-//Log.Information($"Node({this}) FocusNodeInDirection, dir: {direction}, node: {focusNode}");
+            //Log.Information($"Node({this}) FocusNodeInDirection, dir: {direction}, node: {focusNode}");
             return Parent?.FocusNodeInDirection(this, direction) ?? false;
         }
 
@@ -444,8 +447,10 @@ namespace TileWindow.Nodes
         public virtual void MoveLeft()
         {
             if (Style == NodeStyle.FullscreenOne)
+            {
                 return;
-
+            }
+            
             Parent?.ChildWantMove(this, TransferDirection.Left);
         }
 
@@ -455,8 +460,10 @@ namespace TileWindow.Nodes
         public virtual void MoveUp()
         {
             if (Style == NodeStyle.FullscreenOne)
+            {
                 return;
-                
+            }
+            
             Parent?.ChildWantMove(this, TransferDirection.Up);
         }
 
@@ -466,8 +473,10 @@ namespace TileWindow.Nodes
         public virtual void MoveRight()
         {
             if (Style == NodeStyle.FullscreenOne)
+            {
                 return;
-                
+            }
+            
             Parent?.ChildWantMove(this, TransferDirection.Right);
         }
 
@@ -477,11 +486,13 @@ namespace TileWindow.Nodes
         public virtual void MoveDown()
         {
             if (Style == NodeStyle.FullscreenOne)
+            {
                 return;
-                
+            }
+            
             Parent?.ChildWantMove(this, TransferDirection.Down);
         }
-        
+
         public virtual void SetFullscreenRect(RECT rect)
         {
         }
@@ -541,7 +552,7 @@ namespace TileWindow.Nodes
             {
                 return false;
             }
-            
+
             return true;
         }
 

@@ -24,9 +24,13 @@ namespace TileWindow.Configuration.Parser
         public void AddVariable(string variableName, string variableData)
         {
             if (Variables.ContainsKey(variableName))
+            {
                 Variables[variableName] = variableData;
+            }
             else
+            {
                 Variables.Add(variableName, variableData);
+            }
         }
 
         public void AddData<T>(string variableName, T variableData)

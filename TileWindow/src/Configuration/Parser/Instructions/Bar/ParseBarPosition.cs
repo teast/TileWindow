@@ -15,11 +15,13 @@ namespace TileWindow.Configuration.Parser.Instructions.Bar
             FetchResult = null;
 
             if (data.Name != "bar" || particles[0] != Instruction)
+            {
                 return false;
+            }
+            
+            var positions = new[] { "top", "bottom", "left", "right" };
 
-            var positions = new [] { "top", "bottom", "left", "right" };
-
-            if(!positions.Contains(particles[1]))
+            if (!positions.Contains(particles[1]))
             {
                 AddError($"Unkown bar:position value \"{particles[1]}\"");
                 return true;

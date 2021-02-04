@@ -9,9 +9,14 @@ namespace TileWindow.Configuration.Parser.Commands
         public override bool Execute(ICommandHandler handler, string data)
         {
             if (data == "split vertical")
+            {
                 return handler.CmdSplitVertical(data);
+            }
+            
             if (data == "split horizontal")
+            {
                 return handler.CmdSplitHorizontal(data);
+            }
 
             throw new System.InvalidOperationException($"Unknown split command \"{data}\"");
         }

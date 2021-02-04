@@ -10,7 +10,7 @@ namespace TileWindow.Configuration.Parser.Commands
         {
             this.variableFinder = variableFinder;
         }
-        
+
         public abstract bool Execute(ICommandHandler handler, string data);
 
         public bool Validate(string data) => (data?.StartsWith(Instruction) ?? false) && DoValidate(data);
@@ -21,7 +21,9 @@ namespace TileWindow.Configuration.Parser.Commands
         {
             var reuslt = variableFinder.GetValue(variable);
             if (reuslt.result)
+            {
                 return reuslt.value;
+            }
 
             throw new System.FormatException($"Missing variable \"{variable}\"");
         }

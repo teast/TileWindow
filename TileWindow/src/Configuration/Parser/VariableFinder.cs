@@ -10,7 +10,7 @@ namespace TileWindow.Configuration.Parser
         string ParseAll(string text);
     }
 
-    public class VariableFinder: IVariableFinder
+    public class VariableFinder : IVariableFinder
     {
         private readonly Stack<ConfigCollection> context;
 
@@ -23,7 +23,7 @@ namespace TileWindow.Configuration.Parser
         {
             var index = int.MaxValue;
             var split = ' ';
-            foreach(var s in splits)
+            foreach (var s in splits)
             {
                 var i = str.IndexOf(s);
                 if (i != -1 && i < index)
@@ -34,7 +34,9 @@ namespace TileWindow.Configuration.Parser
             }
 
             if (index == int.MaxValue)
+            {
                 index = -1;
+            }
 
             return (index, split);
         }
@@ -47,10 +49,10 @@ namespace TileWindow.Configuration.Parser
             int i;
             char split;
             (i, split) = IndexOf(remaining, ' ', '+', ';');
-            while(remaining.Length > 0 && i != -1)
+            while (remaining.Length > 0 && i != -1)
             {
                 var word = remaining.Substring(0, i);
-                remaining = remaining.Substring(i+1);
+                remaining = remaining.Substring(i + 1);
 
                 if (word.StartsWith('$'))
                 {
@@ -74,11 +76,13 @@ namespace TileWindow.Configuration.Parser
         public (bool result, string value) GetValue(string variable)
         {
             var p = context.Peek();
-            while(p != null)
+            while (p != null)
             {
                 var result = GetValueFromCollection(p, variable);
                 if (result.result)
+                {
                     return result;
+                }
                 
                 p = p.Parent;
             }

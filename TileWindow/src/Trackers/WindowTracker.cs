@@ -84,8 +84,10 @@ namespace TileWindow.Trackers
         public (bool ignoreIt, bool killMe) ShouldIgnore(IntPtr hWnd)
         {
             if (hWnd != _hWnd)
+            {
                 return (false, false);
-            
+            }
+
             _count++;
             return (true, (_max != -1 && _count >= _max));
         }
@@ -140,7 +142,9 @@ namespace TileWindow.Trackers
         public void AddWindow(IntPtr hWnd, Node node)
         {
             if (_windows.ContainsKey(hWnd))
+            {
                 throw new Exception($"{nameof(WindowTracker)}.{nameof(AddWindow)} Trying to add hwnd {hWnd} that allready exist!");
+            }
 
             _windows.Add(hWnd, node);
         }
@@ -160,18 +164,20 @@ namespace TileWindow.Trackers
 
         private bool ShouldIgnoreHwnd(IntPtr hWnd)
         {
-            for(int i = 0; i < _ignoreHwnds.Count; i++)
+            for (int i = 0; i < _ignoreHwnds.Count; i++)
             {
-                (bool ignoreIt, bool killIt) =_ignoreHwnds[i].ShouldIgnore(hWnd);
+                (bool ignoreIt, bool killIt) = _ignoreHwnds[i].ShouldIgnore(hWnd);
                 if (ignoreIt)
                 {
                     if (killIt)
+                    {
                         _ignoreHwnds.RemoveAt(i);
+                    }
 
                     return true;
                 }
             }
-            
+
             return false;
         }
 
@@ -184,9 +190,11 @@ namespace TileWindow.Trackers
         public bool CanHandleHwnd(IntPtr hWnd, ValidateHwndParams validation)
         {
             if (validation.DoValidate == false)
+            {
                 return true;
+            }
 
-//Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
+            //Log.Information($"WindowTracker.CanHandleHwnd, STARTED FOR {hWnd}");
             if (hWnd == IntPtr.Zero)
             {
                 //Log.Information($"WindowTracker.CanHandleHwnd: hWnd null: {hWnd}");
@@ -274,9 +282,13 @@ namespace TileWindow.Trackers
         {
             var tb = new StringBuilder(1024);
             if (pinvokeHandler.GetWindowText(Hwnd, tb, tb.Capacity) > 0)
+            {
                 return tb.ToString();
+            }
             else
+            {
                 return Hwnd.ToString();
+            }
         }
 
         /// <summary>
@@ -307,18 +319,24 @@ namespace TileWindow.Trackers
             var cb = new StringBuilder(1024);
 
             if (node == null)
+            {
                 return false;
-
+            }
+            
             if (!pinvokeHandler.IsWindow(hWnd))
+            {
                 return false;
+            }
 
             if (pinvokeHandler.GetClassName(hWnd, cb, cb.Capacity) == 0)
+            {
                 return false;
+            }
 
             return (cb.ToString() == node.ClassName);
         }
 
- 
+
         /// <summary>
         /// Helper method to enumerate all process
         /// </summary>
@@ -341,7 +359,7 @@ namespace TileWindow.Trackers
             var childData = new EnumExtraData();
             pinvokeHandler.EnumChildWindows(hWnd, new EnumWindowsProc(EnumProc), ref childData);
             var hit = false;
-            foreach(var ch in childData.Hwnd)
+            foreach (var ch in childData.Hwnd)
             {
                 var ccb = new StringBuilder(1024);
                 pinvokeHandler.GetClassName(ch, ccb, ccb.Capacity);
@@ -354,5 +372,5 @@ namespace TileWindow.Trackers
 
             return hit;
         }
-   }
+    }
 }

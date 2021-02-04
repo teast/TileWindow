@@ -134,7 +134,7 @@ namespace TileWindow.Forms
                 {
                     this.Width = m.WParam.ToInt32();
                     this.Height = m.LParam.ToInt32();
-                    foreach(var lbl in labels)
+                    foreach (var lbl in labels)
                         lbl.Width = this.Width;
 
                     if (!ValidateCaptions())
@@ -155,12 +155,16 @@ namespace TileWindow.Forms
                 else if (m.Msg == signalShowHide)
                 {
                     if (m.WParam.ToInt64() == 1)
+                    {
                         this.Visible = true;
+                    }
                     else
+                    {
                         this.Visible = false;
+                    }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Fatal(ex, $"{nameof(FormStackCaption)}.{nameof(WndProc)} Unhandled exception");
             }
@@ -177,7 +181,7 @@ namespace TileWindow.Forms
             if (owner.Childs.Count != labels.Count)
                 return false;
             var childs = owner.Childs.ToList();
-            for(var i = 0; i < childs.Count; i++)
+            for (var i = 0; i < childs.Count; i++)
             {
                 if (childs[i].Id != (long)labels[i].Tag ||
                     childs[i].Name != labels[i].Text)
@@ -191,7 +195,7 @@ namespace TileWindow.Forms
 
         protected virtual void BuildCaptions(List<Node> nodes)
         {
-            foreach(var lbl in labels)
+            foreach (var lbl in labels)
                 lbl.Dispose();
             labels.Clear();
 
