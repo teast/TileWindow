@@ -62,7 +62,6 @@ namespace TileWindow.Nodes
 
         public WindowNode(IDragHandler dragHandler, IFocusHandler focusHandler, ISignalHandler signalHandler, IWindowEventHandler windowHandler, IWindowTracker windowTracker, IPInvokeHandler pinvokeHandler, RECT rect, IntPtr hwnd, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
         {
-            //Log.Information($"{nameof(WindowNode)}.ctor, Depth: {Depth}, hwnd: {hwnd} parent: {Parent?.GetType().ToString()} ({Parent?.WhatType.ToString()})");
             _quit = false;
             _width = rect.Right - rect.Left;
             _height = rect.Bottom - rect.Top;
@@ -129,7 +128,6 @@ namespace TileWindow.Nodes
                         {
                             var style = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_STYLE);
                             var exstyle = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE);
-                            //Log.Information($"WindowNode [{Name}] {Hwnd} got StyleChanged event {arg.Style} (style: {style}, exstyle: {exstyle}");
                         }
                         break;
                 }
@@ -298,7 +296,6 @@ namespace TileWindow.Nodes
 
         public override Node AddWindow(IntPtr hWnd, ValidateHwndParams validation = null)
         {
-            //Log.Information($"{nameof(WindowNode)}.{nameof(AddWindow)}, (Style: {Style.ToString()}) calling Parent (type: {Parent?.GetType()?.ToString()})");
             return Parent?.AddWindow(hWnd, validation);
         }
 
@@ -349,7 +346,6 @@ namespace TileWindow.Nodes
                         return true;
                     }
 
-                    //Log.Information($"   ...window ({Name}) dont like the size! {_width}/{_height} != {w2}/{h2}");
                     _width = Math.Max(_width, w2);
                     _height = Math.Max(_height, h2);
                     r.Right = r.Left + _width;
@@ -571,7 +567,6 @@ namespace TileWindow.Nodes
             if (((style & PInvoker.WS_MAXIMIZE) == PInvoker.WS_MAXIMIZE) ||
                 ((style & PInvoker.WS_MINIMIZE) == PInvoker.WS_MINIMIZE))
             {
-                //Log.Information($"{nameof(WindowNode)}.{nameof(RestoreHwndIfNeeded)} goingt o bring hwnd out of minimize/maximize ({this})");
                 var h = new HWnd(Hwnd);
                 if (pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), PInvoker.GWL_STYLE, new IntPtr(style & (~PInvoker.WS_MINIMIZE & ~PInvoker.WS_MAXIMIZE))) == IntPtr.Zero)
                 {

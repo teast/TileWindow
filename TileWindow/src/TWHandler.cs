@@ -41,15 +41,12 @@ namespace TileWindow
         {
             if (pipe != null || proc != null)
             {
-                //Log.Information($"{this} Start() but pipe or proc is not null so calling stop before");
                 Stop();
             }
 
             this.InitNamedPipeServer();
-            //Log.Information($"{this} starting process...");
             this.StartProcess();
             stopCalled = false;
-            //Log.Information($"{this} Begin wait for connection...");
             pipe.BeginWaitForConnection(new AsyncCallback(HandlePipeConnection), pipe);
         }
 
@@ -63,14 +60,12 @@ namespace TileWindow
 
             if (proc.HasExited == false)
             {
-                //Log.Information($"{this} Sending WM_CLOSE to {proc?.Threads?.Count} threads...");
                 foreach (ProcessThread t in proc.Threads)
                 {
                     pinvokeHandler.PostThreadMessage((uint)t.Id, PInvoker.WM_CLOSE, UIntPtr.Zero, IntPtr.Zero);
                 }
             }
 
-            //Log.Information($"{this} Waiting on pipe to be done...");
             pipeDone.WaitOne();
 
             pipeReader?.Dispose();
@@ -79,7 +74,6 @@ namespace TileWindow
             pipeReader = null;
             pipe = null;
             proc = null;
-            //Log.Information($"{this} All resources disposed...");
         }
 
         public override string ToString() => $"TWHandler({Path.GetFileName(exec)})";
@@ -112,7 +106,6 @@ namespace TileWindow
 
         private void HandlePipeConnection(IAsyncResult iar)
         {
-            //Log.Information($"{this} Got pipe connection. entering message loop...");
             while (stopCalled == false && Startup.ParserSignal.Done == false)
             {
                 try
@@ -126,7 +119,6 @@ namespace TileWindow
                 }
             }
 
-            //Log.Information($"{this} Ending pipe connection and triggering pipeDone...");
             if (pipe.IsConnected)
             {
                 pipe.EndWaitForConnection(iar);
@@ -154,7 +146,6 @@ namespace TileWindow
         private void proc_Exited(object sender, EventArgs e)
         {
             // TODO: Flag this somewhere so the program quits...
-            //Log.Information($"{this} proc_Exited");
             pipeDone.Set();
         }
 

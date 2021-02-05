@@ -258,7 +258,6 @@ namespace TileWindow.Nodes
 
         public virtual void Resize(int val, TransferDirection direction)
         {
-            //Log.Information($"{nameof(Node)}.{nameof(Resize)}({this.ToString()}) val: {val}, direction: {direction.ToString()}");
             var r = Rect;
             switch (direction)
             {
@@ -380,7 +379,6 @@ namespace TileWindow.Nodes
         /// </summary>
         public virtual void SetFocus(TransferDirection? dir = null)
         {
-            //Log.Information($"{this.GetType().ToString()}(Node).{nameof(SetFocus)} dir: {dir?.ToString() ?? "null"}");
             OnWantFocus(this, new WantFocusEventArg(this));
         }
 
@@ -415,7 +413,6 @@ namespace TileWindow.Nodes
         /// <returns>true if it was a success</returns>
         public virtual bool FocusNodeInDirection(Node focusNode, TransferDirection direction)
         {
-            //Log.Information($"Node({this}) FocusNodeInDirection, dir: {direction}, node: {focusNode}");
             return Parent?.FocusNodeInDirection(this, direction) ?? false;
         }
 
@@ -432,7 +429,6 @@ namespace TileWindow.Nodes
         /// </remarks>
         public virtual bool TransferNode(Node child, Node nodeToTransfer, TransferDirection direction, bool nodeGotFocus)
         {
-            //Log.Information($"{this.WhatType.ToString()}(Node).TransferNode {direction}, {nodeGotFocus}");
             return false;
         }
 

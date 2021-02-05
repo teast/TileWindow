@@ -35,12 +35,10 @@ namespace TileWindow.Nodes
             {
                 if (MyFocusNode.Style == NodeStyle.Floating)
                 {
-                    //Log.Information($"{nameof(FixedContainerNode)}.{nameof(AddWindow)}, FocusNode is of Style Floating, lets try and find another Child");
                     foreach (var child in Childs)
                     {
                         if (child.CanHaveChilds && typeof(ContainerNode).IsInstanceOfType(child))
                         {
-                            //Log.Information($"  >>> {nameof(FixedContainerNode)}.{nameof(AddWindow)}, Found a child (type: {child.GetType().ToString()} ({child.WhatType.ToString()}))");
                             return child.AddWindow(hWnd, validation);
                         }
                     }
@@ -48,7 +46,6 @@ namespace TileWindow.Nodes
                     throw new Exception($"{nameof(FixedContainerNode)}.{nameof(AddWindow)} Unable to find a child node capable of storing nodes. Not possible to add hwnd: {hWnd}");
                 }
 
-                //Log.Information($"{nameof(FixedContainerNode)}.{nameof(AddWindow)}, calling FocusNode (type: {FocusNode.GetType().ToString()} ({FocusNode.WhatType.ToString()})) with rect {FocusNode.Rect} (my rect: {Rect})");
                 return MyFocusNode.AddWindow(hWnd, validation);
             }
 
@@ -57,13 +54,10 @@ namespace TileWindow.Nodes
 
         public override bool AddNodes(params Node[] nodes)
         {
-            //Log.Warning($"{nameof(FixedContainerNode)}.{nameof(AddNodes)} was called but this is a fixed node!");
-            //Log.Information($"FixedContainerNode.AddNodes going to try and add {nodes?.Length} nodes");
             foreach (var child in Childs)
             {
                 if (child.CanHaveChilds)
                 {
-                    //Log.Information($"   >>> Will try and let child node take the nodes...");
                     child.AddNodes(nodes);
                     return true;
                 }
@@ -75,7 +69,6 @@ namespace TileWindow.Nodes
         public override bool TransferNode(Node child, Node nodeToTransfer, TransferDirection direction, bool nodeGotFocus)
         {
             var i = Childs.IndexOf(child);
-            //Log.Information($"FixedContainer.TransferNode dir: {direction.ToString()}, i: {i}");
             if (i == -1)
             {
                 return false;
@@ -100,7 +93,7 @@ namespace TileWindow.Nodes
                     if (Childs[i - 1].CanHaveChilds == false)
                     {
                         return false;
-                    }                    //Log.Information($"FixedContainer.TransferNode dir: Left, calling Child {Childs[i-1].GetType().ToString()}, with null as child param.");
+                    }
 
                     return Childs[i - 1].TransferNode(null, nodeToTransfer, direction, nodeGotFocus);
                 case TransferDirection.Up:
@@ -114,7 +107,6 @@ namespace TileWindow.Nodes
                         return false;
                     }
 
-                    //Log.Information($"FixedContainer.TransferNode dir: Up, calling Child {Childs[i-1].GetType().ToString()}, with null as child param.");
                     return Childs[i - 1].TransferNode(null, nodeToTransfer, direction, nodeGotFocus);
                 case TransferDirection.Right:
                     if (i == Childs.Count - 1)
@@ -127,7 +119,6 @@ namespace TileWindow.Nodes
                         return false;
                     }
 
-                    //Log.Information($"FixedContainer.TransferNode dir: Right, calling Child {Childs[Childs.Count - 1].GetType().ToString()}, with null as child param.");
                     return Childs[Childs.Count - 1].TransferNode(null, nodeToTransfer, direction, nodeGotFocus);
                 case TransferDirection.Down:
                     if (i == Childs.Count - 1)
@@ -140,7 +131,6 @@ namespace TileWindow.Nodes
                         return false;
                     }
 
-                    //Log.Information($"FixedContainer.TransferNode dir: Down, calling Child {Childs[Childs.Count - 1].GetType().ToString()}, with null as child param.");
                     return Childs[Childs.Count - 1].TransferNode(null, nodeToTransfer, direction, nodeGotFocus);
                 default:
                     Log.Error($"{nameof(FixedContainerNode)}.{nameof(TransferNode)} was called with unknown {nameof(TransferDirection)} ({direction.ToString()})");

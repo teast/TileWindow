@@ -167,7 +167,6 @@ namespace TileWindow.Handlers
                     continue;
                 }
 
-                //Log.Information($"Screen[{progs.Key}] got {progs.Value.Count} windows to sort out");
                 if (!desktops.ActiveDesktop.GetScreenRect(progs.Key, out RECT sr))
                 {
                     Log.Error($"Could not get screen rect for screen index {progs.Key}");
@@ -242,12 +241,8 @@ namespace TileWindow.Handlers
 
         public void HandleMessage(PipeMessageEx msg)
         {
-            if (msg.msg == signal.WMC_CREATE)
-            {
-                //HandleMessageCreate(msg);
-                //Log.Information($"WMC_CREATE wParam: {msg.wParam}, lparam: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
-            }
-            else if (msg.msg == signal.WMC_SHOW)
+
+            if (msg.msg == signal.WMC_SHOW)
             {
                 HandleMessageShow(msg);
             }
@@ -267,7 +262,6 @@ namespace TileWindow.Handlers
             {
                 var hwnd = new IntPtr((long)msg.wParam);
                 var node = windowTracker.GetNodes(hwnd);
-                //Log.Information($"#################### NEW MESSAGE!!! SCRESTORE for {hwnd} ({node}) ###############");                
             }
             else if (msg.msg == signal.WMC_ACTIVATEAPP)
             {
@@ -326,11 +320,10 @@ namespace TileWindow.Handlers
 
         private void HandleMessageShowWindow(PipeMessageEx msg)
         {
-            //Log.Information($"StartupHandler> WMC_ShowWindow received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
+            // Nothing to do here yet...
         }
         private void HandleQuitWindow(IntPtr hwnd)
         {
-            //Log.Information($"StartupHandler> HandleQuitWindow received for {hwnd}");
             var n = windowTracker.GetNodes(hwnd);
             n?.QuitNode();
         }
@@ -338,7 +331,6 @@ namespace TileWindow.Handlers
         private void HandleMessageShow(PipeMessageEx msg)
         {
             var hwnd = new IntPtr(Convert.ToInt64(msg.wParam));
-            //Log.Information($"StartupHandler> WMC_SHOW received for {msg.wParam} value: {msg.lParam} \"{GetWindowText(new IntPtr((long)msg.wParam))}\" [{GetClassName(new IntPtr((long)msg.wParam))}]");
 
             // Show signal and not hide
             if (msg.lParam == 1)
@@ -356,12 +348,10 @@ namespace TileWindow.Handlers
                     {
                         if (node.Desktop.Index == desktops.Index)
                         {
-                            //Log.Information($"WMC_SHOW lParam == 1 and node exists, going to show it! ({node}) ({node.Desktop.Index} != {desktops.Index})");
                             node.Show();
                         }
                         else
                         {
-                            //Log.Information($"WMC_SHOW lParam == 1 and node exists, going to hide it! ({node}) ({node.Desktop.Index} != {desktops.Index})");
                             node.Hide();
                         }
                     }
@@ -373,7 +363,6 @@ namespace TileWindow.Handlers
                 else
                 {
                     var canHandle = windowTracker.CanHandleHwnd(hwnd, new ValidateHwndParams(validatevisible: false));
-                    //Log.Information($"   ...Testing to see if I can handle {hwnd}... result: {canHandle}");
                     if (canHandle)
                     {
                         node = desktops.ActiveDesktop.HandleNewWindow(hwnd, new ValidateHwndParams(doValidate: false));
@@ -388,7 +377,6 @@ namespace TileWindow.Handlers
                 var node = windowTracker.GetNodes(hwnd);
                 if (node != null)
                 {
-                    //Log.Information($"StartupHandler> WMC_SHOW going to remove node with name \"{node.Name}\"");
                     node.Parent?.DisconnectChild(node);
                     node.Dispose();
                 }

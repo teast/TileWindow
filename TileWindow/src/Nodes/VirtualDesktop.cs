@@ -242,7 +242,6 @@ namespace TileWindow.Nodes
 
         public Node HandleNewWindow(IntPtr hwnd, ValidateHwndParams validation = null)
         {
-            //Log.Information($"{this}, HandleNewWindow {hwnd}");
             return AddWindow(hwnd, validation);
         }
 
@@ -585,17 +584,14 @@ namespace TileWindow.Nodes
         public override bool AddNodes(params Node[] nodes)
         {
             var result = true;
-            //Log.Information($"{this} will handle AddNodes for {nodes?.Count()} nodes");
             foreach (var child in nodes)
             {
                 if (child.Style == NodeStyle.Floating)
                 {
-                    //Log.Information($"  >>> Adding floating node");
                     result = this.AddFloatingNode(child) && result;
                 }
                 else
                 {
-                    //Log.Information($"   >>> not floating.. calling base add nodes {child.GetType().ToString()}");
                     result = base.AddNodes(child) && result;
                 }
             }

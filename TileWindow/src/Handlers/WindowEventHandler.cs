@@ -116,10 +116,6 @@ namespace TileWindow.Handlers
                 var hwnd = new IntPtr((long)msg.wParam);
                 var hit = false;
 
-                //                var style1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_STYLE).ToInt64();
-                //                var exstyle1 = pinvokeHandler.GetWindowLongPtr(hwnd, PInvoker.GWL_EXSTYLE).ToInt64();
-                //                pinvokeHandler.GetWindowRect(hwnd, out RECT r);
-                //Log.Information($"StyleChanged for {hwnd} (visible: {pinvokeHandler.IsWindowVisible(hwnd)}, window: {pinvokeHandler.IsWindow(hwnd)}, style: {style1}, exstyle: {exstyle1}, rect: {r})");
                 foreach (var l in _styleChangedListeners)
                 {
                     if (l.Value.Item1 == hwnd)
@@ -137,7 +133,6 @@ namespace TileWindow.Handlers
             else if (msg.msg == signalHandler.WMC_DESTROY)
             {
                 var hwnd = new IntPtr((long)msg.wParam);
-                //Log.Information($"WindoeEvent.WMC_DESTROY hwnd: {msg.wParam} ({GetWindowText(hwnd)}) [{GetClassName(hwnd)}]");
                 foreach (var l in _closeListeners)
                 {
                     if (l.Value.Item1 == hwnd)
