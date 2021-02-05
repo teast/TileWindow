@@ -3,7 +3,7 @@ using Serilog;
 
 namespace TileWindow.Forms
 {
-	partial class FormAppBar
+	public partial class FormAppBar
     {
 		private System.ComponentModel.IContainer components = null;
 

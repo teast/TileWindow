@@ -40,7 +40,7 @@ namespace TileWindow.Nodes
         public event EventHandler<DesktopChangeEventArg> DesktopChange;
         public event EventHandler ActiveDesktopChanged;
 
-        private IVirtualDesktop[] _desktops;
+        private readonly IVirtualDesktop[] _desktops;
         private int _activeDesktop;
 
         public VirtualDesktopCollection(int nrOfDesktops)

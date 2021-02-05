@@ -99,10 +99,14 @@ namespace TileWindow.Trackers
         public virtual bool Track(Node node)
         {
             if (node == null)
+            {
                 return false;
+            }
 
             if (ContainsKey(node))
+            {
                 return true;
+            }
 
             node.Deleted += OnDeleted;
             node.WantFocus += OnWantFocus;
@@ -113,10 +117,14 @@ namespace TileWindow.Trackers
         public virtual bool Untrack(Node node)
         {
             if (node == null)
+            {
                 return false;
+            }
 
             if (_focusNode == node)
+            {
                 _focusNode = null;
+            }
 
             foreach (var key in _tracker.Keys.ToList())
             {
@@ -130,7 +138,7 @@ namespace TileWindow.Trackers
             {
                 return true;
             }
-            
+
             _tracker.Remove(node);
             node.Deleted -= OnDeleted;
             node.WantFocus -= OnWantFocus;
@@ -157,7 +165,9 @@ namespace TileWindow.Trackers
             {
                 result.Insert(0, prev);
                 if (prev == node)
+                {
                     return result.ToArray();
+                }
 
                 prev = prev.Parent;
             } while (prev != null);
@@ -168,7 +178,9 @@ namespace TileWindow.Trackers
         public virtual Node MyLastFocusNode(Node node)
         {
             if (node == null)
+            {
                 return null;
+            }
 
             if (_tracker.TryGetValue(node, out Node child))
             {
@@ -181,7 +193,9 @@ namespace TileWindow.Trackers
         public virtual void ExplicitSetMyFocusNode(Node node, Node newFocus)
         {
             if (node == null)
+            {
                 return;
+            }
 
             if (ContainsKey(node))
             {
@@ -201,7 +215,9 @@ namespace TileWindow.Trackers
                     var diff = _tracker[p] != prev;
                     _tracker[p] = prev;
                     if (diff)
+                    {
                         p.RaiseMyFocusNodeChanged();
+                    }
                 }
                 else
                 {

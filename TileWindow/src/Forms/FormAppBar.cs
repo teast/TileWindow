@@ -9,7 +9,7 @@ using TileWindow.Nodes;
 
 namespace TileWindow.Forms
 {
-	public partial class FormAppBar : Form
+    public partial class FormAppBar : Form
     {
         private readonly BarPosition direction;
         private readonly IPInvokeHandler pinvokeHandler;
@@ -38,7 +38,7 @@ namespace TileWindow.Forms
         }
 
         public FormAppBar(AppConfig appConfig, IPInvokeHandler pinvokeHandler, uint signalShowHide)
-		{
+        {
             this.direction = appConfig.Bar.Position;
             this.pinvokeHandler = pinvokeHandler;
             this.signalShowHide = signalShowHide;
@@ -49,7 +49,7 @@ namespace TileWindow.Forms
             this.wantedSize = 25;
             this.iconSize = 23;
             this.contentStart = 1;
-            this.contentStartTop = direction == BarPosition.Top ||direction == BarPosition.Bottom;
+            this.contentStartTop = direction == BarPosition.Top || direction == BarPosition.Bottom;
             this.BackColor = backColor;
             this.ForeColor = color;
             InitializeComponent();
@@ -57,8 +57,8 @@ namespace TileWindow.Forms
             this.Height = wantedSize;
             this.Width = wantedSize;
             this.Size = new Size(wantedSize, wantedSize);
-			containerControl.Height = direction == BarPosition.Left || direction == BarPosition.Right ? 400 : wantedSize;
-			containerControl.Width = containerControl.Height == wantedSize ? 400 : wantedSize;
+            containerControl.Height = direction == BarPosition.Left || direction == BarPosition.Right ? 400 : wantedSize;
+            containerControl.Width = containerControl.Height == wantedSize ? 400 : wantedSize;
         }
 
         private void RemoveLabel(int index)
@@ -72,18 +72,22 @@ namespace TileWindow.Forms
                 ForceLabelReposition();
             }
         }
-        
+
         private void ForceLabelReposition()
         {
             var x = contentStart;
             var y = contentStart;
-            foreach(Label ctrl in containerControl.Controls.Cast<Label>().OrderBy(lbl => Convert.ToInt32(lbl.Tag)))
+            foreach (Label ctrl in containerControl.Controls.Cast<Label>().OrderBy(lbl => Convert.ToInt32(lbl.Tag)))
             {
                 ctrl.Location = new Point(x, y);
                 if (contentStartTop)
+                {
                     x += iconSize + contentStart;
+                }
                 else
+                {
                     y += iconSize + contentStart;
+                }
             }
         }
 
@@ -106,9 +110,14 @@ namespace TileWindow.Forms
                 lbl.Location = new Point(contentStart, contentStart);
 
                 if (contentStartTop)
+                {
                     lbl.Left = containerControl.Controls.Count * (iconSize + contentStart);
+                }
                 else
+                {
                     lbl.Top = containerControl.Controls.Count * (iconSize + contentStart);
+                }
+                
                 containerControl.Controls.Add(lbl);
             }
 
@@ -122,7 +131,7 @@ namespace TileWindow.Forms
                 lbl.ForeColor = color;
                 lbl.BackColor = backColor;
             }
-            
+
             ForceLabelReposition();
         }
 
@@ -151,9 +160,13 @@ namespace TileWindow.Forms
         {
             Log.Information($"FormAppBar: {index}: visible: {visible}, focus: {focus}, this height: {this.Size}");
             if (visible)
+            {
                 AddLabel(index, focus);
+            }
             else
+            {
                 RemoveLabel(index);
+            }
         }
 
         protected override void OnLoad(System.EventArgs e)
@@ -191,7 +204,7 @@ namespace TileWindow.Forms
             APPBARDATA abd = new APPBARDATA();
             abd.cbSize = Marshal.SizeOf(abd);
             abd.hWnd = this.Handle;
-            switch(direction)
+            switch (direction)
             {
                 case BarPosition.Top:
                     abd.uEdge = (int)ABEdge.ABE_TOP;
@@ -207,32 +220,32 @@ namespace TileWindow.Forms
                     break;
             }
 
-            if (abd.uEdge == (int)ABEdge.ABE_LEFT || abd.uEdge == (int)ABEdge.ABE_RIGHT) 
+            if (abd.uEdge == (int)ABEdge.ABE_LEFT || abd.uEdge == (int)ABEdge.ABE_RIGHT)
             {
                 abd.rc.Top = 0;
                 abd.rc.Bottom = SystemInformation.PrimaryMonitorSize.Height;
-                if (abd.uEdge == (int)ABEdge.ABE_LEFT) 
+                if (abd.uEdge == (int)ABEdge.ABE_LEFT)
                 {
                     abd.rc.Left = 0;
                     abd.rc.Right = Size.Width;
                 }
-                else 
+                else
                 {
                     abd.rc.Right = SystemInformation.PrimaryMonitorSize.Width;
                     abd.rc.Left = abd.rc.Right - Size.Width;
                 }
 
             }
-            else 
+            else
             {
                 abd.rc.Left = 0;
                 abd.rc.Right = SystemInformation.PrimaryMonitorSize.Width;
-                if (abd.uEdge == (int)ABEdge.ABE_TOP) 
+                if (abd.uEdge == (int)ABEdge.ABE_TOP)
                 {
                     abd.rc.Top = 0;
                     abd.rc.Bottom = Size.Height;
                 }
-                else 
+                else
                 {
                     abd.rc.Bottom = SystemInformation.PrimaryMonitorSize.Height;
                     abd.rc.Top = abd.rc.Bottom - Size.Height;
@@ -240,33 +253,33 @@ namespace TileWindow.Forms
             }
 
             // Query the system for an approved size and position. 
-            pinvokeHandler.SHAppBarMessage((int)ABMsg.ABM_QUERYPOS, ref abd); 
+            pinvokeHandler.SHAppBarMessage((int)ABMsg.ABM_QUERYPOS, ref abd);
 
             // Adjust the rectangle, depending on the edge to which the 
             // appbar is anchored. 
-            switch (abd.uEdge) 
-            { 
-                case (int)ABEdge.ABE_LEFT: 
+            switch (abd.uEdge)
+            {
+                case (int)ABEdge.ABE_LEFT:
                     abd.rc.Right = abd.rc.Left + Size.Width;
-                    break; 
-                case (int)ABEdge.ABE_RIGHT: 
-                    abd.rc.Left= abd.rc.Right - Size.Width;
-                    break; 
-                case (int)ABEdge.ABE_TOP: 
+                    break;
+                case (int)ABEdge.ABE_RIGHT:
+                    abd.rc.Left = abd.rc.Right - Size.Width;
+                    break;
+                case (int)ABEdge.ABE_TOP:
                     abd.rc.Bottom = abd.rc.Top + Size.Height;
-                    break; 
-                case (int)ABEdge.ABE_BOTTOM: 
+                    break;
+                case (int)ABEdge.ABE_BOTTOM:
                     abd.rc.Top = abd.rc.Bottom - Size.Height;
-                    break; 
+                    break;
             }
 
             // Pass the final bounding rectangle to the system. 
-            pinvokeHandler.SHAppBarMessage((int)ABMsg.ABM_SETPOS, ref abd); 
+            pinvokeHandler.SHAppBarMessage((int)ABMsg.ABM_SETPOS, ref abd);
 
             // Move and size the appbar so that it conforms to the 
             // bounding rectangle passed to the system. 
-            pinvokeHandler.MoveWindow(abd.hWnd, abd.rc.Left, abd.rc.Top, 
-                abd.rc.Right - abd.rc.Left, abd.rc.Bottom - abd.rc.Top, true); 
+            pinvokeHandler.MoveWindow(abd.hWnd, abd.rc.Left, abd.rc.Top,
+                abd.rc.Right - abd.rc.Left, abd.rc.Bottom - abd.rc.Top, true);
         }
     }
 }

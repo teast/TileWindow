@@ -6,18 +6,18 @@ using TileWindow.Trackers;
 
 namespace TileWindow.Handlers
 {
-    public interface IFocusHandler: IHandler
+    public interface IFocusHandler : IHandler
     {
         Guid AddListener(IntPtr hwnd, Action<bool> callback);
         void RemoveListener(IntPtr hwnd, Guid id);
     }
 
-    public class FocusHandler: IFocusHandler
+    public class FocusHandler : IFocusHandler
     {
         private readonly ISignalHandler signal;
         private readonly IWindowTracker windowTracker;
         private Dictionary<IntPtr, List<Tuple<Guid, Action<bool>>>> _listeners;
-        
+
         public FocusHandler(ISignalHandler signal, IWindowTracker windowTracker)
         {
             this.signal = signal;
@@ -34,7 +34,7 @@ namespace TileWindow.Handlers
         {
             // Nothing to do here
         }
-        
+
         public void Quit()
         {
             // Nothing to do here
@@ -56,15 +56,17 @@ namespace TileWindow.Handlers
         public void RemoveListener(IntPtr hwnd, Guid id)
         {
             if (!this._listeners.TryGetValue(hwnd, out List<Tuple<Guid, Action<bool>>> val))
+            {
                 return;
-            
+            }
+
             val = val.Where(v => v.Item1 != id).ToList();
             this._listeners[hwnd] = val;
         }
 
         public void HandleMessage(PipeMessageEx msg)
         {
-			if(msg.msg == signal.WMC_SETFOCUS)
+            if (msg.msg == signal.WMC_SETFOCUS)
             {
                 if (msg.wParam > 0)
                 {
@@ -95,16 +97,25 @@ namespace TileWindow.Handlers
         private void SignalListeners(IntPtr hwnd, bool gotFocus)
         {
             if (!this._listeners.TryGetValue(hwnd, out List<Tuple<Guid, Action<bool>>> val))
+            {
                 return;
+            }
+            
             val.ToList().ForEach(v => v.Item2(gotFocus));
         }
 
         private void SignalAllListenersExcept(bool gotFocus, IntPtr hwnd)
         {
-            foreach(var listeners in this._listeners)
+            foreach (var listeners in this._listeners)
+            {
                 if (listeners.Key != hwnd)
-                    foreach(var listener in listeners.Value)
+                {
+                    foreach (var listener in listeners.Value)
+                    {
                         listener.Item2(gotFocus);
+                    }
+                }
+            }
         }
 
         public void DumpDebug()

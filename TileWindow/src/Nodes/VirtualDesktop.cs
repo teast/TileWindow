@@ -758,11 +758,7 @@ namespace TileWindow.Nodes
             }
 
             TakeOverNode(node);
-            if (node.Style != NodeStyle.Floating)
-            {
-                node.Style = NodeStyle.Floating;
-            }
-
+            node.Style = NodeStyle.Floating;
             FloatingNodes.Add(node);
 
             return true;

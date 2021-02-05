@@ -40,13 +40,15 @@ namespace TileWindow
                 }
 
                 if (!queue.TryDequeue(out msg))
+                {
                     break;
-
+                }
+                
                 if (msg.msg == signal.WMC_EXTRATRACK)
                 {
                     Log.Information($"Message: {signal.SignalToString((uint)msg.msg)} ({msg.from}) wParam: {msg.wParam}, lParam: {msg.lParam}");
                 }
-				
+
                 foreach (var handler in handlers)
                 {
                     handler.HandleMessage(msg);
@@ -57,19 +59,25 @@ namespace TileWindow
         public void ReadConfig()
         {
             foreach (var handler in handlers)
+            {
                 handler.ReadConfig(_appConfig);
+            }
         }
 
         public void PostInit()
         {
             foreach (var handler in handlers)
+            {
                 handler.Init();
+            }
         }
 
         public void Quit()
         {
             foreach (var handler in handlers)
+            {
                 handler.Quit();
+            }
         }
         public static void StartThread(ref AutoResetEvent thDone, ServiceProvider services)
         {
@@ -128,13 +136,17 @@ namespace TileWindow
         public void DumpDebug()
         {
             foreach (var handler in handlers)
+            {
                 handler.DumpDebug();
+            }
         }
 
         public void Dispose()
         {
             foreach (var handler in handlers)
+            {
                 handler.Dispose();
+            }
         }
 
         public class MHSignal

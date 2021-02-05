@@ -10,14 +10,25 @@ namespace TileWindow.Configuration.Parser.Commands
         {
             int? i;
             if ((i = ValidateAndGetNr(data, "resize shrink down")).HasValue)
+            {
                 return handler.CmdResizeUp((0 - i).ToString());
+            }
+
             if ((i = ValidateAndGetNr(data, "resize shrink right")).HasValue)
+            {
                 return handler.CmdResizeLeft((0 - i).ToString());
+            }
+
             if ((i = ValidateAndGetNr(data, "resize grow right")).HasValue)
+            {
                 return handler.CmdResizeRight(i.ToString());
+            }
+
             if ((i = ValidateAndGetNr(data, "resize grow down")).HasValue)
+            {
                 return handler.CmdResizeDown(i.ToString());
-            
+            }
+
             throw new System.InvalidOperationException($"Unknown resize command \"{data}\"");
         }
 
@@ -32,7 +43,10 @@ namespace TileWindow.Configuration.Parser.Commands
         private int? ValidateAndGetNr(string line, string shouldBe)
         {
             if (line.StartsWith(shouldBe) && int.TryParse(line.Substring(shouldBe.Length), out int actual))
+            {
                 return actual;
+            }
+            
             return null;
         }
     }

@@ -18,9 +18,9 @@ namespace TileWindow.Configuration.Parser.Commands
                     return handler.CmdFocusRight(data);
                 case "focus down":
                     return handler.CmdFocusDown(data);
+                default:
+                    throw new System.InvalidOperationException($"Unknown focus command \"{data}\"");
             }
-
-            throw new System.InvalidOperationException($"Unknown focus command \"{data}\"");
         }
 
         protected override bool DoValidate(string line)

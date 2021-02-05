@@ -34,8 +34,10 @@ namespace TileWindow.Tests.Gherkin.Steps
             var fullyAssemblyName = $"TileWindow.Nodes.{typeName}, TileWindow";
             var t = Type.GetType(fullyAssemblyName);
             if (t == null)
+            {
                 throw new InvalidCastException($"Could not find type with name '{typeName}' (fully assembly name: '{fullyAssemblyName}')");
-
+            }
+            
             _world.NodeBeOfType(nodeIndex, screen, desktop, t);
         }
     }

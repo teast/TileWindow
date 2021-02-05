@@ -12,10 +12,10 @@ namespace TileWindow.Forms
 {
 	public partial class FormConfig : Form
 	{
-		private ResourceManager resources = new ResourceManager(typeof(FormConfig));
-		private string EmptyStartup = "[None]";
-		private AppConfig _appConfig;
-		private AppResource _appResource;
+		private readonly ResourceManager resources = new ResourceManager(typeof(FormConfig));
+		private readonly string EmptyStartup = "[None]";
+		private readonly AppConfig _appConfig;
+		private readonly AppResource _appResource;
 
 		public FormConfig(AppConfig appConfig, AppResource appResource)
 		{

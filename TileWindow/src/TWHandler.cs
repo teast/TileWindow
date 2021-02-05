@@ -57,12 +57,17 @@ namespace TileWindow
         {
             stopCalled = true;
             if (proc == null)
+            {
                 return;
+            }
+
             if (proc.HasExited == false)
             {
                 //Log.Information($"{this} Sending WM_CLOSE to {proc?.Threads?.Count} threads...");
                 foreach (ProcessThread t in proc.Threads)
+                {
                     pinvokeHandler.PostThreadMessage((uint)t.Id, PInvoker.WM_CLOSE, UIntPtr.Zero, IntPtr.Zero);
+                }
             }
 
             //Log.Information($"{this} Waiting on pipe to be done...");
@@ -126,17 +131,21 @@ namespace TileWindow
             {
                 pipe.EndWaitForConnection(iar);
             }
-			
+
             pipeDone.Set();
         }
 
         private void InitNamedPipeServer()
         {
             if (pipeReader != null)
+            {
                 pipeReader.Dispose();
+            }
 
             if (pipe != null)
+            {
                 pipe.Dispose();
+            }
 
             pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 2);
             pipeReader = new BinaryReader(pipe);
@@ -162,7 +171,9 @@ namespace TileWindow
             start.RedirectStandardError = !showHooks;
 
             if (proc != null)
+            {
                 proc.Dispose();
+            }
 
             proc = new Process { StartInfo = start, EnableRaisingEvents = !showHooks };
             proc.OutputDataReceived += (sender, arg) =>
@@ -181,7 +192,9 @@ namespace TileWindow
         private void WaitForMessage()
         {
             if (pipe.IsConnected == false)
+            {
                 return;
+            }
 
             pipe.WaitForPipeDrain();
             var msg = ByteToType<PipeMessage>(pipeReader);

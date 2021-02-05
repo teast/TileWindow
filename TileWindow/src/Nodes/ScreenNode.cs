@@ -9,13 +9,13 @@ using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
 {
-    public class ScreenNode: ContainerNode, IEquatable<ScreenNode>
+    public class ScreenNode : ContainerNode, IEquatable<ScreenNode>
     {
         private Node _fullscreenNode = null;
 
         public Node FullscreenNode => _fullscreenNode;
-        
-        public ScreenNode(string name, IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal) : 
+
+        public ScreenNode(string name, IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal) :
         base(renderer, containerNodeCreator, windowTracker, rect, direction, null)
         {
             Name = name;
@@ -29,10 +29,13 @@ namespace TileWindow.Nodes
         /// <param name="direction"><see cref="TransferDirection" /> of the transfer</param>
         public virtual void TransferAllChilds(ScreenNode destination, TransferDirection direction)
         {
-            foreach(var child in Childs.ToList())
+            foreach (var child in Childs.ToList())
             {
                 if (child.Style == NodeStyle.FullscreenOne)
+                {
                     child.Style = NodeStyle.Tile;
+                }
+
                 if (destination.TransferNode(null, child, direction, child == FocusNode))
                 {
                     DisconnectChild(child);
@@ -51,11 +54,15 @@ namespace TileWindow.Nodes
                 base.SetFocus(dir);
                 return;
             }
-            
+
             if (_fullscreenNode != null)
+            {
                 _fullscreenNode.SetFocus(dir);
+            }
             else
+            {
                 base.SetFocus(dir);
+            }
         }
 
         public override bool TransferNode(Node child, Node nodeToTransfer, TransferDirection direction, bool nodeGotFocus)
@@ -63,32 +70,40 @@ namespace TileWindow.Nodes
             var result = base.TransferNode(child, nodeToTransfer, direction, nodeGotFocus);
 
             if (result && _fullscreenNode != null)
+            {
                 _fullscreenNode.SetFocus(direction);
-            
+            }
+
             return result;
         }
-        
+
         public override bool Equals(object obj)
         {
             var o = obj as ScreenNode;
             if (o == null)
+            {
                 return false;
+            }
+
             return Equals(o);
         }
 
         public bool Equals([AllowNull] ScreenNode other)
         {
             if (other == null)
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-
-            if (
-            !EqualityComparer<long>.Default.Equals(Id, other.Id))
             {
                 return false;
             }
-            
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (!EqualityComparer<long>.Default.Equals(Id, other.Id))
+            {
+                return false;
+            }
+
             return true;
         }
 

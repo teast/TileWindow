@@ -401,11 +401,12 @@ namespace TileWindow.Handlers
 
         public void DumpDebug()
         {
-
+            // Nothing to do here
         }
 
         public void Dispose()
         {
+            // Nothing to do here
         }
     }
 }

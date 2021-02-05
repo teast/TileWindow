@@ -112,7 +112,7 @@ namespace TileWindow.Tests.Nodes
             node.Object.Style = NodeStyle.FullscreenOne;
             
             // Act
-            var result = sut.TransferNode(null, CreateSut(), TransferDirection.Left, true);
+            sut.TransferNode(null, CreateSut(), TransferDirection.Left, true);
 
             // Assert
             node.Verify(m => m.SetFocus(It.IsAny<TransferDirection>()));

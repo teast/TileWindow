@@ -14,14 +14,14 @@ namespace TileWindow.Configuration.Parser
         CloseBracket
     }
 
-    public interface IFileParser: IDisposable
+    public interface IFileParser : IDisposable
     {
         ConfigCollection Data { get; }
         List<Tuple<int, string>> Errors { get; }
         void Parse(Stream stream);
     }
 
-    public class FileParser: IFileParser
+    public class FileParser : IFileParser
     {
         private readonly List<IParseInstruction> _parseInstruction;
         private readonly IParseInstructionBuilder instructionBuilder;
@@ -32,7 +32,7 @@ namespace TileWindow.Configuration.Parser
         private int _lineNumber;
         private ConfigCollection _data;
         public ConfigCollection Data { get; }
-        public List<Tuple<int, string>> Errors { get; private set;}
+        public List<Tuple<int, string>> Errors { get; private set; }
 
         public FileParser(IParseInstructionBuilder instructionBuilder)
         {
@@ -44,7 +44,7 @@ namespace TileWindow.Configuration.Parser
             Data = new ConfigCollection("Default");
             _data = Data;
             Errors = new List<Tuple<int, string>>();
-            
+
             _parseInstruction = instructionBuilder.Build(new AddErrorDelegate(AddError));
         }
 
@@ -88,20 +88,22 @@ namespace TileWindow.Configuration.Parser
         public void Dispose()
         {
             if (_sr != null)
+            {
                 _sr.Dispose();
+            }
         }
 
         protected virtual ParseInstructionResult ParseLine(string line)
         {
             // Trim
-            line = line.Trim(new [] { ' ', '\t' });
+            line = line.Trim(new[] { ' ', '\t' });
 
             // Comment or empty line, ignore
             if (line.StartsWith('#') || string.IsNullOrEmpty(line))
             {
                 return new ParseInstructionResult(FileParserStateResult.None, "", null);
             }
-            
+
             if (line.StartsWith('{'))
             {
                 return new ParseInstructionResult(FileParserStateResult.OpenBracket, line.Substring(1), null);
@@ -126,12 +128,14 @@ namespace TileWindow.Configuration.Parser
                 return null;
             }
 
-            foreach(var parser in _parseInstruction)
+            foreach (var parser in _parseInstruction)
             {
                 if (parser.Parse(particles, ref _data))
+                {
                     return parser.FetchResult;
+                }
             }
-            
+
             AddError($"Unknown instruction \"{particles[0]}\"");
             return null;
         }
@@ -139,11 +143,15 @@ namespace TileWindow.Configuration.Parser
         protected virtual string NextLine(string remaining)
         {
             if ((remaining?.Length ?? 0) > 0)
+            {
                 return remaining;
-
+            }
+            
             if (_sr?.EndOfStream ?? true)
+            {
                 return null;
-
+            }
+            
             _lineNumber++;
             return _sr.ReadLine();
         }
@@ -152,5 +160,5 @@ namespace TileWindow.Configuration.Parser
         {
             Errors.Add(Tuple.Create(withLineNumber ? _lineNumber : -1, error));
         }
-   }
+    }
 }

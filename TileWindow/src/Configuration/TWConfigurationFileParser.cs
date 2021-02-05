@@ -50,7 +50,7 @@ namespace TileWindow.Configuration
             var instrBuilder = new ParseInstructionBuilder(variableParser, executor, tester);
             var fileParser = new FileParser(instrBuilder);
             var parser = new TWConfigurationFileParser(fileParser);
-            
+
             return parser.ParseStream(input);
         }
 
@@ -69,7 +69,7 @@ namespace TileWindow.Configuration
 
         private void VisitMode(ConfigCollection mode)
         {
-            foreach(var data in mode.Data)
+            foreach (var data in mode.Data)
             {
                 EnterContext(data.Key);
                 VisitValue(data.Value);
@@ -77,7 +77,7 @@ namespace TileWindow.Configuration
             }
 
             EnterContext("KeyBinds");
-            foreach(var key in mode.KeyBinds)
+            foreach (var key in mode.KeyBinds)
             {
                 EnterContext(key.Key);
                 VisitValue(key.Value);
@@ -85,7 +85,7 @@ namespace TileWindow.Configuration
             }
             ExitContext();
 
-            foreach(var cmode in mode.Modes)
+            foreach (var cmode in mode.Modes)
             {
                 EnterContext(cmode.Key);
                 VisitMode(cmode.Value);
@@ -100,10 +100,11 @@ namespace TileWindow.Configuration
             {
                 throw new FormatException($"Duplicate values found \"{key}\"");
             }
+            
             _data[key] = value;
         }
 
-         private void EnterContext(string context)
+        private void EnterContext(string context)
         {
             _context.Push(TranslateContext(context));
             _currentPath = ConfigurationPath.Combine(_context.Reverse());
@@ -118,9 +119,15 @@ namespace TileWindow.Configuration
         private string TranslateContext(string context)
         {
             if (_contextTranslation.TryGetValue(Tuple.Create(_currentPath, context), out string newContext))
+            {
                 return newContext;
+            }
+
             if (_contextTranslation.TryGetValue(Tuple.Create((string)null, context), out newContext))
+            {
                 return newContext;
+            }
+
             return context;
         }
     }

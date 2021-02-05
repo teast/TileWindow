@@ -35,7 +35,7 @@ namespace TileWindow
 
         private MenuItem[] InitializeMenu()
         {
-            var menu = new MenuItem[] {
+            var menu = new [] {
 				//new MenuItem(resources.GetString("Config"), menuConfigClick),
 				new MenuItem("Find hWnd", menuFindHwndClick),
                 new MenuItem("Restart hooks", menuRestartHooks),

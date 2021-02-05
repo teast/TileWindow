@@ -94,9 +94,14 @@ namespace TileWindow
                 try
                 {
                     if (File.Exists(tw32Path) == false)
+                    {
                         throw new FileNotFoundException($"twhandler32.exe not found. (path: \"{tw32Path}\") this is needed to listen on 32-bit programs.");
+                    }
+
                     if (File.Exists(tw64Path) == false)
+                    {
                         throw new FileNotFoundException($"twhandler64.exe not found. (path: \"{tw64Path}\") this is needed to listen on 64-bit programs.");
+                    }
 
                     if (isFirstInstance)
                     {
@@ -148,8 +153,9 @@ namespace TileWindow
                                 desktops.DesktopChange += (sender, arg) =>
                                 {
                                     if (appbarHandle == IntPtr.Zero)
+                                    {
                                         return;
-
+                                    }
                                     var HWnd = new HWnd(appbarHandle);
                                     var lParam = arg.Visible || arg.Focus ? 1 : 0; // focus == visible
                                     if (arg.Focus) { lParam += 2; }

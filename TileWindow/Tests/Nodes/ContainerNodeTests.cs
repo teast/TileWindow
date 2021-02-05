@@ -14,7 +14,7 @@ namespace TileWindow.Tests.Nodes
 {
     public class ContainerNodeTests
     {
-#region ctor
+        #region ctor
         [Fact]
         public void When_Initialize_Then_AddAndTakeOverChilds()
         {
@@ -80,8 +80,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             requestRectChangeTriggered.Should().BeTrue();
         }
-#endregion
-#region ChildNodeStyleChange
+        #endregion
+        #region ChildNodeStyleChange
         [Fact]
         public void When_ChildTriggerStyleChange_Then_TriggerStyleChanged()
         {
@@ -98,8 +98,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             styleChangedTriggered.Should().BeTrue();
         }
-#endregion
-#region AddWindow
+        #endregion
+        #region AddWindow
         [Fact]
         public void When_AddWindow_And_FocusNodeCanHaveChilds_Then_CallFocusNodesAddWindow()
         {
@@ -130,7 +130,7 @@ namespace TileWindow.Tests.Nodes
             child1.SetupGet(m => m.CanHaveChilds).Returns(false);
             focusTracker.Setup(m => m.MyLastFocusNode(sut)).Returns(child1.Object);
             windowTracker.Setup(m => m.CreateNode(hWnd, null)).Returns(NodeHelper.CreateWindowNode(hWnd));
-            
+
             // Act
             sut.AddWindow(hWnd);
 
@@ -148,7 +148,7 @@ namespace TileWindow.Tests.Nodes
             var hWnd = new IntPtr(666);
             var sut = CreateSut(containerCreater: out _, windowTracker: out Mock<IWindowTracker> windowTracker, childs: childs);
             windowTracker.Setup(m => m.CreateNode(hWnd, null)).Returns(NodeHelper.CreateWindowNode(hWnd));
-            
+
             // Act
             sut.AddWindow(hWnd);
 
@@ -180,8 +180,8 @@ namespace TileWindow.Tests.Nodes
             requestRectChangeTriggered.Should().BeTrue();
         }
 
-#endregion
-#region AddNodes
+        #endregion
+        #region AddNodes
         [Fact]
         public void When_AddNodes_Then_TakeOverAllNodes()
         {
@@ -253,7 +253,7 @@ namespace TileWindow.Tests.Nodes
             child1.Object.FixedRect = true;
             child1.Setup(m => m.UpdateRect(It.IsAny<RECT>())).Returns(false);
             sut.RequestRectChange += (sender, args) => requestRectChangeTriggered = true;
-            
+
             // Act
             sut.AddNodes(child1.Object, child2.Object);
 
@@ -278,8 +278,8 @@ namespace TileWindow.Tests.Nodes
             renderer.Verify(m => m.PreUpdate(sut, sut.Childs));
             renderer.Verify(m => m.Update(It.IsAny<List<int>>()));
         }
-#endregion
-#region ReplaceNode
+        #endregion
+        #region ReplaceNode
         [Fact]
         public void When_ReplaceNode_And_NodeNotFound_Then_ReturnFalse()
         {
@@ -328,14 +328,14 @@ namespace TileWindow.Tests.Nodes
             // Assert
             node.Verify(m => m.Dispose(), Times.Never);
         }
-#endregion
-#region ChangeDirection
+        #endregion
+        #region ChangeDirection
         [Fact]
         public void When_ChangeDirection_Then_ChangeDirection_And_UpdateRenderer()
         {
             // Arrange
             var child = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ child.Object };
+            var childs = new Node[] { child.Object };
             var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs, direction: Direction.Horizontal);
 
             // Act
@@ -352,9 +352,9 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var smallRect = new RECT(1, 2, 3, 4);
             var bigRect = new RECT(1, 2, 100, 200);
-            
+
             var child = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ child.Object };
+            var childs = new Node[] { child.Object };
             var requestRectChangeTriggered = false;
             var sut = CreateSut(childs: childs, direction: Direction.Horizontal, rect: smallRect);
             child.SetupGet(m => m.Rect).Returns(bigRect);
@@ -368,15 +368,15 @@ namespace TileWindow.Tests.Nodes
             requestRectChangeTriggered.Should().BeTrue();
         }
 
-#endregion
-#region SetFocus
+        #endregion
+        #region SetFocus
         [Fact]
         public void When_SetFocus_And_DirectionIsLeft_Then_SetFocusToLastChild()
         {
             // Arrange
             var child1 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
             var child2 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ child1.Object, child2.Object };
+            var childs = new Node[] { child1.Object, child2.Object };
             var sut = CreateSut(childs: childs);
 
             // Act
@@ -391,7 +391,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var child1 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
             var child2 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ child1.Object, child2.Object };
+            var childs = new Node[] { child1.Object, child2.Object };
             var sut = CreateSut(childs: childs);
 
             // Act
@@ -406,7 +406,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var child1 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
             var child2 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ child1.Object, child2.Object };
+            var childs = new Node[] { child1.Object, child2.Object };
             var sut = CreateSut(childs: childs);
 
             // Act
@@ -421,7 +421,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var child1 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
             var child2 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ child1.Object, child2.Object };
+            var childs = new Node[] { child1.Object, child2.Object };
             var sut = CreateSut(childs: childs);
 
             // Act
@@ -430,8 +430,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             child1.Verify(m => m.SetFocus(TransferDirection.Down));
         }
-#endregion
-#region FocusNodeInDirection
+        #endregion
+        #region FocusNodeInDirection
         // Bug #98, couldn't move focus if screen container was empty
         [Fact]
         public void When_FocusNodeIsSelf_Then_LetParentDecide()
@@ -452,7 +452,7 @@ namespace TileWindow.Tests.Nodes
         {
             // Arrange
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs);
 
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.FullscreenOne);
@@ -470,7 +470,7 @@ namespace TileWindow.Tests.Nodes
         {
             // Arrange
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(childs: childs);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.FullscreenOne);
             sut.Parent = null;
@@ -501,7 +501,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Left;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Vertical);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -519,7 +519,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Left;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -537,7 +537,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Left;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object, CreateSut() };
+            var childs = new Node[] { focusNode.Object, CreateSut() };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -577,7 +577,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Up;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -595,7 +595,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Up;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -613,7 +613,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Up;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object, CreateSut() };
+            var childs = new Node[] { focusNode.Object, CreateSut() };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -654,7 +654,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Right;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Vertical);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -672,7 +672,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Right;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -690,7 +690,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Right;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ CreateSut(), focusNode.Object };
+            var childs = new Node[] { CreateSut(), focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -732,7 +732,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Down;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -750,7 +750,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Down;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ focusNode.Object };
+            var childs = new Node[] { focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -768,7 +768,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var direction = TransferDirection.Down;
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var childs = new Node[]{ CreateSut(), focusNode.Object };
+            var childs = new Node[] { CreateSut(), focusNode.Object };
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs, direction: Direction.Horizontal);
             focusNode.SetupGet(m => m.Style).Returns(NodeStyle.Tile);
             parent.Setup(m => m.FocusNodeInDirection(sut, direction)).Returns(true).Verifiable();
@@ -800,8 +800,8 @@ namespace TileWindow.Tests.Nodes
             newFocusNode.Verify(m => m.SetFocus(direction));
         }
 
-#endregion
-#region TransferNode
+        #endregion
+        #region TransferNode
         [Fact]
         public void When_TransferNode_And_ChildIsNotChildOfContainerNode_Then_ReturnFalse()
         {
@@ -1086,8 +1086,8 @@ namespace TileWindow.Tests.Nodes
             requestRectChangeTriggered.Should().BeTrue();
         }
         #endregion
-#endregion
-#region ChildWantMove
+        #endregion
+        #region ChildWantMove
         #region Left
         [Fact]
         public void When_ChildWantMove_And_TransDirIsLeft_Then_DoNotOverwriteParentPointer()
@@ -1737,8 +1737,8 @@ namespace TileWindow.Tests.Nodes
         }
         #endregion
 
-#endregion
-#region RemoveChild
+        #endregion
+        #region RemoveChild
         [Fact]
         public void When_RemoveChild_And_NodeIsNotChildOfContainerNode_Then_ReturnFalse()
         {
@@ -1797,8 +1797,8 @@ namespace TileWindow.Tests.Nodes
             parent.Verify(m => m.RemoveChild(sut));
             sut.Childs.Count.Should().Be(0);
         }
-#endregion
-#region TransferNodeToAnotherDesktop
+        #endregion
+        #region TransferNodeToAnotherDesktop
         [Fact]
         public void When_TransferNodeToAnotherDesktop_And_NodeIsNotInChilds_Then_ReturnFalse()
         {
@@ -1844,7 +1844,7 @@ namespace TileWindow.Tests.Nodes
             var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
             destination.Setup(m => m.AddNodes(child)).Returns(true).Verifiable();
             remainig.Invocations.Clear();
-            
+
             // Act
             var result = sut.TransferNodeToAnotherDesktop(child, destination.Object);
 
@@ -1873,8 +1873,8 @@ namespace TileWindow.Tests.Nodes
             sut.Childs.Count.Should().Be(1);
             dst.VerifyAll();
         }
-#endregion
-#region DisconnectChild
+        #endregion
+        #region DisconnectChild
         [Fact]
         public void When_DisconnectChild_And_NodeIsNotChildOfContainerNode_Then_ReturnFalse()
         {
@@ -1911,8 +1911,8 @@ namespace TileWindow.Tests.Nodes
             requestBound.Should().BeNull();
             focusBound.Should().BeNull();
         }
-#endregion
-#region Show
+        #endregion
+        #region Show
         [Fact]
         public void When_Show_Then_CallShowOnAllChilds()
         {
@@ -1961,15 +1961,15 @@ namespace TileWindow.Tests.Nodes
             var otherChild = new Mock<Node>(new RECT(), Direction.Vertical, null);
             var childs = new Node[] { focusChild.Object, otherChild.Object };
             var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
-            
+
             // Act
             sut.Show();
 
             // Assert
             renderer.Verify(m => m.Show());
         }
-#endregion
-#region Hide
+        #endregion
+        #region Hide
         [Fact]
         public void When_Hide_Then_CallHideOnAllChilds()
         {
@@ -2019,15 +2019,15 @@ namespace TileWindow.Tests.Nodes
             var childs = new Node[] { focusChild.Object, otherChild.Object };
             var sut = CreateSut(renderer: out Mock<IRenderer> renderer, childs: childs);
             renderer.Setup(m => m.Hide()).Returns(true);
-            
+
             // Act
             sut.Hide();
 
             // Assert
             renderer.Verify(m => m.Hide());
         }
-#endregion
-#region Restore
+        #endregion
+        #region Restore
         [Fact]
         public void When_Restore_Then_CallRestoreOnAllChilds_And_CallSetFocusOnFocusNode()
         {
@@ -2066,8 +2066,8 @@ namespace TileWindow.Tests.Nodes
             focusChild.VerifyAll();
             otherChild.VerifyAll();
         }
-#endregion
-#region SetRenderer
+        #endregion
+        #region SetRenderer
         [Fact]
         public void When_SetRenderer_Then_DisposePreviousRenderer()
         {
@@ -2095,8 +2095,8 @@ namespace TileWindow.Tests.Nodes
             renderer.Verify(m => m.PreUpdate(sut, sut.Childs), Times.Once());
             renderer.Verify(m => m.Update(It.IsAny<List<int>>()), Times.Once());
         }
-#endregion
-#region Dispose
+        #endregion
+        #region Dispose
         [Fact]
         public void When_Dispose_Then_CallDisposeOnRenderer()
         {
@@ -2128,8 +2128,8 @@ namespace TileWindow.Tests.Nodes
             child1.Verify(m => m.Dispose(), Times.Once());
             child2.Verify(m => m.Dispose(), Times.Once());
         }
-#endregion
-#region helpers
+        #endregion
+        #region helpers
         private ContainerNode CreateSut(RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal, Node[] childs = null, bool callPostInit = true)
         {
 
@@ -2150,19 +2150,19 @@ namespace TileWindow.Tests.Nodes
         private ContainerNode CreateSut(out Mock<FocusTracker> focusTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal, Node[] childs = null)
         {
 
-            return CreateSut(out _, out _, out focusTracker,  out _, out _, out _, rect, parent, direction, childs);
+            return CreateSut(out _, out _, out focusTracker, out _, out _, out _, rect, parent, direction, childs);
         }
 
         private ContainerNode CreateSut(out Mock<Node> parent, RECT? rect = null, Direction direction = Direction.Horizontal, Node[] childs = null)
         {
 
-            return CreateSut(out _, out parent, out _,  out _, out _, out _, rect, null, direction, childs);
+            return CreateSut(out _, out parent, out _, out _, out _, out _, rect, null, direction, childs);
         }
 
         private ContainerNode CreateSut(out Mock<FocusTracker> focusTracker, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal, Node[] childs = null)
         {
 
-            return CreateSut(out _, out _, out focusTracker,  out _, out _, out windowTracker, rect, parent, direction, childs);
+            return CreateSut(out _, out _, out focusTracker, out _, out _, out windowTracker, rect, parent, direction, childs);
         }
 
         private ContainerNode CreateSut(out Mock<IRenderer> renderer, out Mock<Node> parentNode, out Mock<FocusTracker> focusTracker, out Mock<IVirtualDesktop> desktop, out Mock<IContainerNodeCreater> containerCreater, out Mock<IWindowTracker> windowTracker, RECT? rect = null, Node parent = null, Direction direction = Direction.Horizontal, Node[] childs = null, bool callPostInit = true)
@@ -2170,15 +2170,18 @@ namespace TileWindow.Tests.Nodes
             desktop = new Mock<IVirtualDesktop>();
             focusTracker = new Mock<FocusTracker>() { CallBase = true };
             parentNode = new Mock<Node>(new RECT(), Direction.Horizontal, null);
-            var sut = NodeHelper.CreateContainerNode(out renderer, out containerCreater, out windowTracker,rect, parent, direction);
+            var sut = NodeHelper.CreateContainerNode(out renderer, out containerCreater, out windowTracker, rect, parent, direction);
             sut.Parent = parentNode.Object;
             parentNode.SetupGet(m => m.Desktop).Returns(desktop.Object);
             desktop.SetupGet(m => m.FocusTracker).Returns(focusTracker.Object);
             if (callPostInit)
+            {
                 sut.PostInit(childs);
+            }
+            
             return sut;
         }
 
-#endregion
+        #endregion
     }
 }
