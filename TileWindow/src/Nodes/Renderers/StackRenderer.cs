@@ -35,7 +35,7 @@ namespace TileWindow.Nodes.Renderers
 
         private Action startThread = null;
 
-        public ContainerNode Owner 
+        public ContainerNode Owner
         {
             get => _owner;
             private set => _owner = value;
@@ -50,7 +50,7 @@ namespace TileWindow.Nodes.Renderers
             this.signalNewSize = signalHandler.WMC_STYLECHANGED;
             this.signalShowHide = signalHandler.WMC_SHOW;
         }
-        
+
         public void PreUpdate(ContainerNode owner, Collection<Node> childs)
         {
             if (_disposedCalled)
@@ -84,9 +84,11 @@ namespace TileWindow.Nodes.Renderers
 
             if (_formThread == null)
             {
-                startThread = () => {
+                startThread = () =>
+                {
                     _formVisible = false;
-                    _formThread = new Thread(() => {
+                    _formThread = new Thread(() =>
+                    {
                         try
                         {
                             var _form = new FormStackCaption(captionArea, _captionHeight, ref _owner, signalHandler.WMC_SHOWNODE, signalRefresh, signalNewPosition, signalNewSize, signalShowHide);
@@ -95,7 +97,7 @@ namespace TileWindow.Nodes.Renderers
                             _formShow.WaitOne();
                             Application.Run(_form);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Log.Fatal(ex, $"{nameof(StackRenderer)}.{nameof(PreUpdate)} (Thread) Unhandled exception");
                         }
@@ -103,7 +105,7 @@ namespace TileWindow.Nodes.Renderers
                         _formStopped.Set();
                     });
 
-                _formThread.Start();
+                    _formThread.Start();
                 };
 
                 startThread();
@@ -148,7 +150,9 @@ namespace TileWindow.Nodes.Renderers
             }
 
             if (_formHandle != IntPtr.Zero)
+            {
                 pinvokeHandler.SendMessage(_formHandle, signalRefresh, IntPtr.Zero, IntPtr.Zero);
+            }
 
             var toHide = new List<Node>();
             // TODO: Add IsVisible property to Node and use that to minimize calls to show/hide
@@ -156,13 +160,17 @@ namespace TileWindow.Nodes.Renderers
             for (var i = 0; i < Owner.Childs.Count; i++)
             {
                 if (ignoreChildsWithIndex.Contains(i))
+                {
                     continue;
-                
+                }
+
                 // TODO: Ugly hack.. should probably create an "transferHandler" class and add an
                 //       InTransfer state on nodes or something instead of this hack to know a node is
                 //       getting transfered
                 if (Owner.Childs[i].Parent != Owner)
+                {
                     continue;
+                }
 
                 if (Owner.Childs[i] == Owner.MyFocusNode)
                 {
@@ -184,21 +192,28 @@ namespace TileWindow.Nodes.Renderers
         public bool Show()
         {
             if (_disposedCalled)
+            {
                 return true;
-
+            }
             if (_formHandle != IntPtr.Zero)
+            {
                 pinvokeHandler.SendMessage(_formHandle, signalShowHide, new IntPtr(1), IntPtr.Zero);
-            
+            }
+
             return true;
         }
 
         public bool Hide()
         {
             if (_disposedCalled)
+            {
                 return true;
+            }
 
             if (_formHandle != IntPtr.Zero)
+            {
                 pinvokeHandler.SendMessage(_formHandle, signalShowHide, new IntPtr(0), IntPtr.Zero);
+            }
 
             return true;
         }
@@ -206,7 +221,10 @@ namespace TileWindow.Nodes.Renderers
         public void Dispose()
         {
             if (_disposedCalled)
+            {
                 return;
+            }
+
             _disposedCalled = true;
 
             if (_formVisible)
@@ -219,13 +237,17 @@ namespace TileWindow.Nodes.Renderers
 
             if (Owner.Desktop.IsVisible)
             {
-                foreach(var child in Owner.Childs)
+                foreach (var child in Owner.Childs)
+                {
                     child.Show();
+                }
             }
             else
             {
-                foreach(var child in Owner.Childs)
+                foreach (var child in Owner.Childs)
+                {
                     child.Hide();
+                }
             }
 
             if (_changedDirection)
@@ -237,8 +259,10 @@ namespace TileWindow.Nodes.Renderers
         protected virtual void HandleMyFocusNodeChanged(object sender, EventArgs args)
         {
             if (_disposedCalled)
+            {
                 return;
-
+            }
+            
             Update(new List<int>());
         }
 
@@ -251,5 +275,5 @@ namespace TileWindow.Nodes.Renderers
         {
             Owner.MyFocusNodeChanged -= HandleMyFocusNodeChanged;
         }
-   }
+    }
 }

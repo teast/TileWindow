@@ -10,7 +10,7 @@ using TileWindow.Trackers;
 
 namespace TileWindow.Nodes
 {
-    public class ContainerNode: Node, IEquatable<Node>
+    public class ContainerNode : Node, IEquatable<Node>
     {
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly IWindowTracker windowTracker;
@@ -18,7 +18,7 @@ namespace TileWindow.Nodes
         private List<int> _ignoreChildsOnUpdateRect;
 
         public virtual Collection<Node> Childs { get; protected set; }
-        public override NodeTypes WhatType =>NodeTypes.Container;
+        public override NodeTypes WhatType => NodeTypes.Container;
         public override bool CanHaveChilds => true;
 
         public ContainerNode(IRenderer renderer, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal, Node parent = null) : base(rect, direction, parent)
@@ -38,15 +38,19 @@ namespace TileWindow.Nodes
         public virtual void PostInit(params Node[] childs)
         {
             if (childs?.Length > 0)
-                foreach(var c in childs)
+            {
+                foreach (var c in childs)
+                {
                     InsertChildAt(c);
+                }
+            }
 
             RecalcDeltaWithHeight();
-//Log.Information($"{nameof(ContainerNode)}.ctor rect: {rect}, Rect: {Rect}, _width, _height: {_width}, {_height}");
+            //Log.Information($"{nameof(ContainerNode)}.ctor rect: {rect}, Rect: {Rect}, _width, _height: {_width}, {_height}");
 
             if (Childs.Count > 0)
             {
-//Log.Information($"   ...Calling UpdateChildRect from ctor");
+                //Log.Information($"   ...Calling UpdateChildRect from ctor");
                 if (TryUpdateChildRect(0, Childs.Count, out RECT newRect) == false)
                 {
                     base.UpdateRect(newRect);
@@ -62,22 +66,27 @@ namespace TileWindow.Nodes
             {
                 return this;
             }
-            
-            foreach(var child in Childs.ToList())
+
+            foreach (var child in Childs.ToList())
             {
                 var node = child.FindNodeWithId(id);
                 if (node != null)
+                {
                     return node;
+                }
             }
-            
+
             return null;
         }
 
         public override bool Hide()
         {
             var result = true;
-            foreach(var child in Childs.ToList())
+            foreach (var child in Childs.ToList())
+            {
                 result = child.Hide() && result;
+            }
+
             _isVisible = false;
             return base.Hide() && result;
         }
@@ -85,8 +94,11 @@ namespace TileWindow.Nodes
         public override bool Show()
         {
             var result = true;
-            foreach(var child in Childs.ToList())
+            foreach (var child in Childs.ToList())
+            {
                 result = child.Show() && result;
+            }
+
             _isVisible = true;
             return base.Show() && result;
         }
@@ -94,8 +106,11 @@ namespace TileWindow.Nodes
         public override bool Restore()
         {
             var result = true;
-            foreach(var child in Childs.ToList())
+            foreach (var child in Childs.ToList())
+            {
                 result = child.Restore() && result;
+            }
+
             return result;
         }
 
@@ -107,7 +122,7 @@ namespace TileWindow.Nodes
             {
                 if (focusNode.CanHaveChilds)
                 {
-//Log.Information($"Container.AddWindow {hWnd} goingt o call AddWindow on FocusNode ({FocusNode?.GetType()?.ToString()}");
+                    //Log.Information($"Container.AddWindow {hWnd} goingt o call AddWindow on FocusNode ({FocusNode?.GetType()?.ToString()}");
                     return focusNode.AddWindow(hWnd, validation);
                 }
 
@@ -115,20 +130,26 @@ namespace TileWindow.Nodes
             }
 
             var node = windowTracker.CreateNode(hWnd, validation);
-//Log.Information($"ContainerNode.AddWindow {hWnd} Creating node (null? {(node == null)})");
+            //Log.Information($"ContainerNode.AddWindow {hWnd} Creating node (null? {(node == null)})");
             if (node == null)
+            {
                 return null;
+            }
 
             if (node.Style == NodeStyle.Floating)
             {
-//Log.Information($"ContainerNode.AddWindow, Floating node, going to call parent AddNodes");
+                //Log.Information($"ContainerNode.AddWindow, Floating node, going to call parent AddNodes");
                 if (Parent?.AddNodes(node) ?? false)
+                {
                     return node;
+                }
                 else
+                {
                     return null;
+                }
             }
 
-//Log.Information($"ContainerNode.AddWindow going to insert node at index {index}");
+            //Log.Information($"ContainerNode.AddWindow going to insert node at index {index}");
             //focusTracker.Track(node);
             InsertChildAt(node, index);
             RecalcDeltaWithHeight();
@@ -146,8 +167,10 @@ namespace TileWindow.Nodes
         {
             var i = Childs.IndexOf(child);
             if (i == -1)
+            {
                 return false;
-            
+            }
+
             RemoveChildAt(i, false);
             return true;
         }
@@ -163,17 +186,21 @@ namespace TileWindow.Nodes
             int? index = null;
             var focus = MyFocusNode;
             if ((index = Childs.IndexOf(focus)) == -1)
+            {
                 index = null;
+            }
 
-//Log.Information($"ContainerNode.AddNode going to try and add {nodes.Count()} nodes");
+            //Log.Information($"ContainerNode.AddNode going to try and add {nodes.Count()} nodes");
             var floatingNodes = new List<Node>();
             foreach (var node in nodes)
             {
                 if (node.Style == NodeStyle.Floating)
+                {
                     floatingNodes.Add(node);
+                }
                 else
                 {
-//Log.Information($"   >>> ContainerNode.AddNode Inserting node in my Childs list...");
+                    //Log.Information($"   >>> ContainerNode.AddNode Inserting node in my Childs list...");
                     //focusTracker.Track(node);
                     InsertChildAt(node, index);
                 }
@@ -181,11 +208,11 @@ namespace TileWindow.Nodes
 
             if (floatingNodes.Count > 0)
             {
-//Log.Information($"   >>> got {floatingNodes.Count} floating nodes to pass to parent");
+                //Log.Information($"   >>> got {floatingNodes.Count} floating nodes to pass to parent");
                 Parent?.AddNodes(floatingNodes.ToArray());
             }
 
-//Log.Information($"   >>> ContainerNode.AddNode RecalcDeltaWithHeight");
+            //Log.Information($"   >>> ContainerNode.AddNode RecalcDeltaWithHeight");
             RecalcDeltaWithHeight();
             if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect))
             {
@@ -194,18 +221,20 @@ namespace TileWindow.Nodes
                 OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
             }
 
-//Log.Information($"   >>> ContainerNode.AddNode return true");
+            //Log.Information($"   >>> ContainerNode.AddNode return true");
             return true;
         }
-        
+
         public override bool ReplaceNode(Node node, Node newNode)
         {
             var i = Childs.IndexOf(node);
             if (i == -1)
+            {
                 return false;
-            
+            }
+
             InsertChildAt(newNode, i);
-            RemoveChildAt(i+1, callChildsDispose: false);
+            RemoveChildAt(i + 1, callChildsDispose: false);
             return true;
         }
 
@@ -234,49 +263,68 @@ namespace TileWindow.Nodes
             }
 
             if (dir == TransferDirection.Left || dir == TransferDirection.Up)
+            {
                 Childs[Childs.Count - 1].SetFocus(dir);
+            }
             else
+            {
                 Childs[0].SetFocus(dir);
+            }
         }
 
         public override bool FocusNodeInDirection(Node focusNode, TransferDirection direction)
         {
             if (focusNode.Style == NodeStyle.FullscreenOne)
+            {
                 return Parent?.FocusNodeInDirection(focusNode, direction) ?? false;
+            }
 
             if (focusNode == this)
+            {
                 return Parent?.FocusNodeInDirection(focusNode, direction) ?? false;
+            }
+
             var i = Childs.IndexOf(focusNode);
-//Log.Information($"Container.FocusNodeInDirection child: {focusNode.GetType().ToString()}, i: {i}, direction: {direction.ToString()}");
+            //Log.Information($"Container.FocusNodeInDirection child: {focusNode.GetType().ToString()}, i: {i}, direction: {direction.ToString()}");
             if (i == -1)
+            {
                 return false;
-            
-            switch(direction)
+            }
+
+            switch (direction)
             {
                 case TransferDirection.Left:
                     if (Direction == Direction.Vertical || Childs.Count == 1 || i == 0)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i--;
                     Childs[i].SetFocus(direction);
                     return true;
                 case TransferDirection.Right:
                     if (Direction == Direction.Vertical || Childs.Count == 1 || i == Childs.Count - 1)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i++;
                     Childs[i].SetFocus(direction);
                     return true;
                 case TransferDirection.Up:
                     if (Direction == Direction.Horizontal || Childs.Count == 1 || i == 0)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i--;
                     Childs[i].SetFocus(direction);
                     return true;
                 case TransferDirection.Down:
                     if (Direction == Direction.Horizontal || Childs.Count == 1 || i == Childs.Count - 1)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i++;
                     Childs[i].SetFocus(direction);
@@ -294,9 +342,11 @@ namespace TileWindow.Nodes
             var ret = false;
             var i = Childs.IndexOf(child);
             if (i == -1)
+            {
                 return false;
+            }
 
-//Log.Information($"ContainerNode.TransferNodeToAnotherDesktop, child: {child.GetType().ToString()}, goign to call destinations AddNodes....");            
+            //Log.Information($"ContainerNode.TransferNodeToAnotherDesktop, child: {child.GetType().ToString()}, goign to call destinations AddNodes....");            
             _ignoreChildsOnUpdateRect.Add(i);
             if (destination.AddNodes(child))
             {
@@ -305,9 +355,13 @@ namespace TileWindow.Nodes
                 Desktop.FocusTracker.Untrack(Childs[i]);
                 RemoveChildAt(i, false);
                 if (i > 0)
-                    Childs[i-1].SetFocus();
+                {
+                    Childs[i - 1].SetFocus();
+                }
                 else if (i < Childs.Count)
+                {
                     Childs[i].SetFocus();
+                }
             }
             else
             {
@@ -320,11 +374,13 @@ namespace TileWindow.Nodes
         public override bool TransferNode(Node child, Node nodeToTransfer, TransferDirection direction, bool nodeGotFocus)
         {
             var i = child == null ? Childs.Count : Childs.IndexOf(child);
-//Log.Information($"{nameof(ContainerNode)}.{nameof(TransferNode)} called, i: {i}, Node.Direction: {Direction.ToString()}, direction: {direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
+            //Log.Information($"{nameof(ContainerNode)}.{nameof(TransferNode)} called, i: {i}, Node.Direction: {Direction.ToString()}, direction: {direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
             if (i == -1)
+            {
                 return false;
-            
-            if ( child != null &&
+            }
+
+            if (child != null &&
                 ((Direction == Direction.Horizontal && (direction == TransferDirection.Up || direction == TransferDirection.Down)) ||
                 (Direction == Direction.Vertical && (direction == TransferDirection.Left || direction == TransferDirection.Right))))
             {
@@ -336,97 +392,117 @@ namespace TileWindow.Nodes
             switch (direction)
             {
                 case TransferDirection.Left:
-                {
-                    InsertChildAt(nodeToTransfer, i);
-                    RecalcDeltaWithHeight();
-
-                    // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
-                        base.UpdateRect(newRect);
+                        InsertChildAt(nodeToTransfer, i);
                         RecalcDeltaWithHeight();
-                        OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+
+                        // Only ask parent to recalc if the call is not from parent (child != null)
+                        if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                        {
+                            base.UpdateRect(newRect);
+                            RecalcDeltaWithHeight();
+                            OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+                        }
+
+                        if (_isVisible)
+                        {
+                            nodeToTransfer.Show();
+                        }
+                        else
+                        {
+                            nodeToTransfer.Hide();
+                        }
+
+                        if (nodeGotFocus)
+                        {
+                            Desktop.FocusTracker.UpdateFocusTree();
+                        }
+                        return true;
                     }
-
-                    if (_isVisible)
-                        nodeToTransfer.Show();
-                    else
-                        nodeToTransfer.Hide();
-
-                    if (nodeGotFocus)
-                        Desktop.FocusTracker.UpdateFocusTree();
-
-                    return true;
-                }
                 case TransferDirection.Up:
-                {
-                    InsertChildAt(nodeToTransfer, i);
-                    RecalcDeltaWithHeight();
-
-                    // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
-                        base.UpdateRect(newRect);
+                        InsertChildAt(nodeToTransfer, i);
                         RecalcDeltaWithHeight();
-                        OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+
+                        // Only ask parent to recalc if the call is not from parent (child != null)
+                        if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                        {
+                            base.UpdateRect(newRect);
+                            RecalcDeltaWithHeight();
+                            OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+                        }
+
+                        if (_isVisible)
+                        {
+                            nodeToTransfer.Show();
+                        }
+                        else
+                        {
+                            nodeToTransfer.Hide();
+                        }
+
+                        if (nodeGotFocus)
+                        {
+                            Desktop.FocusTracker.UpdateFocusTree();
+                        }
+                        return true;
                     }
-
-                    if (_isVisible)
-                        nodeToTransfer.Show();
-                    else
-                        nodeToTransfer.Hide();
-
-                    if (nodeGotFocus)
-                        Desktop.FocusTracker.UpdateFocusTree();
-
-                    return true;
-                }
                 case TransferDirection.Right:
-                {
-                    InsertChildAt(nodeToTransfer, child == null ? 0 : Math.Min(Childs.Count, i + 1));
-                    RecalcDeltaWithHeight();
-
-                    // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
-                        base.UpdateRect(newRect);
+                        InsertChildAt(nodeToTransfer, child == null ? 0 : Math.Min(Childs.Count, i + 1));
                         RecalcDeltaWithHeight();
-                        OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+
+                        // Only ask parent to recalc if the call is not from parent (child != null)
+                        if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                        {
+                            base.UpdateRect(newRect);
+                            RecalcDeltaWithHeight();
+                            OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+                        }
+
+                        if (_isVisible)
+                        {
+                            nodeToTransfer.Show();
+                        }
+                        else
+                        {
+                            nodeToTransfer.Hide();
+                        }
+
+                        if (nodeGotFocus)
+                        {
+                            Desktop.FocusTracker.UpdateFocusTree();
+                        }
+                        return true;
                     }
-
-                    if (_isVisible)
-                        nodeToTransfer.Show();
-                    else
-                        nodeToTransfer.Hide();
-
-                    if (nodeGotFocus)
-                        Desktop.FocusTracker.UpdateFocusTree();
-
-                    return true;
-                }
                 case TransferDirection.Down:
-                {
-                    InsertChildAt(nodeToTransfer, child == null ? 0 : Math.Min(Childs.Count, i + 1));
-                    RecalcDeltaWithHeight();
-
-                    // Only ask parent to recalc if the call is not from parent (child != null)
-                    if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
                     {
-                        base.UpdateRect(newRect);
+                        InsertChildAt(nodeToTransfer, child == null ? 0 : Math.Min(Childs.Count, i + 1));
                         RecalcDeltaWithHeight();
-                        OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+
+                        // Only ask parent to recalc if the call is not from parent (child != null)
+                        if (!TryUpdateChildRect(0, Childs.Count, out RECT newRect) && child != null)
+                        {
+                            base.UpdateRect(newRect);
+                            RecalcDeltaWithHeight();
+                            OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
+                        }
+
+                        if (_isVisible)
+                        {
+                            nodeToTransfer.Show();
+                        }
+                        else
+                        {
+                            nodeToTransfer.Hide();
+                        }
+                        
+                        if (nodeGotFocus)
+                        {
+                            Desktop.FocusTracker.UpdateFocusTree();
+                        }
+                        return true;
                     }
-
-                    if (_isVisible)
-                        nodeToTransfer.Show();
-                    else
-                        nodeToTransfer.Hide();
-
-                    if (nodeGotFocus)
-                        Desktop.FocusTracker.UpdateFocusTree();
-
-                    return true;
-                }
                 default:
                     Log.Error($"{nameof(ContainerNode)}.{nameof(TransferNode)} was called with unknown {typeof(TransferDirection).ToString()} ({direction.ToString()})");
                     break;
@@ -488,12 +564,18 @@ namespace TileWindow.Nodes
         public override void Dispose()
         {
             if (IsDisposed)
+            {
                 return;
+            }
 
             Renderer.Dispose();
             if (Childs != null)
-                foreach(var child in Childs.ToList())
+            {
+                foreach (var child in Childs.ToList())
+                {
                     child.Dispose();
+                }
+            }
 
             base.Dispose();
         }
@@ -508,7 +590,7 @@ namespace TileWindow.Nodes
         protected virtual void OnChildRequestRectChange(object sender, RequestRectChangeEventArg args)
         {
             var i = Childs.IndexOf(args.Requester);
-//Log.Information($"################ Container.ChildRectChanged.{Direction.ToString()} (total: {Childs.Count}) Rect: {Rect}) Child {child.GetType().ToString()} ({child.ToString()})");
+            //Log.Information($"################ Container.ChildRectChanged.{Direction.ToString()} (total: {Childs.Count}) Rect: {Rect}) Child {child.GetType().ToString()} ({child.ToString()})");
             if (i >= 0)
             {
                 Childs[i].FixedRect = true;
@@ -564,12 +646,12 @@ namespace TileWindow.Nodes
 
             if (_isVisible)
             {
-//Log.Information($"   Container showing newly inserted child");
+                //Log.Information($"   Container showing newly inserted child");
                 childToAdd.Show();
             }
             else
             {
-//Log.Information($"   Container hiding newly inserted child ({childToAdd.GetType().ToString()})");
+                //Log.Information($"   Container hiding newly inserted child ({childToAdd.GetType().ToString()})");
                 childToAdd.Hide();
             }
 
@@ -584,7 +666,7 @@ namespace TileWindow.Nodes
 
             if (gotFocus)
             {
-                var newFocusNode = Childs[index+1 < Childs.Count ? index+1 : Math.Max(0, index-1)];
+                var newFocusNode = Childs[index + 1 < Childs.Count ? index + 1 : Math.Max(0, index - 1)];
                 Desktop.FocusTracker.ExplicitSetMyFocusNode(this, newFocusNode);
             }
 
@@ -596,11 +678,13 @@ namespace TileWindow.Nodes
             {
                 n.Dispose();
             }
-    
+
             // Bug #78, only remove parent if this object is the parent (if another node have taken over the ownership of the child node, then 
             //          node will be its parent)
             if (n.Parent == this)
+            {
                 n.Parent = null;
+            }
 
             if (Childs.Count == 0)
             {
@@ -626,10 +710,12 @@ namespace TileWindow.Nodes
         {
             var i = Childs.IndexOf(child);
             var focusNode = Desktop.FocusTracker.MyLastFocusNode(this);
-//Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildLeft)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
+            //Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildLeft)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
             if (i == -1)
+            {
                 return;
-            
+            }
+
             if (i == 0 || Direction == Direction.Vertical)
             {
                 _ignoreChildsOnUpdateRect.Add(i);
@@ -646,7 +732,7 @@ namespace TileWindow.Nodes
             // from here on: i > 0
 
             // If the node to the left can have childs in it, then insert this into that node
-            if (Childs[i-1].CanHaveChilds)
+            if (Childs[i - 1].CanHaveChilds)
             {
                 if (Childs[i - 1].TransferNode(null, child, TransferDirection.Left, focusNode == child))
                 {
@@ -657,8 +743,8 @@ namespace TileWindow.Nodes
 
             // No, then jump over that node and insert this before it
             Childs.RemoveAt(i);
-            Childs.Insert(i-1, child);
-            if (!TryUpdateChildRect(i-1, Childs.Count, out RECT newRect))
+            Childs.Insert(i - 1, child);
+            if (!TryUpdateChildRect(i - 1, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
@@ -670,10 +756,12 @@ namespace TileWindow.Nodes
         {
             var i = Childs.IndexOf(child);
             var focusNode = Desktop.FocusTracker.MyLastFocusNode(this);
-//Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildUp)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
+            //Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildUp)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
             if (i == -1)
+            {
                 return;
-            
+            }
+
             if (i == 0 || Direction == Direction.Horizontal)
             {
                 _ignoreChildsOnUpdateRect.Add(i);
@@ -690,7 +778,7 @@ namespace TileWindow.Nodes
             // from here on: i > 0
 
             // If the node to the up can have childs in it, then insert this into that node
-            if (Childs[i-1].CanHaveChilds)
+            if (Childs[i - 1].CanHaveChilds)
             {
                 if (Childs[i - 1].TransferNode(null, child, TransferDirection.Up, focusNode == child))
                 {
@@ -701,23 +789,25 @@ namespace TileWindow.Nodes
 
             // No, then jump over that node and insert this before it
             Childs.RemoveAt(i);
-            Childs.Insert(i-1, child);
-            if (!TryUpdateChildRect(i-1, Childs.Count, out RECT newRect))
+            Childs.Insert(i - 1, child);
+            if (!TryUpdateChildRect(i - 1, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
                 RecalcDeltaWithHeight();
                 OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
             }
         }
-        
+
         private void MoveChildRight(Node child)
         {
             var i = Childs.IndexOf(child);
             var focusNode = Desktop.FocusTracker.MyLastFocusNode(this);
-//Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildRight)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
+            //Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildRight)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
             if (i == -1)
+            {
                 return;
-            
+            }
+
             if (i == Childs.Count - 1 || Direction == Direction.Vertical)
             {
                 _ignoreChildsOnUpdateRect.Add(i);
@@ -744,7 +834,7 @@ namespace TileWindow.Nodes
             }
 
             Childs.RemoveAt(i);
-            Childs.Insert(i+1, child);
+            Childs.Insert(i + 1, child);
             if (!TryUpdateChildRect(i, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
@@ -752,15 +842,17 @@ namespace TileWindow.Nodes
                 OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
             }
         }
-        
+
         private void MoveChildDown(Node child)
         {
             var i = Childs.IndexOf(child);
             var focusNode = Desktop.FocusTracker.MyLastFocusNode(this);
-//Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildDown)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
+            //Log.Information($"{nameof(ContainerNode)}.{nameof(MoveChildDown)} called, i: {i}, Direction: {Direction.ToString()} Parent: {Parent.GetType().ToString()} ({Parent.WhatType.ToString()})");
             if (i == -1)
+            {
                 return;
-            
+            }
+
             if (i == Childs.Count - 1 || Direction == Direction.Horizontal)
             {
                 _ignoreChildsOnUpdateRect.Add(i);
@@ -787,7 +879,7 @@ namespace TileWindow.Nodes
             }
 
             Childs.RemoveAt(i);
-            Childs.Insert(i+1, child);
+            Childs.Insert(i + 1, child);
             if (!TryUpdateChildRect(i, Childs.Count, out RECT newRect))
             {
                 base.UpdateRect(newRect);
@@ -795,28 +887,35 @@ namespace TileWindow.Nodes
                 OnRequestRectChange(this, new RequestRectChangeEventArg(this, Rect, newRect));
             }
         }
-        
+
         public override bool Equals(object obj)
         {
             var o = obj as ContainerNode;
             if (o == null)
+            {
                 return false;
+            }
+
             return Equals(o);
         }
 
         public bool Equals([AllowNull] ContainerNode other)
         {
             if (other == null)
+            {
                 return false;
+            }
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
 
             if (
             !EqualityComparer<long>.Default.Equals(Id, other.Id))
             {
                 return false;
             }
-            
+
             return true;
         }
 

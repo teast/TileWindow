@@ -109,9 +109,13 @@ namespace TileWindow.Nodes
                 _childs.CollectionChanged += (sender, args) =>
                 {
                     if (args.Action == NotifyCollectionChangedAction.Add)
+                    {
                         RaiseChildCountChange(false);
+                    }
                     else if (args.Action == NotifyCollectionChangedAction.Remove)
+                    {
                         RaiseChildCountChange(true);
+                    }
                 };
             }
         }
@@ -130,8 +134,12 @@ namespace TileWindow.Nodes
                 }
 
                 for (var i = 0; i < Childs.Count; i++)
+                {
                     if (Childs[i] == node)
+                    {
                         return i;
+                    }
+                }
 
                 Log.Warning($"{this} got an unknown node as activenode ({node})");
                 FocusTracker.ExplicitSetMyFocusNode(this, Childs.FirstOrDefault());
@@ -146,9 +154,13 @@ namespace TileWindow.Nodes
         public ScreenNode Screen(int i)
         {
             if (i >= 0 && i < Childs.Count)
+            {
                 return Childs[i] as ScreenNode;
+            }
             else
+            {
                 return null;
+            }
         }
 
         public VirtualDesktop(int index, IPInvokeHandler pinvokeHandler, ISignalHandler signalHandler, IRenderer renderer, IScreenNodeCreater screenNodeCreater, IFocusTracker focusTracker, IContainerNodeCreater containerNodeCreator, IWindowTracker windowTracker, RECT rect, Direction direction = Direction.Horizontal)
@@ -209,7 +221,10 @@ namespace TileWindow.Nodes
         public void NodeAdded(Node node)
         {
             if (node == null)
+            {
                 return;
+            }
+
             FocusTracker.Track(node);
         }
 
@@ -217,7 +232,9 @@ namespace TileWindow.Nodes
         {
             rect = new RECT();
             if (screenIndex < 0 || screenIndex >= Childs.Count)
+            {
                 return false;
+            }
 
             rect = Childs[screenIndex].Rect;
             return true;
@@ -268,29 +285,39 @@ namespace TileWindow.Nodes
             FloatingNodes.Add(node);
 
             if (IsVisible)
+            {
                 node.Show();
+            }
             else
+            {
                 node.Hide();
-
+            }
             return true;
         }
 
         public void HandleLayoutStacking()
         {
             if (FocusNode == null)
+            {
                 return;
-
+            }
             if (typeof(StackRenderer).IsInstanceOfType(FocusNode.GetRenderer()) == false)
+            {
                 FocusNode.SetRenderer(new StackRenderer(pinvokeHandler, signalHandler));
+            }
         }
 
         public void HandleLayoutToggleSplit()
         {
             if (FocusNode == null)
+            {
                 return;
+            }
 
             if (typeof(TileRenderer).IsInstanceOfType(FocusNode.GetRenderer()) == false)
+            {
                 FocusNode.SetRenderer(new TileRenderer());
+            }
             else
             {
                 var p = FocusNode;
@@ -318,7 +345,9 @@ namespace TileWindow.Nodes
         public void HandleSwitchFloating()
         {
             if (FocusNode == null || Childs.IndexOf(FocusNode) >= 0)
+            {
                 return;
+            }
 
             // Going to switch to floating
             if (FocusNode.Style != NodeStyle.Floating)
@@ -393,7 +422,9 @@ namespace TileWindow.Nodes
         public override bool DisconnectChild(Node child)
         {
             if (child == null || child.Style != NodeStyle.Floating)
+            {
                 return base.DisconnectChild(child);
+            }
 
             var i = FloatingNodes.IndexOf(child);
             if (i == -1)
@@ -406,12 +437,16 @@ namespace TileWindow.Nodes
             child.StyleChanged -= ChildNodeStyleChange;
             child.RequestRectChange -= OnChildRequestRectChange;
             if (child.Parent == this)
+            {
                 child.Parent = null;
+            }
 
             FloatingNodes.RemoveAt(i);
 
             if (gotFocus)
+            {
                 FocusTracker.ExplicitSetMyFocusNode(this, Childs.FirstOrDefault());
+            }
 
             return true;
         }
@@ -437,8 +472,10 @@ namespace TileWindow.Nodes
                 }
             }
             else
+            {
                 FocusTracker.FocusNode()?.SetFocus();
-
+            }
+            
             return result;
         }
 
@@ -453,7 +490,9 @@ namespace TileWindow.Nodes
         public override bool RemoveChild(Node child)
         {
             if (child.Style != NodeStyle.Floating)
+            {
                 return false;
+            }
 
             if (!DisconnectChild(child))
             {
@@ -493,34 +532,44 @@ namespace TileWindow.Nodes
                 }
             }
             else if (i == -1)
+            {
                 return false;
+            }
 
             switch (direction)
             {
                 case TransferDirection.Left:
                     if (Direction == Direction.Vertical || Childs.Count == 1 || i == 0)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i--;
                     Childs[i].SetFocus(direction);
                     return true;
                 case TransferDirection.Right:
                     if (Direction == Direction.Vertical || Childs.Count == 1 || i == Childs.Count - 1)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i++;
                     Childs[i].SetFocus(direction);
                     return true;
                 case TransferDirection.Up:
                     if (Direction == Direction.Horizontal || Childs.Count == 1 || i == 0)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i--;
                     Childs[i].SetFocus(direction);
                     return true;
                 case TransferDirection.Down:
                     if (Direction == Direction.Horizontal || Childs.Count == 1 || i == Childs.Count - 1)
+                    {
                         return Parent?.FocusNodeInDirection(this, direction) ?? false;
+                    }
 
                     i++;
                     Childs[i].SetFocus(direction);
@@ -552,7 +601,9 @@ namespace TileWindow.Nodes
             }
 
             if (result)
+            {
                 RaiseChildCountChange(false);
+            }
 
             return result;
         }
@@ -595,16 +646,24 @@ namespace TileWindow.Nodes
         {
             var o = obj as VirtualDesktop;
             if (o == null)
+            {
                 return false;
+            }
+
             return Equals(o);
         }
 
         public bool Equals([AllowNull] VirtualDesktop other)
         {
             if (other == null)
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
 
             if (
             !EqualityComparer<long>.Default.Equals(Id, other.Id))
@@ -700,7 +759,10 @@ namespace TileWindow.Nodes
 
             TakeOverNode(node);
             if (node.Style != NodeStyle.Floating)
+            {
                 node.Style = NodeStyle.Floating;
+            }
+
             FloatingNodes.Add(node);
 
             return true;
@@ -748,7 +810,9 @@ namespace TileWindow.Nodes
         private void ChangeDirectionOnChild(Node child, Direction direction)
         {
             if (child == null)
+            {
                 return;
+            }
 
             if (child.CanHaveChilds)
             {

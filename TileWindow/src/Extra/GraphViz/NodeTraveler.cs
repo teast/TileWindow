@@ -59,7 +59,7 @@ namespace TileWindow.Extra.GraphViz
 
         protected virtual NodeParseResult ParseNode(IVirtualDesktop node)
         {
-            var result = ParseContainer("VirtualDesktop #" + (node.Index+1) + " (id: " + node.Index + ")", node.Direction, node.MyFocusNode, node.FocusNode, node.Childs);
+            var result = ParseContainer("VirtualDesktop #" + (node.Index + 1) + " (id: " + node.Index + ")", node.Direction, node.MyFocusNode, node.FocusNode, node.Childs);
             if (node.FloatingNodes.Count == 0)
             {
                 return result;
@@ -67,7 +67,7 @@ namespace TileWindow.Extra.GraphViz
 
             var desktop = result.Element as GraphCluster;
             var relations = new List<GraphRelation>();
-            var clusters  = new List<GraphCluster>();
+            var clusters = new List<GraphCluster>();
             var objects = new List<GraphObject>();
 
             // Create a new frame for all floating objects and add an relation to small circle above
@@ -125,7 +125,7 @@ namespace TileWindow.Extra.GraphViz
             var cluster = AllocCluster();
             var objects = new List<GraphObject>();
             var relations = new List<GraphRelation>();
-            var clusters  = new List<GraphCluster>();
+            var clusters = new List<GraphCluster>();
             cluster.Label = $"{containerName} - {direction.ToString()}";
 
             ParseChilds(ref cluster, ref objects, ref relations, ref clusters, myFocusNode, focusNode, childs);
@@ -138,17 +138,21 @@ namespace TileWindow.Extra.GraphViz
             ref List<GraphCluster> clusters,
             Node myFocusNode, Node focusNode, IList<Node> childs)
         {
-            foreach(var c in childs)
+            foreach (var c in childs)
             {
                 var obj = AllocObject();
                 obj.Label = c.ShortName;
                 obj.Shape = GraphShapeEnum.Circle;
-                
+
                 if (c == focusNode)
+                {
                     obj.FillColor = GraphColor.Red;
+                }
 
                 if (c == myFocusNode)
+                {
                     obj.Color = GraphColor.Red;
+                }
 
                 cluster.Objects.Add(obj);
 
@@ -174,7 +178,7 @@ namespace TileWindow.Extra.GraphViz
             var obj = AllocObject();
             var objects = new List<GraphObject>();
             var relations = new List<GraphRelation>();
-            var clusters  = new List<GraphCluster>();
+            var clusters = new List<GraphCluster>();
             obj.Label = node.ShortName;
 
             return new NodeParseResult(obj, objects, relations, clusters);
@@ -193,20 +197,26 @@ namespace TileWindow.Extra.GraphViz
             _global_object_index++;
             return obj;
         }
-        
+
         public string GetOutput()
         {
             var sb = new StringBuilder();
             sb.AppendLine("graph VirtualDesktop {");
             sb.AppendLine("graph [compound=true];");
 
-            foreach(var o in Objects)
+            foreach (var o in Objects)
+            {
                 sb.AppendLine($"{o};");
-            foreach(var c in Clusters)
+            }
+            foreach (var c in Clusters)
+            {
                 sb.AppendLine($"{c}");
-            foreach(var r in Relations)
+            }
+            foreach (var r in Relations)
+            {
                 sb.AppendLine($"{r};");
-
+            }
+            
             sb.AppendLine("}");
             return sb.ToString();
         }
@@ -224,7 +234,7 @@ namespace TileWindow.Extra.GraphViz
         Diamond
     }
 
-    public class GraphCluster: GraphBase
+    public class GraphCluster : GraphBase
     {
         public string Name { get; set; }
         public string Label { get; set; }
@@ -237,7 +247,9 @@ namespace TileWindow.Extra.GraphViz
             get
             {
                 if (Objects.Count == 0)
+                {
                     Objects.Add(new GraphObject(0) { Name = Guid.NewGuid().ToString("N").ToLowerInvariant() });
+                }
 
                 return Objects.First();
             }
@@ -255,14 +267,24 @@ namespace TileWindow.Extra.GraphViz
             var sb = new StringBuilder();
             sb.AppendLine($"subgraph {Name} {{");
             if (string.IsNullOrEmpty(Label) == false)
+            {
                 sb.AppendLine($"label = \"{Label}\";");
+            }
 
-            foreach(var o in Objects)
+            foreach (var o in Objects)
+            {
                 sb.AppendLine($"{o};");
-            foreach(var c in Clusters)
+            }
+
+            foreach (var c in Clusters)
+            {
                 sb.AppendLine($"{c}");
-            foreach(var r in Relations)
+            }
+
+            foreach (var r in Relations)
+            {
                 sb.AppendLine($"{r};");
+            }
 
             sb.AppendLine("}");
             return sb.ToString();
@@ -314,7 +336,10 @@ namespace TileWindow.Extra.GraphViz
             if (RelateFromObj2Cluster != null)
             {
                 if (ltailSet)
+                {
                     sb.Append(" ");
+                }
+
                 sb.Append("lhead=");
                 sb.Append(RelateFromObj2Cluster.Name);
             }
@@ -332,7 +357,7 @@ namespace TileWindow.Extra.GraphViz
         Yellow
     }
 
-    public class GraphObject: GraphBase
+    public class GraphObject : GraphBase
     {
         public string Name { get; set; }
         public string Label { get; set; }
@@ -348,9 +373,9 @@ namespace TileWindow.Extra.GraphViz
 
         public override string ToString()
         {
-             var attr = GetAttributes() ?? "";
+            var attr = GetAttributes() ?? "";
             attr = (attr.Length > 0 ? " " : "") + attr;
-           return $"{Name}{attr}";
+            return $"{Name}{attr}";
         }
 
         protected virtual string GetAttributes()

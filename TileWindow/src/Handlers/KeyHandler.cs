@@ -42,7 +42,9 @@ namespace TileWindow.Handlers
         public KeyHandler(ISignalHandler signal)
         {
             for (int i = 0; i < Keystate.Length; i++)
+            {
                 Keystate[i] = false;
+            }
 
             this.signal = signal;
             this._listeners = new List<Tuple<ulong[], Guid, Func<ulong[], bool>>>();
@@ -60,7 +62,9 @@ namespace TileWindow.Handlers
             {
                 AbortTimer();
                 for (int i = 0; i < Keystate.Length; i++)
+                {
                     Keystate[i] = false;
+                }
             };
         }
 
@@ -109,7 +113,9 @@ namespace TileWindow.Handlers
             var ret = new List<ulong>();
             keys = ret.ToArray();
             if (string.IsNullOrWhiteSpace(s))
+            {
                 return false;
+            }
 
             var errors = false;
             foreach (var key in s.Trim().Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries))
@@ -219,7 +225,9 @@ namespace TileWindow.Handlers
                         }
 
                         if (hit)
+                        {
                             break;
+                        }
                     }
 
                     if (!hit)
@@ -238,13 +246,17 @@ namespace TileWindow.Handlers
 
             kw = 0;
             if (s == null || s.Length == 0)
+            {
                 return true;
+            }
 
             foreach (var k in s)
             {
                 kw++;
                 if (!Keystate[k])
+                {
                     return false;
+                }
             }
 
             return true;
@@ -314,12 +326,16 @@ namespace TileWindow.Handlers
                 AbortTimer();
 
                 foreach (var l in _onKeyChangeListeners)
+                {
                     l.Item2(msg.wParam, true);
+                }
 
                 //var tmp = keyListener.Keystate.Select((keyVal, keyIndex) => new { key = keyVal, index = keyIndex }).Where(k => k.key).Select(k => k.index).ToList();
                 //Trace.WriteLine($"Keydown: {msg.wParam} {msg.lParam} ({msg.lParam:x}) \"{Convert.ToString(msg.lParam, 2)}\" Pressed keys: {string.Join(", ", tmp)}");
                 if (HandleKeyHits())
+                {
                     StartTimer();
+                }
             }
         }
 
@@ -342,7 +358,9 @@ namespace TileWindow.Handlers
                 AbortTimer();
 
                 foreach (var l in _onKeyChangeListeners)
+                {
                     l.Item2(msg.wParam, false);
+                }
             }
         }
 
@@ -354,28 +372,31 @@ namespace TileWindow.Handlers
         /// <returns>array of possible hit for given key</returns>
         private ulong[] extendedKeys(ulong key)
         {
-            if (key == 0x12) // alt
-                return new ulong[] { 0x12, 0xa4, 0xa5 };
-            if (key == 0x10) // shift
-                return new ulong[] { 0x10, 0xa0, 0xa1 };
-            if (key == 0x11) // ctrl
-                return new ulong[] { 0x11, 0xa2, 0xa3 };
+            switch (key)
+            {
+                case 0x12: // alt
+                    return new ulong[] { 0x12, 0xa4, 0xa5 };
+                case 0x10: // shift
+                    return new ulong[] { 0x10, 0xa0, 0xa1 };
+                case 0x11: // ctrl
+                    return new ulong[] { 0x11, 0xa2, 0xa3 };
 
-            if (key == 0xa4) // lalt
-                return new ulong[] { 0x12, 0xa4 };
-            if (key == 0xa0) // lshift
-                return new ulong[] { 0x10, 0xa0 };
-            if (key == 0xa2) // lctrl
-                return new ulong[] { 0x11, 0xa2 };
+                case 0xa4: // lalt
+                    return new ulong[] { 0x12, 0xa4 };
+                case 0xa0: // lshift
+                    return new ulong[] { 0x10, 0xa0 };
+                case 0xa2: // lctrl
+                    return new ulong[] { 0x11, 0xa2 };
 
-            if (key == 0xa5) // ralt
-                return new ulong[] { 0x12, 0xa5 };
-            if (key == 0xa1) // rshift
-                return new ulong[] { 0x10, 0xa1 };
-            if (key == 0xa3) // rctrl
-                return new ulong[] { 0x11, 0xa3 };
-
-            return new[] { key };
+                case 0xa5: // ralt
+                    return new ulong[] { 0x12, 0xa5 };
+                case 0xa1: // rshift
+                    return new ulong[] { 0x10, 0xa1 };
+                case 0xa3: // rctrl
+                    return new ulong[] { 0x11, 0xa3 };
+                default:
+                    return new[] { key };
+            }
         }
 
         public void DumpDebug()

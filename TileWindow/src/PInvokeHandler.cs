@@ -51,7 +51,7 @@ namespace TileWindow
         FreezeRepresentation
     }
 
-    public enum ShowWindowCmd: int
+    public enum ShowWindowCmd : int
     {
         SW_FORCEMINIMIZE = 11,
         SW_HIDE = 0,
@@ -190,22 +190,22 @@ namespace TileWindow
 
     public enum ABMsg : int
     {
-        ABM_NEW=0,
-        ABM_REMOVE=1,
-        ABM_QUERYPOS=2,
-        ABM_SETPOS=3,
-        ABM_GETSTATE=4,
-        ABM_GETTASKBARPOS=5,
-        ABM_ACTIVATE=6,
-        ABM_GETAUTOHIDEBAR=7,
-        ABM_SETAUTOHIDEBAR=8,
-        ABM_WINDOWPOSCHANGED=9,
-        ABM_SETSTATE=10
+        ABM_NEW = 0,
+        ABM_REMOVE = 1,
+        ABM_QUERYPOS = 2,
+        ABM_SETPOS = 3,
+        ABM_GETSTATE = 4,
+        ABM_GETTASKBARPOS = 5,
+        ABM_ACTIVATE = 6,
+        ABM_GETAUTOHIDEBAR = 7,
+        ABM_SETAUTOHIDEBAR = 8,
+        ABM_WINDOWPOSCHANGED = 9,
+        ABM_SETSTATE = 10
     }
 
     public enum ABNotify : int
     {
-        ABN_STATECHANGE=0,
+        ABN_STATECHANGE = 0,
         ABN_POSCHANGED,
         ABN_FULLSCREENAPP,
         ABN_WINDOWARRANGE
@@ -213,7 +213,7 @@ namespace TileWindow
 
     public enum ABEdge : int
     {
-        ABE_LEFT=0,
+        ABE_LEFT = 0,
         ABE_TOP,
         ABE_RIGHT,
         ABE_BOTTOM
@@ -296,10 +296,10 @@ namespace TileWindow
             get
             {
                 WINDOWPLACEMENT result = new WINDOWPLACEMENT();
-                result.Length = Marshal.SizeOf( result );
+                result.Length = Marshal.SizeOf(result);
                 return result;
             }
-        }    
+        }
     }
 
     [Flags]
@@ -403,8 +403,8 @@ namespace TileWindow
         int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
         bool IsWindowVisible(IntPtr hWnd);
         bool ShowWindow(IntPtr hWnd, ShowWindowCmd nCmdShow);
-        IntPtr FindWindow (string lpClassName, string lpWindowName);
-        void SwitchToThisWindow (IntPtr hWnd, bool fUnknown);
+        IntPtr FindWindow(string lpClassName, string lpWindowName);
+        void SwitchToThisWindow(IntPtr hWnd, bool fUnknown);
         IntPtr GetForegroundWindow();
         uint GetCurrentThreadId();
         uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
@@ -430,7 +430,7 @@ namespace TileWindow
     /// <summary>
     /// Most of the stuff in here are taken from pinvoke.net
     /// </summary>
-    public class PInvokeHandler: IPInvokeHandler
+    public class PInvokeHandler : IPInvokeHandler
     {
         public uint RegisterWindowMessage(string lpString) { return PInvoker.RegisterWindowMessage(lpString); }
         public bool GetWindowRect(IntPtr hwnd, out RECT lpRect) { return PInvoker.GetWindowRect(hwnd, out lpRect); }
@@ -455,9 +455,9 @@ namespace TileWindow
 
         public bool ShowWindow(IntPtr hWnd, ShowWindowCmd nCmdShow) { return PInvoker.ShowWindow(hWnd, nCmdShow); }
 
-        public IntPtr FindWindow (string lpClassName, string lpWindowName) { return PInvoker.FindWindow(lpClassName, lpWindowName); }
+        public IntPtr FindWindow(string lpClassName, string lpWindowName) { return PInvoker.FindWindow(lpClassName, lpWindowName); }
 
-        public void SwitchToThisWindow (IntPtr hWnd, bool fUnknown) { PInvoker.SwitchToThisWindow(hWnd, fUnknown); }
+        public void SwitchToThisWindow(IntPtr hWnd, bool fUnknown) { PInvoker.SwitchToThisWindow(hWnd, fUnknown); }
 
         public IntPtr GetForegroundWindow() { return PInvoker.GetForegroundWindow(); }
 
@@ -469,7 +469,7 @@ namespace TileWindow
         public uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId) { return PInvoker.GetWindowThreadProcessId(hWnd, ProcessId); }
 
         public bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach) { return PInvoker.AttachThreadInput(idAttach, idAttachTo, fAttach); }
-        
+
         public IntPtr SetActiveWindow(IntPtr hWnd) { return PInvoker.SetActiveWindow(hWnd); }
 
         public bool AllocConsole() { return PInvoker.AllocConsole(); }
@@ -503,10 +503,13 @@ namespace TileWindow
         public IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
         {
             if (IntPtr.Size == 8)
+            {
                 return PInvoker.GetWindowLongPtr64(hWnd, nIndex);
+            }
             else
+            {
                 return PInvoker.GetWindowLongPtr(hWnd, nIndex);
-
+            }
         }
 
         private static class PInvoker
@@ -588,10 +591,10 @@ namespace TileWindow
             public static extern bool ShowWindow(IntPtr hWnd, ShowWindowCmd nCmdShow);
 
             [DllImport("user32.dll", SetLastError = true)]
-            public static extern IntPtr FindWindow (string lpClassName, string lpWindowName);
+            public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
             [DllImport("user32.dll")]
-            public static extern void SwitchToThisWindow (IntPtr hWnd, bool fUnknown);
+            public static extern void SwitchToThisWindow(IntPtr hWnd, bool fUnknown);
 
             [DllImport("user32.dll")]
             public static extern IntPtr GetForegroundWindow();
@@ -599,7 +602,7 @@ namespace TileWindow
             [DllImport("kernel32.dll")]
             public static extern uint GetCurrentThreadId();
 
-            [DllImport("user32.dll", SetLastError=true)]
+            [DllImport("user32.dll", SetLastError = true)]
             public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
             // When you don't want the ProcessId, use this overload and pass IntPtr.Zero for the second parameter
@@ -609,7 +612,7 @@ namespace TileWindow
             [DllImport("user32.dll")]
             public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
-            [DllImport("user32.dll", SetLastError=true)]
+            [DllImport("user32.dll", SetLastError = true)]
             public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
             [DllImport("kernel32.dll")]
@@ -619,7 +622,7 @@ namespace TileWindow
             [DllImport("kernel32.dll")]
             public static extern IntPtr GetConsoleWindow();
 
-            [DllImport("kernel32.dll", SetLastError=true, ExactSpelling=true)]
+            [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
             public static extern bool FreeConsole();
 
             [DllImport("user32.dll")]
@@ -627,26 +630,26 @@ namespace TileWindow
             public static extern bool IsWindow(IntPtr hWnd);
 
             [DllImport("WtsApi32.dll")]
-            public static extern bool WTSRegisterSessionNotification(IntPtr hWnd, [MarshalAs(UnmanagedType.U4)]int dwFlags);
+            public static extern bool WTSRegisterSessionNotification(IntPtr hWnd, [MarshalAs(UnmanagedType.U4)] int dwFlags);
 
             [DllImport("WtsApi32.dll")]
             public static extern bool WTSUnRegisterSessionNotification(IntPtr hWnd);
 
-            [DllImport("user32", EntryPoint = "OpenDesktopA", CharSet = CharSet.Ansi,SetLastError = true, ExactSpelling = true)]
+            [DllImport("user32", EntryPoint = "OpenDesktopA", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
             public static extern Int32 OpenDesktop(string lpszDesktop, Int32 dwFlags, bool fInherit, Int32 dwDesiredAccess);
 
             [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
             public static extern Int32 CloseDesktop(Int32 hDesktop);
 
-            [DllImport("user32", CharSet = CharSet.Ansi,SetLastError = true,ExactSpelling = true)]
+            [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
             public static extern Int32 SwitchDesktop(Int32 hDesktop);
-            [DllImport("user32.dll", SetLastError=true)]
+            [DllImport("user32.dll", SetLastError = true)]
             public static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, uint dwDesiredAccess);
-            [DllImport("user32.dll", EntryPoint = "GetUserObjectInformationA", SetLastError=true)]
+            [DllImport("user32.dll", EntryPoint = "GetUserObjectInformationA", SetLastError = true)]
             public static extern bool GetUserObjectInformation(IntPtr hObj, int nIndex, [Out] byte[] pvInfo, uint nLength, out uint lpnLengthNeeded);
-            [DllImport("SHELL32", CallingConvention=CallingConvention.StdCall)]
+            [DllImport("SHELL32", CallingConvention = CallingConvention.StdCall)]
             public static extern uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData);
-            [DllImport("User32.dll", ExactSpelling=true, CharSet=System.Runtime.InteropServices.CharSet.Auto)]
+            [DllImport("User32.dll", ExactSpelling = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
             public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int cx, int cy, bool repaint);
         }
     }
@@ -656,28 +659,28 @@ namespace TileWindow
         [DllImport("user32.dll")]
         public static extern IntPtr WindowFromPoint(POINT Point);
 
-        public const int GWL_HWNDPARENT = (-8);
-        public const int GWL_STYLE = (-16);
-        public const int GWL_EXSTYLE = (-20);
-        public const int WS_BORDER = 0x00800000;
-        public const int WS_CAPTION = 0x00c00000;
-        public const int WS_VISIBLE = 0x10000000;
-        public const int WS_MAXIMIZE = 0x01000000;
-        public const int WS_MINIMIZE = 0x20000000;
-        public const int WS_SIZEBOX = 0x00040000;
-        public const int WS_CHILD = 0x40000000;
-        public const int WS_THICKFRAME =0x00040000;
-        public const int WS_MINIMIZEBOX = 0x00020000;
-        public const int WS_MAXIMIZEBOX = 0x00010000;
-        public const int WS_SYSMENU = 0x00080000;
-        public const uint WS_POPUP = 0x80000000;
-        public const uint WS_TILED = 0x80000000;
-        public const int WS_EX_APPWINDOW = 0x00040000;
-        public const int WS_EX_TOOLWINDOW = 0x00000080;
-        public const int WS_EX_NOACTIVATE = 0x08000000;
-        public const int WS_EX_TOPMOST = 0x00000008;
-        public const uint WM_CLOSE = 16;
-        public const uint WM_DESTROY = 0x0002;
+        public static readonly int GWL_HWNDPARENT = (-8);
+        public static readonly int GWL_STYLE = (-16);
+        public static readonly int GWL_EXSTYLE = (-20);
+        public static readonly int WS_BORDER = 0x00800000;
+        public static readonly int WS_CAPTION = 0x00c00000;
+        public static readonly int WS_VISIBLE = 0x10000000;
+        public static readonly int WS_MAXIMIZE = 0x01000000;
+        public static readonly int WS_MINIMIZE = 0x20000000;
+        public static readonly int WS_SIZEBOX = 0x00040000;
+        public static readonly int WS_CHILD = 0x40000000;
+        public static readonly int WS_THICKFRAME = 0x00040000;
+        public static readonly int WS_MINIMIZEBOX = 0x00020000;
+        public static readonly int WS_MAXIMIZEBOX = 0x00010000;
+        public static readonly int WS_SYSMENU = 0x00080000;
+        public static readonly uint WS_POPUP = 0x80000000;
+        public static readonly uint WS_TILED = 0x80000000;
+        public static readonly int WS_EX_APPWINDOW = 0x00040000;
+        public static readonly int WS_EX_TOOLWINDOW = 0x00000080;
+        public static readonly int WS_EX_NOACTIVATE = 0x08000000;
+        public static readonly int WS_EX_TOPMOST = 0x00000008;
+        public static readonly uint WM_CLOSE = 16;
+        public static readonly uint WM_DESTROY = 0x0002;
         public static readonly IntPtr HWND_TOP = new IntPtr(0);
         public static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
         public static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
@@ -686,7 +689,7 @@ namespace TileWindow
         public static readonly uint WM_DISPLAYCHANGE = 0x007e;
         public static readonly uint WM_SETTINGCHANGE = 0x001A;
         public static readonly uint SPI_SETWORKAREA = 0x002F;
-        
+
         public static readonly uint MK_LBUTTON = 0x1;
 
         public static readonly int NOTIFY_FOR_THIS_SESSION = 0;
