@@ -244,7 +244,6 @@ namespace TileWindow.Trackers
             {
                 if (IsSpecialAppVisible(hWnd) == false)
                 {
-                    //var visible = pinvokeHandler.IsWindowVisible(hWnd);
                     Log.Warning($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} \"{GetWindowText(hWnd)}\" [{className}] because it is not visible according to window 10 special thingy");
                     return false;
                 }
