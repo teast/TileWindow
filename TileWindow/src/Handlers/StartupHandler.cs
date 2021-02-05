@@ -357,7 +357,7 @@ namespace TileWindow.Handlers
                     }
                     else
                     {
-                        //Log.Warning($"WindowNode.Desktop is null ({node})");
+                        Log.Warning($"WindowNode.Desktop is null ({node})");
                     }
                 }
                 else

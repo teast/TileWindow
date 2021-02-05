@@ -255,8 +255,6 @@ namespace TileWindow.Trackers
                 var result = 0;
                 if ((result = pinvokeHandler.DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out bool pvAttribute, sizeof(int))) != 0 || pvAttribute)
                 {
-                    //var visible = pinvokeHandler.IsWindowVisible(hWnd);
-                    //Log.Warning($"{nameof(WindowNode)}.{nameof(CanHandleHwnd)} Going to ignore {hWnd} \"{GetWindowText(hWnd)}\" because it is not visible according to cloaked (result: {result:X}, cloaked: {pvAttribute})");
                     return false;
                 }
             }

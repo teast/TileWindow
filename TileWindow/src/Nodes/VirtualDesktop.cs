@@ -428,7 +428,7 @@ namespace TileWindow.Nodes
             var i = FloatingNodes.IndexOf(child);
             if (i == -1)
             {
-                //Log.Warning($"{nameof(VirtualDesktop)}.{nameof(DisconnectChild)} could not find floating node in array. node: {child}");
+                Log.Warning($"{nameof(VirtualDesktop)}.{nameof(DisconnectChild)} could not find floating node in array. node: {child}");
                 return false;
             }
 
