@@ -109,7 +109,9 @@ namespace TileWindow.Forms
                     }
 
                     if (owner?.MyFocusNode != null && owner.MyFocusNode.Id != lastSelectedId)
+                    {
                         ShowCaption(owner.MyFocusNode.Id);
+                    }
                 }
                 else if (m.Msg == signalNewPosition)
                 {
@@ -179,7 +181,10 @@ namespace TileWindow.Forms
         protected virtual bool ValidateCaptions()
         {
             if (owner.Childs.Count != labels.Count)
+            {
                 return false;
+            }
+            
             var childs = owner.Childs.ToList();
             for (var i = 0; i < childs.Count; i++)
             {

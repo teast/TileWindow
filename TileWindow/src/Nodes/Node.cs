@@ -102,7 +102,7 @@ namespace TileWindow.Nodes
     public abstract class Node : IDisposable, IEquatable<Node>
     {
         private static long _globalCounter = 1;
-        private long _id = (_globalCounter++);
+        private readonly long _id = (_globalCounter++);
         public long Id => _id;
         public string Name { get; set; }
         public string ShortName => Name?.Substring(0, Math.Min(Name?.Length ?? 0, 10)) ?? "";

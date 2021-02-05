@@ -39,8 +39,8 @@ namespace TileWindow.Handlers
     {
         private readonly ISignalHandler signalHandler;
         private readonly IPInvokeHandler pinvokeHandler;
-        private Dictionary<Guid, Tuple<IntPtr, Action<IntPtr>>> _closeListeners;
-        private Dictionary<Guid, Tuple<IntPtr, Action<WindowStyleChangedArg>>> _styleChangedListeners;
+        private readonly Dictionary<Guid, Tuple<IntPtr, Action<IntPtr>>> _closeListeners;
+        private readonly Dictionary<Guid, Tuple<IntPtr, Action<WindowStyleChangedArg>>> _styleChangedListeners;
 
         public event EventHandler<Tuple<IntPtr, long>> UnknownWindow;
 

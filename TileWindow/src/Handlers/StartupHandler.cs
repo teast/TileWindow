@@ -63,7 +63,9 @@ namespace TileWindow.Handlers
 
             IntPtr trayHwnd;
             if (config.HideTaskbar && (trayHwnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null)) != IntPtr.Zero)
+            {
                 pinvokeHandler.SetWindowPos(trayHwnd, IntPtr.Zero, 0, 0, 0, 0, SetWindowPosFlags.SWP_HIDEWINDOW | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE);
+            }
         }
 
         private void ValidateAndAddKeyShortcuts(Dictionary<string, string> shortcuts)
@@ -93,13 +95,17 @@ namespace TileWindow.Handlers
         public void Quit()
         {
             foreach (var desktop in desktops)
+            {
                 desktop.Restore();
-
+            }
+            
             var trayHwnd = pinvokeHandler.FindWindow("Shell_TrayWnd", null);
             if (trayHwnd != IntPtr.Zero)
             {
                 if (pinvokeHandler.IsWindowVisible(trayHwnd) == false)
+                {
                     pinvokeHandler.SetWindowPos(trayHwnd, IntPtr.Zero, 0, 0, 0, 0, SetWindowPosFlags.SWP_SHOWWINDOW | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE);
+                }
             }
         }
 
@@ -116,7 +122,9 @@ namespace TileWindow.Handlers
             var sb = new EnumExtraData();
             var result = pinvokeHandler.EnumWindows(new EnumWindowsProc(EnumProc), ref sb);
             if (result == false)
+            {
                 Log.Warning($"Error from EnumWindows: {pinvokeHandler.GetLastError()}");
+            }
 
             var windowsToHandle = sb.Hwnd
                 .Select(hwnd => windowTracker.CreateNode(hwnd))
@@ -124,11 +132,13 @@ namespace TileWindow.Handlers
             var programPerScreen = windowsToHandle.Select(node =>
             {
                 if (node.Style == NodeStyle.Floating)
+                {
                     return new
                     {
                         node = node,
                         Screen = -1
                     };
+                }
 
                 var screen = Tuple.Create((int)0, (long)0);
                 for (int i = 0; i < _screens.Length; i++)
@@ -178,7 +188,9 @@ namespace TileWindow.Handlers
                     desktops.ActiveDesktop.Screen(progs.Key).AddNodes(wn);
                 }
                 else
+                {
                     wn = desktops.ActiveDesktop.Screen(progs.Key);
+                }
 
                 foreach (var node in progs.Value)
                 {
@@ -186,7 +198,7 @@ namespace TileWindow.Handlers
                     {
                         lastAdded = node;
                     }
-                    
+
                     col++;
                     if (col == maxProgPerRow)
                     {
@@ -201,7 +213,9 @@ namespace TileWindow.Handlers
                 }
 
                 if (lastAdded != null && progs.Key == desktops.ActiveDesktop.ActiveScreenIndex)
+                {
                     lastAdded.SetFocus();
+                }
             }
         }
 
@@ -209,9 +223,13 @@ namespace TileWindow.Handlers
         {
             var tb = new StringBuilder(1024);
             if (pinvokeHandler.GetWindowText(Hwnd, tb, tb.Capacity) > 0)
+            {
                 return tb.ToString();
+            }
             else
+            {
                 return Hwnd.ToString();
+            }
         }
 
         private string GetClassName(IntPtr Hwnd)
@@ -258,10 +276,9 @@ namespace TileWindow.Handlers
                 {
                     var hwnd = new IntPtr((long)msg.wParam);
                     var node = windowTracker.GetNodes(hwnd);
-                    if (node == null)
+                    if (node == null && windowTracker.CanHandleHwnd(hwnd, new ValidateHwndParams(validateApplicationFrame: false)))
                     {
-                        if (windowTracker.CanHandleHwnd(hwnd, new ValidateHwndParams(validateApplicationFrame: false)))
-                            desktops.ActiveDesktop.HandleNewWindow(hwnd, new ValidateHwndParams(doValidate: false));
+                        desktops.ActiveDesktop.HandleNewWindow(hwnd, new ValidateHwndParams(doValidate: false));
                     }
                 }
             }
@@ -288,7 +305,9 @@ namespace TileWindow.Handlers
                 {
                     _screens = screens;
                     foreach (var desktop in desktops)
+                    {
                         desktop.ScreensChanged(_screens, result.direction);
+                    }
 
                     Startup.ParserSignal.SignalRestartThreads();
                 }

@@ -15,16 +15,16 @@ namespace TileWindow.Tests.TestHelpers
     {
         public static Delegate GetDelegate<T>(this T node, string eventName)
         {
-            return typeof(T).GetField(eventName, BindingFlags.NonPublic |BindingFlags.Instance).GetValue(node) as Delegate;
+            return typeof(T).GetField(eventName, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(node) as Delegate;
         }
 
-        public static void EventShouldNotBeNull<T>(this T node,string eventName)
+        public static void EventShouldNotBeNull<T>(this T node, string eventName)
         {
             var dg = node.GetDelegate<T>(eventName);
             dg.Should().NotBeNull();
         }
 
-        public static void EventShouldBeNull<T>(this T node,string eventName)
+        public static void EventShouldBeNull<T>(this T node, string eventName)
         {
             var dg = node.GetDelegate<T>(eventName);
             dg.Should().BeNull();
@@ -73,9 +73,14 @@ namespace TileWindow.Tests.TestHelpers
                 windowTracker.Object,
                 rect ?? new RECT(10, 10, 15, 15),
                 direction
-            ) { CallBase = true };
+            )
+            { CallBase = true };
+
             if (callPostInit)
+            {
                 screen.Object.PostInit(childs);
+            }
+
             return screen;
         }
 
@@ -91,13 +96,18 @@ namespace TileWindow.Tests.TestHelpers
                 rect == null ? new RECT(10, 10, 15, 15) : rect,
                 direction,
                 parent
-            ) { CallBase = true };
+            )
+            { CallBase = true };
+            
             if (callPostInit)
+            {
                 mockContainer.Object.PostInit(childs);
+            }
+
             return mockContainer;
         }
 
-       public static WindowNode CreateWindowNode(IntPtr? hWnd = null)
+        public static WindowNode CreateWindowNode(IntPtr? hWnd = null)
         {
             var hwnd = hWnd ?? IntPtr.Zero;
             var dragHandler = new Mock<IDragHandler>();

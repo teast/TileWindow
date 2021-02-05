@@ -242,14 +242,19 @@ namespace TileWindow.Tests.Gherkin
             foreach (var c in desktops.Childs)
             {
                 if (!r.WorkingArea.Equals(c.Rect))
+                {
                     continue;
+                }
 
                 sc = c as ScreenNode;
                 break;
             }
 
             if (sc == null)
+            {
                 throw new InvalidProgramException($"Could not find screen '{screen}' on desktop {desktop}.");
+            }
+            
             return sc;
         }
 

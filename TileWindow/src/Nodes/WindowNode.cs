@@ -75,7 +75,9 @@ namespace TileWindow.Nodes
             this.windowHandler = windowHandler;
             Hwnd = hwnd;
             if (hwnd == IntPtr.Zero)
+            {
                 return;
+            }
 
             _origStyle = pinvokeHandler.GetWindowLongPtr(hwnd, GWL_STYLE).ToInt64();
             _origExStyle = pinvokeHandler.GetWindowLongPtr(hwnd, GWL_EXSTYLE).ToInt64();
@@ -162,7 +164,9 @@ namespace TileWindow.Nodes
 
                 // Make sure we do not override a previous exStyleBeforeHide (if Hide() gets called multiple times before Show)
                 if (_exStyleBeforeHide == 0)
+                {
                     _exStyleBeforeHide = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE).ToInt64();
+                }
 
                 var exStyle = _exStyleBeforeHide;
                 exStyle |= WS_EX_TOOLWINDOW;
@@ -182,7 +186,10 @@ namespace TileWindow.Nodes
 
                 // Make sure to reset exstyle only if we have a value on it
                 if (_exStyleBeforeHide > 0)
+                {
                     pinvokeHandler.SetWindowLongPtr(new HandleRef(h, h.Hwnd), GWL_EXSTYLE, new IntPtr(_exStyleBeforeHide));
+                }
+
                 _exStyleBeforeHide = 0;
 
                 var show = pinvokeHandler.SetWindowPos(Hwnd, IntPtr.Zero, Rect.Left, Rect.Top, _width, _height, SetWindowPosFlags.SWP_SHOWWINDOW);
@@ -258,7 +265,10 @@ namespace TileWindow.Nodes
         public override Node FindNodeWithId(long id)
         {
             if (this.Id == id)
+            {
                 return this;
+            }
+
             return null;
         }
 
@@ -334,7 +344,9 @@ namespace TileWindow.Nodes
                     var w2 = winRect.Right - winRect.Left;
                     var h2 = winRect.Bottom - winRect.Top;
                     if (w2 <= _width && h2 <= _height)
+                    {
                         return true;
+                    }
 
                     //Log.Information($"   ...window ({Name}) dont like the size! {_width}/{_height} != {w2}/{h2}");
                     _width = Math.Max(_width, w2);
@@ -366,11 +378,19 @@ namespace TileWindow.Nodes
                     windowTracker.removeWindow(Hwnd);
 
                     if (_focusListener != Guid.Empty)
+                    {
                         focusHandler.RemoveListener(Hwnd, _focusListener);
+                    }
+
                     if (_closeListener != Guid.Empty)
+                    {
                         windowHandler.RemoveWindowCloseListener(_closeListener);
+                    }
+
                     if (_styleChangedListener != Guid.Empty)
+                    {
                         windowHandler.RemoveWindowStyleChangedListener(_styleChangedListener);
+                    }
                 }
             }
 
@@ -389,19 +409,26 @@ namespace TileWindow.Nodes
         {
             var o = obj as WindowNode;
             if (o == null)
+            {
                 return false;
+            }
+
             return Equals(o);
         }
 
         public bool Equals([AllowNull] WindowNode other)
         {
             if (other == null)
+            {
                 return false;
-            if (ReferenceEquals(this, other))
-                return true;
+            }
 
-            if (
-            !EqualityComparer<long>.Default.Equals(Id, other.Id))
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (!EqualityComparer<long>.Default.Equals(Id, other.Id))
             {
                 return false;
             }
@@ -422,7 +449,9 @@ namespace TileWindow.Nodes
         private void HandleOnDragStart(object _, DragStartEvent arg)
         {
             if (arg.hWnd != Hwnd)
+            {
                 return;
+            }
 
             if (Style != NodeStyle.Floating)
             {
@@ -435,14 +464,20 @@ namespace TileWindow.Nodes
         private void HandleOnDragMove(object _, DragMoveEvent arg)
         {
             if (arg.hWnd != Hwnd)
+            {
                 return;
+            }
 
             // TODO: Maybe we should handle this anyway... make sure x/y equals our current x/y?
             if (_insideDragAction == false)
+            {
                 return;
+            }
 
             if (Style != NodeStyle.Floating)
+            {
                 Style = NodeStyle.Floating;
+            }
 
             if (!pinvokeHandler.GetWindowRect(Hwnd, out RECT rect))
             {
@@ -461,10 +496,14 @@ namespace TileWindow.Nodes
         private void HandleOnDragEnd(object sender, DragEndEvent arg)
         {
             if (arg.hWnd != Hwnd)
+            {
                 return;
+            }
 
             if (Style != NodeStyle.Floating)
+            {
                 Style = NodeStyle.Floating;
+            }
 
             _insideDragAction = false;
         }
@@ -473,9 +512,13 @@ namespace TileWindow.Nodes
         {
             var tb = new StringBuilder(1024);
             if (pinvokeHandler.GetWindowText(Hwnd, tb, tb.Capacity) > 0)
+            {
                 return tb.ToString();
+            }
             else
+            {
                 return Hwnd.ToString();
+            }
         }
 
         private string GetClassName()
@@ -485,7 +528,7 @@ namespace TileWindow.Nodes
             {
                 throw new Exception($"{nameof(WindowNode)}.ctor could not retrieve class name for {Hwnd} [{Name}], error: {pinvokeHandler.GetLastError()}");
             }
-            
+
             return cb.ToString();
         }
 

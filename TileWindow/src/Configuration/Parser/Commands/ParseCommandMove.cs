@@ -23,8 +23,10 @@ namespace TileWindow.Configuration.Parser.Commands
             }
 
             if (data.StartsWith(workspaceNumber) && int.TryParse(data.Substring(workspaceNumber.Length), out int result) && result >= 0 && result < 10)
+            {
                 return ExecuteMoveWorkspace(handler, result, data);
-
+            }
+            
             throw new System.InvalidOperationException($"Unknown move command \"{data}\"");
         }
 
