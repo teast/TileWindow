@@ -12,7 +12,7 @@ namespace TileWindow.Tests.Trackers
 {
     public class FocusTrackerTests
     {
-        Random rnd = new Random();
+        private readonly Random rnd = new Random();
 
         [Fact]
         public void When_TrackingANode_Then_ListenToNodesEvents()
@@ -127,8 +127,10 @@ namespace TileWindow.Tests.Trackers
             var sut = CreateSut();
             var nodes = CreateChain(4, sut);
             var focusNode = nodes.Last();
-            foreach(var n in nodes)
+            foreach (var n in nodes)
+            {
                 sut.Track(n);
+            }
 
             focusNode.SetFocus();
 
@@ -137,8 +139,11 @@ namespace TileWindow.Tests.Trackers
 
             // Assert
             result.Should().NotContain(nodes.First());
-            foreach(var node in nodes.Skip(1))
+            foreach (var node in nodes.Skip(1))
+            {
                 result.Should().Contain(node);
+            }
+
             result.Last().Should().BeEquivalentTo(focusNode);
         }
 
@@ -150,8 +155,11 @@ namespace TileWindow.Tests.Trackers
             var nodes = CreateChain(4, sut);
             var focusNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
 
-            foreach(var n in nodes)
+            foreach (var n in nodes)
+            {
                 sut.Track(n);
+            }
+
             sut.Track(focusNode.Object);
             focusNode.Object.SetFocus();
 
@@ -187,8 +195,11 @@ namespace TileWindow.Tests.Trackers
             var first = nodes.First();
             var second = nodes.Skip(1).First();
 
-            foreach(var n in nodes)
+            foreach (var n in nodes)
+            {
                 sut.Track(n);
+            }
+
             focusNode.SetFocus();
 
             // Act
@@ -208,8 +219,11 @@ namespace TileWindow.Tests.Trackers
             var first = nodes.First();
             var second = nodes.Skip(1).First();
             var secondFocusNode = new Mock<Node>(GetRect(), Direction.Horizontal, null) { CallBase = true };
-            foreach(var n in nodes)
+            foreach (var n in nodes)
+            {
                 sut.Track(n);
+            }
+            
             sut.Track(secondFocusNode.Object);
             firstFocusNode.SetFocus();
             secondFocusNode.Object.Parent = first;
@@ -226,11 +240,11 @@ namespace TileWindow.Tests.Trackers
         #region Helpers
         private RECT GetRect()
         {
-                var x = rnd.Next(1, 200);
-                var y = rnd.Next(1, 200);
-                var x2 = x + rnd.Next(1, 200);
-                var y2 = y + rnd.Next(1, 200);
-                return new RECT(x, y, x2, y2);
+            var x = rnd.Next(1, 200);
+            var y = rnd.Next(1, 200);
+            var x2 = x + rnd.Next(1, 200);
+            var y2 = y + rnd.Next(1, 200);
+            return new RECT(x, y, x2, y2);
         }
 
         private Node[] CreateChain(int depth, IFocusTracker tracker)
@@ -243,7 +257,7 @@ namespace TileWindow.Tests.Trackers
             mockFirst.SetupGet(m => m.Desktop).Returns(desktop.Object);
             nodes.Add(first);
             Node prev = first;
-            for(int i = 1; i < depth; i++)
+            for (int i = 1; i < depth; i++)
             {
                 var n = NodeHelper.CreateMockContainer(GetRect()).Object;
                 prev.AddNodes(n);

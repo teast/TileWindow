@@ -109,6 +109,7 @@ namespace TileWindow.Handlers
 
         public void DumpDebug()
         {
+            // Nothing to do here
         }
 
         protected virtual void RaiseOnDragStart(DragStartEvent arg)

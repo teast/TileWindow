@@ -15,7 +15,7 @@ namespace TileWindow.Nodes
         private readonly IContainerNodeCreater containerNodeCreator;
         private readonly IWindowTracker windowTracker;
         private bool _isVisible = false;
-        private List<int> _ignoreChildsOnUpdateRect;
+        private readonly List<int> _ignoreChildsOnUpdateRect;
 
         public virtual Collection<Node> Childs { get; protected set; }
         public override NodeTypes WhatType => NodeTypes.Container;

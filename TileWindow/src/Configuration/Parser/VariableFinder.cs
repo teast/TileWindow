@@ -65,8 +65,10 @@ namespace TileWindow.Configuration.Parser
                     result += varResult.value + split;
                 }
                 else
+                {
                     result += word + split;
-
+                }
+                
                 (i, split) = IndexOf(remaining, ' ', '+', ';');
             }
 
@@ -83,7 +85,7 @@ namespace TileWindow.Configuration.Parser
                 {
                     return result;
                 }
-                
+
                 p = p.Parent;
             }
 

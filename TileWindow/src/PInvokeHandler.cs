@@ -495,9 +495,13 @@ namespace TileWindow
         public IntPtr SetWindowLongPtr(HandleRef hWnd, int nIndex, IntPtr dwNewLong)
         {
             if (IntPtr.Size == 8)
+            {
                 return PInvoker.SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+            }
             else
+            {
                 return new IntPtr(PInvoker.SetWindowLong32(hWnd, nIndex, dwNewLong.ToInt32()));
+            }
         }
 
         public IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)

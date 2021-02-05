@@ -6,7 +6,7 @@ namespace TileWindow.Handlers
 {
     public class MessageHandlerCollection : IList<IHandler>
     {
-        private IList<IHandler> _handlers;
+        private readonly IList<IHandler> _handlers;
 
         public MessageHandlerCollection(params IHandler[] handlers)
         {

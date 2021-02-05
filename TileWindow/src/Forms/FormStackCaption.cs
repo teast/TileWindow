@@ -13,15 +13,15 @@ namespace TileWindow.Forms
         private readonly RECT position;
         private readonly int captionHeight;
         private readonly ContainerNode owner;
-        private List<Label> labels = new List<Label>();
+        private readonly List<Label> labels = new List<Label>();
         private readonly uint wmc_show;
         private readonly uint signalRefresh;
         private readonly uint signalNewPosition;
         private readonly uint signalNewSize;
         private readonly uint signalShowHide;
         private int lastSelected = -1;
-        private Color selected;
-        private Color selectedText;
+        private readonly Color selected;
+        private readonly Color selectedText;
         private long lastSelectedId;
 
         protected override bool ShowWithoutActivation
@@ -137,8 +137,10 @@ namespace TileWindow.Forms
                     this.Width = m.WParam.ToInt32();
                     this.Height = m.LParam.ToInt32();
                     foreach (var lbl in labels)
+                    {
                         lbl.Width = this.Width;
-
+                    }
+                    
                     if (!ValidateCaptions())
                     {
                         var childs = owner.Childs.ToList();
@@ -184,7 +186,7 @@ namespace TileWindow.Forms
             {
                 return false;
             }
-            
+
             var childs = owner.Childs.ToList();
             for (var i = 0; i < childs.Count; i++)
             {
@@ -201,7 +203,10 @@ namespace TileWindow.Forms
         protected virtual void BuildCaptions(List<Node> nodes)
         {
             foreach (var lbl in labels)
+            {
                 lbl.Dispose();
+            }
+
             labels.Clear();
 
             var y = 0;

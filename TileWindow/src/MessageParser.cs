@@ -10,8 +10,8 @@ namespace TileWindow
 {
     public class MessageParser : IDisposable
     {
-        private ConcurrentQueue<PipeMessageEx> queue;
-        private AppConfig _appConfig;
+        private readonly ConcurrentQueue<PipeMessageEx> queue;
+        private readonly AppConfig _appConfig;
         private readonly ISignalHandler signal;
         private readonly MessageHandlerCollection handlers;
 
@@ -33,7 +33,7 @@ namespace TileWindow
                 {
                     this.ReadConfig();
                     // Clear the stack
-                    while (queue.TryDequeue(out msg)) ;
+                    while (queue.TryDequeue(out msg)) { };
 
                     // Signal done
                     Startup.ParserSignal.ReloadConfig = false;
@@ -43,7 +43,7 @@ namespace TileWindow
                 {
                     break;
                 }
-                
+
                 if (msg.msg == signal.WMC_EXTRATRACK)
                 {
                     Log.Information($"Message: {signal.SignalToString((uint)msg.msg)} ({msg.from}) wParam: {msg.wParam}, lParam: {msg.lParam}");
@@ -154,8 +154,8 @@ namespace TileWindow
             private object locker = new object();
             private bool reloadConfig;
             private bool stopHandlingMessages;
-            private AutoResetEvent msgSignal = new AutoResetEvent(false);
-            private ConcurrentQueue<PipeMessageEx> queue;
+            private readonly AutoResetEvent msgSignal = new AutoResetEvent(false);
+            private readonly ConcurrentQueue<PipeMessageEx> queue;
             public event EventHandler RestartThreads;
             public bool Done { get; set; }
 

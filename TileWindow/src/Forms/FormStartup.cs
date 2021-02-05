@@ -19,8 +19,8 @@ namespace TileWindow.Forms
 	/// </summary>
 	public partial class FormStartup : Form
 	{
-		private ResourceManager resources = new ResourceManager(typeof(FormStartup));
-		private AppResource _appResource;
+		private readonly ResourceManager resources = new ResourceManager(typeof(FormStartup));
+		private readonly AppResource _appResource;
 
 		public FormStartup(AppResource appResource)
 		{

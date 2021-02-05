@@ -9,8 +9,8 @@ namespace TileWindow
     /// </summary>
     class SessionChangeHandler : Control
     {
-        private IPInvokeHandler pinvokeHandler;
-        private bool _registered;
+        private readonly IPInvokeHandler pinvokeHandler;
+        private readonly bool _registered;
         public event EventHandler MachineLocked;
         public event EventHandler MachineUnlocked;
 
@@ -29,8 +29,10 @@ namespace TileWindow
         {
             // unregister the handle before it gets destroyed
             if (_registered)
+            {
                 pinvokeHandler.WTSUnRegisterSessionNotification(this.Handle);
-
+            }
+            
             base.OnHandleDestroyed(e);
         }
 

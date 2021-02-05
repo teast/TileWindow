@@ -38,6 +38,7 @@ namespace TileWindow.Forms
 		
 		void BtnSaveChangesClick(object sender, EventArgs e)
 		{
+			// Not yet in used
 		}
 		
 		void BtnCloseClick(object sender, EventArgs e)

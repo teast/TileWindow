@@ -54,7 +54,9 @@ namespace TileWindow.Nodes.Renderers
         public void PreUpdate(ContainerNode owner, Collection<Node> childs)
         {
             if (_disposedCalled)
+            {
                 return;
+            }
 
             if (Owner != null && Owner != owner)
             {
@@ -128,7 +130,9 @@ namespace TileWindow.Nodes.Renderers
         public (bool result, RECT newRect) Update(List<int> ignoreChildsWithIndex)
         {
             if (_disposedCalled)
+            {
                 return (true, Owner.Rect);
+            }
 
             if (_formThread?.ThreadState != ThreadState.Running)
             {
@@ -195,6 +199,7 @@ namespace TileWindow.Nodes.Renderers
             {
                 return true;
             }
+            
             if (_formHandle != IntPtr.Zero)
             {
                 pinvokeHandler.SendMessage(_formHandle, signalShowHide, new IntPtr(1), IntPtr.Zero);
@@ -262,7 +267,7 @@ namespace TileWindow.Nodes.Renderers
             {
                 return;
             }
-            
+
             Update(new List<int>());
         }
 

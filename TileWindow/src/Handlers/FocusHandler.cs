@@ -16,7 +16,7 @@ namespace TileWindow.Handlers
     {
         private readonly ISignalHandler signal;
         private readonly IWindowTracker windowTracker;
-        private Dictionary<IntPtr, List<Tuple<Guid, Action<bool>>>> _listeners;
+        private readonly Dictionary<IntPtr, List<Tuple<Guid, Action<bool>>>> _listeners;
 
         public FocusHandler(ISignalHandler signal, IWindowTracker windowTracker)
         {

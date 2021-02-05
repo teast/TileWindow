@@ -69,9 +69,9 @@ namespace TileWindow.Trackers
     public class IgnoreHwndInfo
     {
         public static readonly int Infinitive = -1;
-        private IntPtr _hWnd;
+        private readonly IntPtr _hWnd;
+        private readonly int _max;
         private int _count;
-        private int _max;
 
         public IntPtr Hwnd => _hWnd;
 
@@ -108,8 +108,8 @@ namespace TileWindow.Trackers
 
     public class WindowTracker : IWindowTracker
     {
-        private Dictionary<IntPtr, Node> _windows = new Dictionary<IntPtr, Node>();
-        private List<IgnoreHwndInfo> _ignoreHwnds;
+        private readonly Dictionary<IntPtr, Node> _windows = new Dictionary<IntPtr, Node>();
+        private readonly List<IgnoreHwndInfo> _ignoreHwnds;
         private readonly IList<Regex> classNamesToIgnore;
         private readonly IList<Regex> captionsToIgnore;
         private readonly IPInvokeHandler pinvokeHandler;

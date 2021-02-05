@@ -17,11 +17,11 @@ namespace TileWindow.Nodes
 
         private int _width;
         private int _height;
-        private long _origStyle;
-        private long _origExStyle;
         private long _exStyleBeforeHide;
-        private RECT _origRect;
         private bool _quit;
+        private readonly long _origStyle;
+        private readonly long _origExStyle;
+        private readonly RECT _origRect;
         private readonly IDragHandler dragHandler;
         private readonly IFocusHandler focusHandler;
         private readonly ISignalHandler signalHandler;
@@ -32,7 +32,7 @@ namespace TileWindow.Nodes
         private Guid _closeListener = Guid.Empty;
         private Guid _styleChangedListener = Guid.Empty;
         public string ClassName { get; }
-        private long _parentHwnd;
+        private readonly long _parentHwnd;
         private bool _insideDragAction;
         public IntPtr Hwnd { get; private set; }
 
@@ -154,6 +154,7 @@ namespace TileWindow.Nodes
 
         public override void PostInit()
         {
+            // Nothing to do here
         }
 
         public override bool Hide()

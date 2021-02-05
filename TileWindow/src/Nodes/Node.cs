@@ -450,7 +450,7 @@ namespace TileWindow.Nodes
             {
                 return;
             }
-            
+
             Parent?.ChildWantMove(this, TransferDirection.Left);
         }
 
@@ -463,7 +463,7 @@ namespace TileWindow.Nodes
             {
                 return;
             }
-            
+
             Parent?.ChildWantMove(this, TransferDirection.Up);
         }
 
@@ -476,7 +476,7 @@ namespace TileWindow.Nodes
             {
                 return;
             }
-            
+
             Parent?.ChildWantMove(this, TransferDirection.Right);
         }
 
@@ -489,7 +489,7 @@ namespace TileWindow.Nodes
             {
                 return;
             }
-            
+
             Parent?.ChildWantMove(this, TransferDirection.Down);
         }
 
@@ -527,7 +527,9 @@ namespace TileWindow.Nodes
         {
             Log.Verbose($"(NODE.cs){this} Dispose (IsDisposed == {IsDisposed}");
             if (IsDisposed)
+            {
                 return;
+            }
 
             IsDisposed = true;
         }
@@ -536,19 +538,26 @@ namespace TileWindow.Nodes
         {
             var o = obj as Node;
             if (o == null)
+            {
                 return false;
+            }
+
             return Equals(o);
         }
 
         public bool Equals([AllowNull] Node other)
         {
             if (other == null)
+            {
                 return false;
-            if (ReferenceEquals(this, other))
-                return true;
+            }
 
-            if (
-            !EqualityComparer<long>.Default.Equals(Id, other.Id))
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (!EqualityComparer<long>.Default.Equals(Id, other.Id))
             {
                 return false;
             }

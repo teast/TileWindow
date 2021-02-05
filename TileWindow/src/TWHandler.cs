@@ -12,19 +12,19 @@ namespace TileWindow
 {
     public class TWHandler : IDisposable
     {
-        private string exec;
-        private string pipeName;
+        private readonly string exec;
+        private readonly string pipeName;
         private NamedPipeServerStream pipe = null;
         private BinaryReader pipeReader = null;
         private Process proc = null;
-        private ConcurrentQueue<PipeMessageEx> queue;
+        private readonly ConcurrentQueue<PipeMessageEx> queue;
 
         private bool stopCalled;
-        private bool disableWinKey;
+        private readonly bool disableWinKey;
         private readonly bool showHooks;
         private readonly IPInvokeHandler pinvokeHandler;
         private readonly ISignalHandler signalHandler;
-        private AutoResetEvent pipeDone = new AutoResetEvent(false);
+        private readonly AutoResetEvent pipeDone = new AutoResetEvent(false);
 
         public TWHandler(string exec, string pipeName, ref ConcurrentQueue<PipeMessageEx> queue, AppConfig appConfig, IPInvokeHandler pinvokeHandler, ISignalHandler signalHandler)
         {

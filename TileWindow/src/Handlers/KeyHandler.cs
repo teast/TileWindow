@@ -70,6 +70,7 @@ namespace TileWindow.Handlers
 
         public void Quit()
         {
+            // Nothing to do here
         }
 
         public Guid AddListener(ulong[] keyCombo, Func<ulong[], bool> callback)

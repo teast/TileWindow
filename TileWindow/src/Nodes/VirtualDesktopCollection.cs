@@ -20,7 +20,7 @@ namespace TileWindow.Nodes
         }
     }
 
-    public interface IVirtualDesktopCollection: IEnumerable<IVirtualDesktop>
+    public interface IVirtualDesktopCollection : IEnumerable<IVirtualDesktop>
     {
         event EventHandler<DesktopChangeEventArg> DesktopChange;
         int Count { get; }
@@ -57,11 +57,15 @@ namespace TileWindow.Nodes
             set
             {
                 if (value < 0 || value >= _desktops.Length)
+                {
                     return;
+                }
 
                 if (_activeDesktop == value)
+                {
                     return;
-                
+                }
+
                 var oldDesktop = _activeDesktop;
                 _desktops[_activeDesktop].Hide();
                 _activeDesktop = value;
@@ -78,7 +82,10 @@ namespace TileWindow.Nodes
             set
             {
                 if (_desktops[index] != null)
+                {
                     _desktops[index].ChildSetChange -= OnChildCountChange;
+                }
+
                 _desktops[index] = value;
                 _desktops[index].ChildSetChange += OnChildCountChange;
                 _desktops[index].ReRaiseChildCountChange();
@@ -89,7 +96,7 @@ namespace TileWindow.Nodes
         public void CopyTo(IVirtualDesktop[] array, int arrayIndex) => _desktops.CopyTo(array, arrayIndex);
         IEnumerator IEnumerable.GetEnumerator() => _desktops.GetEnumerator();
         public IEnumerator<IVirtualDesktop> GetEnumerator() => _desktops.ToList().GetEnumerator();
-        
+
         protected virtual void RaiseDesktopChange(DesktopChangeEventArg args)
         {
             DesktopChange?.Invoke(this, args);
@@ -104,7 +111,9 @@ namespace TileWindow.Nodes
         {
             var o = sender as IVirtualDesktop;
             if (o == null)
+            {
                 return;
+            }
             
             RaiseDesktopChange(new DesktopChangeEventArg(o.Index, e.Visible, ActiveDesktop.Index == o.Index));
         }

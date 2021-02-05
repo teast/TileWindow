@@ -12,7 +12,7 @@ namespace TileWindow.Tests.Nodes
     public class VirtualDesktopTests
     {
 
-#region PostInit
+        #region PostInit
         [Fact]
         public void When__CreatingNewVirtualDesktop_Then_SetFocusToFirstChild_So_FocusNodeIsNotNull()
         {
@@ -26,8 +26,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             screen.Verify(m => m.SetFocus(null));
         }
-#endregion
-#region AddFloatingNode
+        #endregion
+        #region AddFloatingNode
         [Fact]
         public void When_AddFloatingNode_Then_NodeShouldBeTakenChangedToFloating_And_AddedToFloatingNodes()
         {
@@ -78,8 +78,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             child.Verify(m => m.Show());
         }
-#endregion
-#region HandleSwitchFloating
+        #endregion
+        #region HandleSwitchFloating
         [Fact]
         public void When_HandleSwitchFloating_And_FocusNodeIsVirtualDesktopChild_Then_DoNothing()
         {
@@ -161,8 +161,8 @@ namespace TileWindow.Tests.Nodes
             child.VerifySet(m => m.Style = NodeStyle.Tile);
             sut.FloatingNodes.Should().NotContain(child.Object);
         }
-#endregion
-#region MoveFloatingNodeToDesktop
+        #endregion
+        #region MoveFloatingNodeToDesktop
         [Fact]
         public void When_TransferFocusNodeToDesktop_And_NodeIsFloating_Then_DoTheMove()
         {
@@ -170,8 +170,8 @@ namespace TileWindow.Tests.Nodes
             var floatingNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var screenSut = NodeHelper.CreateMockScreen();
             var screenDest = NodeHelper.CreateMockScreen();
-            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[]{ screenSut.Object});
-            var destination = CreateMockSut(childs: new ScreenNode[]{ screenDest.Object});
+            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screenSut.Object });
+            var destination = CreateMockSut(childs: new ScreenNode[] { screenDest.Object });
             sut.AddFloatingNode(floatingNode.Object);
             destination.Setup(m => m.AddNodes(floatingNode.Object)).Returns(true).Verifiable("AddNodes should be called when moving a node");
             focusTracker.Setup(m => m.FocusNode()).Returns(floatingNode.Object);
@@ -192,9 +192,9 @@ namespace TileWindow.Tests.Nodes
             var floatingNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var screenSut = NodeHelper.CreateMockScreen();
             var screenDest = NodeHelper.CreateMockScreen();
-            var mockSut = CreateMockSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[]{ screenSut.Object});
+            var mockSut = CreateMockSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screenSut.Object });
             var sut = mockSut.Object;
-            var destination = CreateMockSut(childs: new ScreenNode[]{ screenDest.Object});
+            var destination = CreateMockSut(childs: new ScreenNode[] { screenDest.Object });
             sut.AddFloatingNode(floatingNode.Object);
             mockSut.Setup(m => m.DisconnectChild(floatingNode.Object)).Returns(false).Verifiable();
             focusTracker.Setup(m => m.FocusNode()).Returns(floatingNode.Object);
@@ -213,8 +213,8 @@ namespace TileWindow.Tests.Nodes
             var floatingNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var screenSut = NodeHelper.CreateMockScreen();
             var screenDest = NodeHelper.CreateMockScreen();
-            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[]{ screenSut.Object});
-            var destination = CreateMockSut(childs: new ScreenNode[]{ screenDest.Object});
+            var sut = CreateSut(focusTracker: out Mock<FocusTracker> focusTracker, childs: new ScreenNode[] { screenSut.Object });
+            var destination = CreateMockSut(childs: new ScreenNode[] { screenDest.Object });
             sut.AddFloatingNode(floatingNode.Object);
             destination.Setup(m => m.AddNodes(floatingNode.Object)).Returns(true).Verifiable("AddNodes should be called when moving a node");
             focusTracker.Setup(m => m.FocusNode()).Returns(floatingNode.Object);
@@ -226,15 +226,15 @@ namespace TileWindow.Tests.Nodes
             // Assert
             focusTracker.Verify(m => m.Untrack(floatingNode.Object));
         }
-#endregion
-#region DisconnectChild
+        #endregion
+        #region DisconnectChild
         [Fact]
         public void When_DisconnectChild_And_NodeIsFloating_Then_DisconnectListeners()
         {
             // Arrange
             var floatingNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var screenSut = NodeHelper.CreateMockScreen();
-            var sut = CreateSut(childs: new ScreenNode[]{ screenSut.Object});
+            var sut = CreateSut(childs: new ScreenNode[] { screenSut.Object });
             sut.AddFloatingNode(floatingNode.Object);
 
             // Act
@@ -250,7 +250,7 @@ namespace TileWindow.Tests.Nodes
             // Arrange
             var floatingNode = new Mock<Node>(new RECT(), Direction.Horizontal, null) { CallBase = true };
             var screenSut = NodeHelper.CreateMockScreen();
-            var sut = CreateSut(childs: new ScreenNode[]{ screenSut.Object});
+            var sut = CreateSut(childs: new ScreenNode[] { screenSut.Object });
             sut.AddFloatingNode(floatingNode.Object);
             floatingNode.Object.SetFocus();
 
@@ -262,8 +262,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             sut.MyFocusNode.Should().Be(screenSut.Object);
         }
-#endregion
-#region RemoveChild
+        #endregion
+        #region RemoveChild
         [Fact]
         public void When_RemoveChild_And_Floating_Then_DisconnectIt()
         {
@@ -295,8 +295,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             child.Verify(m => m.Dispose());
         }
-#endregion
-#region Show
+        #endregion
+        #region Show
         [Fact]
         public void When_Show_Then_ShowFloatingNodes()
         {
@@ -326,8 +326,8 @@ namespace TileWindow.Tests.Nodes
             // Act && Assert
             sut.Show();
         }
-#endregion
-#region Hide
+        #endregion
+        #region Hide
         [Fact]
         public void When_Hide_Then_HideFloatingNodes()
         {
@@ -345,8 +345,8 @@ namespace TileWindow.Tests.Nodes
             child.Verify(m => m.Hide());
         }
 
-#endregion
-#region ScreensChanged
+        #endregion
+        #region ScreensChanged
         [Fact]
         public void When_ScreenChanged_And_LessScreens_Then_TransferChilds_And_RemoveScreens()
         {
@@ -406,8 +406,8 @@ namespace TileWindow.Tests.Nodes
             screenCreater.VerifyAll();
             sut.Childs.Should().Contain(newNode.Object);
         }
-#endregion
-#region HandleLayoutToggleSplit
+        #endregion
+        #region HandleLayoutToggleSplit
         [Fact]
         public void When_HandleLayoutToggleSplit_And_RendererIsNotOfTypeTileRenderer_Then_SetRendererToTileRenderer()
         {
@@ -460,8 +460,8 @@ namespace TileWindow.Tests.Nodes
             // Assert
             focusNode.Verify(m => m.ChangeDirection(Direction.Horizontal));
         }
-#endregion
-#region HandleVerticalDirection
+        #endregion
+        #region HandleVerticalDirection
         [Fact]
         public void When_HandleVerticalDirection_And_FocusNodeCanHaveChilds_Then_ChangeItsDirectionToVertical()
         {
@@ -522,8 +522,8 @@ namespace TileWindow.Tests.Nodes
             newParent.Verify(m => m.AddNodes(It.IsAny<Node>()), Times.Never);
             newParent.Verify(m => m.Dispose());
         }
-#endregion
-#region HandleHorizontalDirection
+        #endregion
+        #region HandleHorizontalDirection
         [Fact]
         public void When_HandleHorizontalDirection_And_FocusNodeCanHaveChilds_Then_ChangeItsDirectionToHorizontal()
         {
@@ -584,8 +584,8 @@ namespace TileWindow.Tests.Nodes
             newParent.Verify(m => m.AddNodes(It.IsAny<Node>()), Times.Never);
             newParent.Verify(m => m.Dispose());
         }
-#endregion
-#region ChildNodeStyleChange
+        #endregion
+        #region ChildNodeStyleChange
         [Fact]
         public void When_NodestyleChanges_And_StyleBecomesFloating_Then_TakeOverNode()
         {
@@ -603,9 +603,9 @@ namespace TileWindow.Tests.Nodes
             child.Style.Should().Be(NodeStyle.Floating);
             sut.FloatingNodes.Should().Contain(child);
         }
-#endregion
+        #endregion
 
-#region helpers
+        #region helpers
         private VirtualDesktop CreateSut(out Mock<IScreenNodeCreater> screenCreater, RECT? rect = null, Direction direction = Direction.Horizontal, ScreenNode[] childs = null, bool callPostInit = true)
         {
             return CreateMockSut(out screenCreater, out _, out _, out _, rect, direction, childs, callPostInit).Object;
@@ -661,11 +661,15 @@ namespace TileWindow.Tests.Nodes
                 containerCreater.Object,
                 windowTracker.Object,
                 rect ?? new RECT(10, 20, 30, 40),
-                direction) { CallBase = true };
+                direction)
+            { CallBase = true };
             if (callPostInit)
+            {
                 desktop.Object.PostInit(childs);
+            }
+            
             return desktop;
         }
-#endregion
+        #endregion
     }
 }

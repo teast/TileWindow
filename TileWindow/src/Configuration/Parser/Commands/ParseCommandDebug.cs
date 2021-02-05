@@ -9,7 +9,9 @@ namespace TileWindow.Configuration.Parser.Commands
         public override bool Execute(ICommandHandler handler, string data)
         {
             if (data == "debug graph")
+            {
                 return handler.CmdDebugGraph(data);
+            }
             
             throw new System.InvalidOperationException($"Unknown debug command \"{data}\"");
         }

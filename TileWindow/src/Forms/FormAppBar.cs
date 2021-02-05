@@ -16,14 +16,14 @@ namespace TileWindow.Forms
         private readonly uint signalShowHide;
         private uint uCallBack;
         private bool fBarRegistered = false;
-        private Color backColor;
-        private Color focusForeColor;
-        private Color focusBackColor;
-        private Color color;
-        private int wantedSize;
-        private int iconSize;
-        private int contentStart;
-        private bool contentStartTop;
+        private readonly Color backColor;
+        private readonly Color focusForeColor;
+        private readonly Color focusBackColor;
+        private readonly Color color;
+        private readonly int wantedSize;
+        private readonly int iconSize;
+        private readonly int contentStart;
+        private readonly bool contentStartTop;
 
         protected override System.Windows.Forms.CreateParams CreateParams
         {

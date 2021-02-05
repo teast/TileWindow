@@ -23,9 +23,9 @@ namespace TileWindow.Handlers
         private readonly ICommandHelper commandHelper;
         private readonly IWindowTracker windowTracker;
         private readonly IPInvokeHandler pinvokeHandler;
-        private List<IntPtr> HandlesToIgnore;
+        private readonly List<IntPtr> HandlesToIgnore;
         private readonly IScreens screensInfo;
-        private IVirtualDesktopCollection desktops;
+        private readonly IVirtualDesktopCollection desktops;
 
         private RECT[] _screens;
 
@@ -135,7 +135,7 @@ namespace TileWindow.Handlers
                 {
                     return new
                     {
-                        node = node,
+                        node,
                         Screen = -1
                     };
                 }
@@ -321,6 +321,7 @@ namespace TileWindow.Handlers
 
         public void Dispose()
         {
+            // Nothing to do here
         }
 
         private void HandleMessageShowWindow(PipeMessageEx msg)

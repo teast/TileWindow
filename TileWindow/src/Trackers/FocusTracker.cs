@@ -85,7 +85,7 @@ namespace TileWindow.Trackers
     {
         public virtual event EventHandler<FocusChangedEventArg> FocusChanged;
 
-        private Dictionary<Node, Node> _tracker;
+        private readonly Dictionary<Node, Node> _tracker;
         private Node _focusNode;
 
         public int DesktopIndex { get; set; }

@@ -14,7 +14,7 @@ namespace TileWindow
         private NotifyIcon notifyIcon;
         private ContextMenu notificationMenu;
         //private FormConfig frmConfig;
-        private ResourceManager resources = new ResourceManager(typeof(NotificationIcon));
+        private readonly ResourceManager resources = new ResourceManager(typeof(NotificationIcon));
         private readonly AppConfig _appConfig;
         private readonly AppResource _appResource;
 

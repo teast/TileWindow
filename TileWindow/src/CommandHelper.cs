@@ -16,9 +16,9 @@ namespace TileWindow.Handlers
 
     public class CommandHelper : ICommandHelper, ICommandHandler
     {
-        public readonly IVirtualDesktopCollection desktops;
-        public readonly IPInvokeHandler pinvokeHandler;
-        public readonly ICommandExecutor commandExecutor;
+        private readonly IVirtualDesktopCollection desktops;
+        private readonly IPInvokeHandler pinvokeHandler;
+        private readonly ICommandExecutor commandExecutor;
 
         public CommandHelper(IVirtualDesktopCollection desktops, IPInvokeHandler pinvokeHandler, ICommandExecutor commandExecutor)
         {

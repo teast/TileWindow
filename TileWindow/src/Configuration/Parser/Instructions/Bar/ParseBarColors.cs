@@ -28,17 +28,21 @@ namespace TileWindow.Configuration.Parser.Instructions.Bar
 
             // Try parse outer "colors {}" command and return if it was a success
             if (ParseColors(particles, ref data))
+            {
                 return true;
+            }
 
             // Try parse colors that has only one color on them (and located inside colors mode)
-            foreach(var color in _validSingleColors)
+            foreach (var color in _validSingleColors)
             {
                 if (ParseSingleColor(color, particles, ref data))
+                {
                     return true;
+                }
             }
 
             // Try parse colors that got three colors on them (and located inside colors mode)
-            foreach(var color in _validColorClass)
+            foreach (var color in _validColorClass)
             {
                 if (ParseColorClass(color, particles, ref data))
                 {
@@ -52,8 +56,10 @@ namespace TileWindow.Configuration.Parser.Instructions.Bar
         private bool ParseColors(string[] particles, ref ConfigCollection data)
         {
             if (data.Name != "bar" || particles[0] != Instruction)
+            {
                 return false;
-            
+            }
+
             if (particles[1].StartsWith('{') == false)
             {
                 AddError("Invalid value for bar:colors. It should be followed by an {");
@@ -69,7 +75,9 @@ namespace TileWindow.Configuration.Parser.Instructions.Bar
         private bool ParseSingleColor(string color, string[] particles, ref ConfigCollection data)
         {
             if (data.Name != "colors" || particles[0] != color)
+            {
                 return false;
+            }
 
             if (particles.Length != 2)
             {
@@ -93,9 +101,10 @@ namespace TileWindow.Configuration.Parser.Instructions.Bar
         private bool ParseColorClass(string color, string[] particles, ref ConfigCollection data)
         {
             if (data.Name != "colors" || particles[0] != color)
+            {
                 return false;
+            }
 
-                
             if (particles.Length != 4)
             {
                 AddError($"Invalid command \"{string.Join(' ', particles)}\". should be: \"{color} #0055aa #ffaa00 #bbccdd\"");
