@@ -73,7 +73,7 @@ namespace TileWindow.Tests.Nodes
             sut.PostInit(screen);
 
             // Act
-            var result = sut.AddFloatingNode(child.Object);
+            sut.AddFloatingNode(child.Object);
 
             // Assert
             child.Verify(m => m.Show());

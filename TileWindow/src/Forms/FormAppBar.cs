@@ -187,7 +187,7 @@ namespace TileWindow.Forms
                 uCallBack = pinvokeHandler.RegisterWindowMessage("AppBarMessage");
                 abd.uCallbackMessage = uCallBack;
 
-                uint ret = pinvokeHandler.SHAppBarMessage((int)ABMsg.ABM_NEW, ref abd);
+                pinvokeHandler.SHAppBarMessage((int)ABMsg.ABM_NEW, ref abd);
                 fBarRegistered = true;
 
                 ABSetPos();

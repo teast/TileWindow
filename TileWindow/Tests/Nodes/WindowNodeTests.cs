@@ -51,7 +51,7 @@ namespace TileWindow.Tests.Nodes
             dragHandler.SetupAdd(m => m.OnDragMove += (sender, args) => { });
 
             // Act
-            var sut = new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
+            new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, new RECT(10, 20, 30, 40), hWnd);
 
             // Assert
             dragHandler.VerifyAdd(m => m.OnDragEnd += It.IsAny<EventHandler<DragEndEvent>>(), Times.Once);
@@ -74,7 +74,7 @@ namespace TileWindow.Tests.Nodes
             pinvokeHandler.Setup(m => m.GetClassName(hWnd, It.IsAny<StringBuilder>(), It.IsAny<int>())).Returns(1);
 
             // Arrange & Act
-            var sut = new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect, hWnd);
+            new WindowNode(dragHandler.Object, focusHandler.Object, signalHandler.Object, windowHandler.Object, windowTracker.Object, pinvokeHandler.Object, rect, hWnd);
 
             // Assert
             pinvokeHandler.Verify(m => m.SetWindowPos(new IntPtr(1), IntPtr.Zero, rect.Left, rect.Top, rect.Right-rect.Left, rect.Bottom-rect.Top, It.IsAny<SetWindowPosFlags>()));
@@ -394,7 +394,6 @@ namespace TileWindow.Tests.Nodes
         {
             // Arrange
             var hWnd = new IntPtr(1);
-            var guid = Guid.NewGuid();
             var sut = CreateSut(dragHandler: out Mock<IDragHandler> dragHandler, hwnd: hWnd);
             dragHandler.SetupRemove(m => m.OnDragEnd -= (sender, arg) => {});
             dragHandler.SetupRemove(m => m.OnDragStart -= (sender, arg) => {});

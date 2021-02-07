@@ -43,7 +43,6 @@ namespace TileWindow.Nodes
             get => base.Style;
             set
             {
-                var old = base.Style;
                 base.Style = value;
 
                 if (Hwnd != IntPtr.Zero)
@@ -123,12 +122,6 @@ namespace TileWindow.Nodes
                         break;
                     case WindowStyleChangedType.Maximize:
                         updateRect = true;
-                        break;
-                    case WindowStyleChangedType.Style:
-                        {
-                            var style = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_STYLE);
-                            var exstyle = pinvokeHandler.GetWindowLongPtr(Hwnd, GWL_EXSTYLE);
-                        }
                         break;
                 }
 

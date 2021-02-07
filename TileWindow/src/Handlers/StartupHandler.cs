@@ -40,7 +40,6 @@ namespace TileWindow.Handlers
             this.windowTracker = windowTracker;
             this.pinvokeHandler = pinvokeHandler;
             this.HandlesToIgnore = new List<IntPtr>();
-            var screens = new List<ContainerNode>();
 
             var result = screensInfo.AllScreens.GetOrderRect();
             _screens = result.rect.ToArray();
@@ -261,7 +260,6 @@ namespace TileWindow.Handlers
             else if (msg.msg == signal.WMC_SCRESTORE)
             {
                 var hwnd = new IntPtr((long)msg.wParam);
-                var node = windowTracker.GetNodes(hwnd);
             }
             else if (msg.msg == signal.WMC_ACTIVATEAPP)
             {

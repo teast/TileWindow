@@ -62,7 +62,6 @@ namespace TileWindow.Tests.Nodes
         public void When_Initialize_And_ChildRequireBiggerRect_Then_RequestBiggerRectForSelf()
         {
             // Arrange
-            var smallRect = new RECT(10, 10, 20, 20);
             var biggerRect = new RECT(10, 10, 200, 200);
             var child1 = new Mock<Node>(biggerRect, Direction.Horizontal, null);
             var child2 = new Mock<Node>(new RECT(), Direction.Horizontal, null);
@@ -441,7 +440,7 @@ namespace TileWindow.Tests.Nodes
             var sut = CreateSut(parent: out Mock<Node> parent, childs: childs);
 
             // Act
-            var result = sut.FocusNodeInDirection(sut, TransferDirection.Up);
+            sut.FocusNodeInDirection(sut, TransferDirection.Up);
 
             // Assert
             parent.Verify(m => m.FocusNodeInDirection(sut, TransferDirection.Up));
@@ -1846,12 +1845,11 @@ namespace TileWindow.Tests.Nodes
             remainig.Invocations.Clear();
 
             // Act
-            var result = sut.TransferNodeToAnotherDesktop(child, destination.Object);
+            sut.TransferNodeToAnotherDesktop(child, destination.Object);
 
             // Assert
             renderer.Verify(m => m.PreUpdate(sut, sut.Childs));
             renderer.Verify(m => m.Update(It.IsAny<List<int>>()));
-
         }
 
         [Fact]

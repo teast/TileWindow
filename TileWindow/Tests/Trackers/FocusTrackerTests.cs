@@ -22,7 +22,7 @@ namespace TileWindow.Tests.Trackers
             var sut = CreateSut();
 
             // Act
-            var result = sut.Track(node.Object);
+            sut.Track(node.Object);
 
             // Assert
             node.Object.EventShouldNotBeNull(nameof(Node.Deleted));
@@ -40,7 +40,7 @@ namespace TileWindow.Tests.Trackers
             node.Object.EventShouldNotBeNull(nameof(Node.WantFocus));
 
             // Act
-            var result = sut.Untrack(node.Object);
+            sut.Untrack(node.Object);
 
             // Assert
             node.Object.EventShouldBeNull(nameof(Node.Deleted));

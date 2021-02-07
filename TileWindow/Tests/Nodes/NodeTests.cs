@@ -103,7 +103,6 @@ namespace TileWindow.Tests.Nodes
         public void When_Resize_Up_Then_Resize_Correct()
         {
             // Assign
-            var newRect = new RECT(20, 30, 40, 50);
             var sut = new Tester();
             Node sender = null;
             RequestRectChangeEventArg args = null;

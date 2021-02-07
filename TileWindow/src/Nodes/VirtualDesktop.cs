@@ -762,7 +762,6 @@ namespace TileWindow.Nodes
 
         private bool MakeNodeNonFloating(Node node)
         {
-            var i = FloatingNodes.IndexOf(node);
             DisconnectChild(node);
             var screen = Childs.FirstOrDefault();
             var area = 0L;

@@ -46,7 +46,6 @@ namespace TileWindow.UserControls
             var preva = keystate[KEY_ALT];
             var prevs = keystate[KEY_SHIFT];
             var prevc = keystate[KEY_CTRL];
-            var prev = keystate[e.KeyValue];
 
             keystate[KEY_ALT] = e.Alt;
             keystate[KEY_SHIFT] = e.Shift;
