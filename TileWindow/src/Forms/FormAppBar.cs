@@ -158,7 +158,6 @@ namespace TileWindow.Forms
 
         private void HandleShowHide(bool visible, bool focus, int index)
         {
-            Log.Information($"FormAppBar: {index}: visible: {visible}, focus: {focus}, this height: {this.Size}");
             if (visible)
             {
                 AddLabel(index, focus);

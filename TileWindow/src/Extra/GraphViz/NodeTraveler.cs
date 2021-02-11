@@ -59,7 +59,7 @@ namespace TileWindow.Extra.GraphViz
 
         protected virtual NodeParseResult ParseNode(IVirtualDesktop node)
         {
-            var result = ParseContainer("VirtualDesktop #" + (node.Index + 1) + " (id: " + node.Index + ")", node.Direction, node.MyFocusNode, node.FocusNode, node.Childs);
+            var result = ParseContainer("VirtualDesktop #" + (node.Index + 1) + " (id: " + node.Index + ")", node.Direction, new RECT(), node.MyFocusNode, node.FocusNode, node.Childs);
             if (node.FloatingNodes.Count == 0)
             {
                 return result;
@@ -96,19 +96,19 @@ namespace TileWindow.Extra.GraphViz
             {
                 var myFocus = (node as FixedContainerNode).Desktop.FocusTracker.MyLastFocusNode(node);
                 var focus = (node as FixedContainerNode).Desktop.FocusTracker.FocusNode();
-                return ParseContainer("FixedContainer", node.Direction, myFocus, focus, (node as FixedContainerNode).Childs);
+                return ParseContainer("FixedContainer", node.Direction, node.Rect.CloneType(), myFocus, focus, (node as FixedContainerNode).Childs);
             }
             else if (t == typeof(ScreenNode))
             {
                 var myFocus = (node as ScreenNode).Desktop.FocusTracker.MyLastFocusNode(node);
                 var focus = (node as ScreenNode).Desktop.FocusTracker.FocusNode();
-                return ParseContainer("ScreenContainer", node.Direction, myFocus, focus, (node as ScreenNode).Childs);
+                return ParseContainer("ScreenContainer", node.Direction, node.Rect.CloneType(), myFocus, focus, (node as ScreenNode).Childs);
             }
             else if (t == typeof(ContainerNode))
             {
                 var myFocus = (node as ContainerNode).Desktop.FocusTracker.MyLastFocusNode(node);
                 var focus = (node as ContainerNode).Desktop.FocusTracker.FocusNode();
-                return ParseContainer("Container", node.Direction, myFocus, focus, (node as ContainerNode).Childs);
+                return ParseContainer("Container", node.Direction, node.Rect.CloneType(), myFocus, focus, (node as ContainerNode).Childs);
             }
             else if (t == typeof(WindowNode))
             {
@@ -120,14 +120,14 @@ namespace TileWindow.Extra.GraphViz
             }
         }
 
-        protected virtual NodeParseResult ParseContainer(string containerName, Direction direction, Node myFocusNode, Node focusNode, IList<Node> childs)
+        protected virtual NodeParseResult ParseContainer(string containerName, Direction direction, RECT rect, Node myFocusNode, Node focusNode, IList<Node> childs)
         {
             var cluster = AllocCluster();
             var objects = new List<GraphObject>();
             var relations = new List<GraphRelation>();
             var clusters = new List<GraphCluster>();
             cluster.Label = $"{containerName} - {direction.ToString()}";
-
+            cluster.Rect = rect;
             ParseChilds(ref cluster, ref objects, ref relations, ref clusters, myFocusNode, focusNode, childs);
 
             return new NodeParseResult(cluster, objects, relations, clusters);
@@ -143,6 +143,7 @@ namespace TileWindow.Extra.GraphViz
                 var obj = AllocObject();
                 obj.Label = c.ShortName;
                 obj.Shape = GraphShapeEnum.Circle;
+                obj.Rect = c.Rect.CloneType();
 
                 if (c == focusNode)
                 {
@@ -238,6 +239,7 @@ namespace TileWindow.Extra.GraphViz
     {
         public string Name { get; set; }
         public string Label { get; set; }
+        public RECT Rect { get; set; }
         public IList<GraphObject> Objects { get; set; }
         public IList<GraphCluster> Clusters { get; set; }
         public IList<GraphRelation> Relations { get; set; }
@@ -266,10 +268,18 @@ namespace TileWindow.Extra.GraphViz
         {
             var sb = new StringBuilder();
             sb.AppendLine($"subgraph {Name} {{");
+            sb.Append("label = \"");
             if (string.IsNullOrEmpty(Label) == false)
             {
-                sb.AppendLine($"label = \"{Label}\";");
+                sb.Append($"{Label}\\n");
             }
+
+            if (Rect.Left != 0 || Rect.Top != 0 ||Rect.Bottom != 0 || Rect.Right != 0)
+            {
+                sb.Append($"{Rect}");
+            }
+
+            sb.AppendLine("\";");
 
             foreach (var o in Objects)
             {
@@ -361,6 +371,7 @@ namespace TileWindow.Extra.GraphViz
     {
         public string Name { get; set; }
         public string Label { get; set; }
+        public RECT Rect { get; set; }
         public GraphShapeEnum Shape { get; set; }
         public GraphColor Color { get; set; }
         public GraphColor FillColor { get; set; }
@@ -383,11 +394,14 @@ namespace TileWindow.Extra.GraphViz
             var sb = new StringBuilder();
             sb.Append("[shape=");
             sb.Append(Shape.ToString().ToLowerInvariant());
+            sb.Append(" width=0 height=0 margin=0");
 
             if (string.IsNullOrEmpty(Label) == false)
             {
                 sb.Append(" label=\"");
                 sb.Append(Label);
+                sb.Append("\\n");
+                sb.Append(Rect);
                 sb.Append("\"");
             }
 

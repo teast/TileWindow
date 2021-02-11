@@ -189,7 +189,7 @@ namespace TileWindow.Nodes
                 if (!show)
                 {
                     var revalidate = windowTracker.RevalidateHwnd(this, Hwnd);
-                    Log.Warning($"{this} could not show window again. goingto revalidate window... ...result: {revalidate}");
+                    Log.Warning($"{this} could not show window again. goingto revalidate window... ...result: {revalidate} (do I have a parent? {(Parent == null ? "no" : "yes")})");
                     if (revalidate == false)
                     {
                         Parent?.RemoveChild(this);
