@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.Resources;
-using System.Threading;
 using System.Windows.Forms;
 using TileWindow.Dto;
 using TileWindow.Forms;
@@ -11,8 +8,8 @@ namespace TileWindow
 {
     public sealed class NotificationIcon : IDisposable
     {
-        private NotifyIcon notifyIcon;
-        private ContextMenu notificationMenu;
+        private readonly NotifyIcon notifyIcon;
+        private readonly ContextMenuStrip notificationMenu;
         //private FormConfig frmConfig;
         private readonly ResourceManager resources = new ResourceManager(typeof(NotificationIcon));
         private readonly AppConfig _appConfig;
@@ -24,27 +21,26 @@ namespace TileWindow
             _appConfig = appConfig;
             _appResource = appResource;
             notifyIcon = new NotifyIcon();
-            notificationMenu = new ContextMenu(InitializeMenu());
+            notificationMenu = new ContextMenuStrip();
             //frmConfig = new FormConfig();
+            InitializeMenu();
 
             notifyIcon.DoubleClick += IconDoubleClick;
             notifyIcon.Icon = appResource.Icon;
 
-            notifyIcon.ContextMenu = notificationMenu;
+            notifyIcon.ContextMenuStrip = notificationMenu;
         }
 
-        private MenuItem[] InitializeMenu()
+        private void InitializeMenu()
         {
             var menu = new [] {
 				//new MenuItem(resources.GetString("Config"), menuConfigClick),
-				new MenuItem("Find hWnd", menuFindHwndClick),
-                new MenuItem("Restart hooks", menuRestartHooks),
-                new MenuItem(resources.GetString("Exit"), menuExitClick)
+				new ToolStripMenuItem("Find hWnd", null, menuFindHwndClick),
+                new ToolStripMenuItem("Restart hooks", null, menuRestartHooks),
+                new ToolStripMenuItem(resources.GetString("Exit"), null, menuExitClick)
             };
 
-            menu[0].DefaultItem = true;
-
-            return menu;
+            notificationMenu.Items.AddRange(menu);
         }
         #endregion
 
@@ -95,8 +91,6 @@ namespace TileWindow
                 {
                     // Ignore any exception from dispose
                 }
-
-                notificationMenu = null;
             }
             if (notifyIcon != null)
             {
@@ -108,10 +102,7 @@ namespace TileWindow
                 {
                     // Ignore any exception from dispose
                 }
-
-                notifyIcon = null;
             }
-
         }
     }
 }

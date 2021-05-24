@@ -16,4 +16,18 @@
   <ItemGroup>
     <ProjectReference Include="..\src\TileWindow.csproj"/>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="gherkin\features\container.feature.cs">
+      <DependentUpon>container.feature</DependentUpon>
+    </Compile>
+    <Compile Update="gherkin\features\focus.feature.cs">
+      <DependentUpon>focus.feature</DependentUpon>
+    </Compile>
+    <Compile Update="gherkin\features\move.feature.cs">
+      <DependentUpon>move.feature</DependentUpon>
+    </Compile>
+    <Compile Update="gherkin\features\resize.feature.cs">
+      <DependentUpon>resize.feature</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
