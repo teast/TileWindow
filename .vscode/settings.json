@@ -1,5 +1,14 @@
 {
     "files.exclude": {
         "**/obj/**": true
-    }
+    },
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": true
+    },
+    "cucumberautocomplete.strictGherkinCompletion": true,
+    "cucumberautocomplete.steps": [
+        "TileWindow/Tests/gherkin/steps/*.cs"
+    ]
 }
